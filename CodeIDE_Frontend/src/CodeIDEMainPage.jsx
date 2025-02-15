@@ -155,7 +155,7 @@ function MainPage() {
                         <button className="col-span-3 border rounded-xl w-30 h-10  shadow-neutral-400 shadow-md">Convert</button>
                         
                     </div>
-                    <div className="row-span-15 col-span-12 grid grid-cols-34 p-2 rounded-xl gap-5">
+                    <div className="row-span-15 col-span-12 grid grid-cols-34 p-2 rounded-xl gap-5"> style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} 
                         <div className="col-span-1"></div>
                         <textarea className="col-span-16 rounded-xl p-5 overflow-auto bg-gray-50 shadow-neutral-400 shadow-2xl" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} placeholder="Type your code here..."></textarea>
                         <div className="col-span-16 rounded-xl p-3 overflow-auto bg-gray-50 shadow-neutral-400 shadow-2xl" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} ></div>

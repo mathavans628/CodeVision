@@ -8,7 +8,7 @@ import MainPage from './CodeIDEMainPage.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     {/* <App /> */}
-    <CodeIDE_Login />
-    {/* <MainPage/> */}
+    {/* <CodeIDE_Login /> */}
+    <MainPage/>
   </StrictMode>,
 )
