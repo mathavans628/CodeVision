@@ -68,3 +68,27 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 } */
+
+#bg-blue-color{
+  background-color: #F9FAFB;
+}
+#input{
+  background-color: #F9FAFB;
+}
+
+#wholeDiv
+{
+  background-color: #1F2937;
+}
+#input{
+  background-color: #1F2937;
+}
+#textArea 
+{
+  background-color: #111827;
+}
+
+#promptTag{
+  background-color: #1F2937;
+  color:white
+}
