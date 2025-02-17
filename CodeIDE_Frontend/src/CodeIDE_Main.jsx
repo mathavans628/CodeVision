@@ -7,7 +7,7 @@ import { RiAiGenerate2 } from "react-icons/ri";
 import { SiConvertio } from "react-icons/si";
 import { useState } from 'react';
 
-function CodeIDE_MainPage() {
+function CodeIDE_Main() {
     const [theme, setTheme] = useState(true);
     const [prompt, setPrompt] = useState(true);
     const [mic, setMic] = useState(false);
@@ -28,7 +28,7 @@ function CodeIDE_MainPage() {
                     </div>
 
                     <div className='col-span-3 w-56 h-18 p-4 2xl:max-2xl:w-56 2xl:max-2xl:h-10 2xl:max-2xl:p-2.5 xl:max-2xl:h-8 xl:max-2xl:p-3 lg:max-xl:p-2.5 lg:max-xl:col-span-6 md:max-lg:p-2.5 md:max-lg:col-span-4 sm:max-md:p-2 sm:max-md:col-span-7'>
-                        <select className='w-55 h-12 p-3 border-gray-400 border rounded-xl hover:border-indigo-400 2xl:max-2xl:h-10 2xl:max-2xl:p-0.5 2xl:max-2xl:pl-2 xl:max-2xl:h-9 xl:max-2xl:p-1.5 xl:max-2xl:w-45 lg:max-xl:h-10 lg:p-1 lg:w-44 md:max-lg:h-10 md:max-lg:w-48 md:max-lg:p-1 sm:max-md:h-10 sm:max-md:p-0 sm:max-md:w-40' id="language" onChange={lang}>
+                        <select className='w-55 h-12 p-3 border-gray-400 border rounded-xl 2xl:max-2xl:h-10 2xl:max-2xl:p-0.5 2xl:max-2xl:pl-2 xl:max-2xl:h-9 xl:max-2xl:p-1.5 xl:max-2xl:w-45 lg:max-xl:h-10 lg:p-1 lg:w-44 md:max-lg:h-10 md:max-lg:w-48 md:max-lg:p-1 sm:max-md:h-10 sm:max-md:p-0 sm:max-md:w-40 cursor-pointer' id="language" onChange={lang}>
                             <option value={"js"}>Web Development</option>
                             <option value={"Java"}>Java</option>
                             <option value={"Python"}>Python</option>
@@ -39,37 +39,37 @@ function CodeIDE_MainPage() {
 
                     </div>
                     <div className='col-span-2 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-3 lg:max-xl:p-3 lg:max-xl:ml-4 lg:max-xl:col-span-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
-                        <label className='w-30 h-12 border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25  lg:max-xl:h-9 lg:max-xl:w-25 sm:max-lg:hidden block text-center p-1.5'>Import
+                        <label className='w-30 h-12 border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25  lg:max-xl:h-9 lg:max-xl:w-25 sm:max-lg:hidden block text-center p-2.5 cursor-pointer hover:shadow-2xs hover:border-indigo-400' id='buttons'>Import
                             <input type='file' className='hidden' accept='.txt'></input> 
                         </label>
                         <label>
-                            <Import className='lg:hidden md:max-lg:block h-15 w-8'/>
+                            <Import className='lg:hidden md:max-lg:block h-15 w-8 cursor-pointer'/>
                             <input type='file' className='hidden' accept='.txt'></input> 
                         </label>
                     </div>
                     <div className='col-span-2 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-3 lg:max-xl:p-3 lg:max-xl:ml-4 lg:max-xl:col-span-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
-                        <button className='w-30 h-12 border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25  lg:max-xl:h-9 lg:max-xl:w-25 sm:max-lg:hidden block'>Export</button>
-                        <CgExport className='lg:hidden md:max-lg:block h-13 w-8 ' />
+                        <button className='w-30 h-12 border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25  lg:max-xl:h-9 lg:max-xl:w-25 sm:max-lg:hidden block cursor-pointer' id='buttons'>Export</button>
+                        <CgExport className='lg:hidden md:max-lg:block h-13 w-8 cursor-pointer' />
                     </div>
                     <div className='col-span-2 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 lg:max-xl:p-3 xl:max-2xl:p-3 lg:max-xl:ml-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
-                        <button className='w-30 h-12 border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25  lg:max-xl:h-9 lg:max-xl:w-25 sm:max-lg:hidden block'>Beautify</button>
-                        <PiButterflyFill className='lg:hidden md:max-lg:block h-13 w-8 ' />
+                        <button className='w-30 h-12 border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25  lg:max-xl:h-9 lg:max-xl:w-25 sm:max-lg:hidden block cursor-pointer' id="buttons">Beautify</button>
+                        <PiButterflyFill className='lg:hidden md:max-lg:block h-13 w-8 cursor-pointer' />
                     </div>
                     <div className='col-span-7 xl:max-2xl:col-span-6 md:max-lg:col-span-2  sm:max-md:col-span-3'></div>
                     <div className='col-span-1 p-5 w-17 h-17 2xl:max-2xl:h-10 2xl:max-2xl:p-3 xl:max-2xl:p-3 xl:max-2xl:h-8 lg:max-xl:p-3 md:max-lg:p-4 md:max-lg:col-span-1 sm:max-md:p-2.5  sm:max-md:col-span-2' onClick={() => setTheme(!theme)}>
-                        {theme && <Moon className='w-8 h-8 xl:max-2xl:h-8 xl:max-2xl:w-7 md:max-lg:max-lg:h-7 md:max-lg:max-lg:w-7' />}
+                        {theme && <Moon className='w-8 h-8 xl:max-2xl:h-8 xl:max-2xl:w-7 md:max-lg:max-lg:h-7 md:max-lg:max-lg:w-7 cursor-pointer' />}
 
                     </div>
                     <div className='col-span-2 w-40 h-15 p-4 2xl:max-2xl:p-2.5 lg:max-xl:col-span-4 lg:max-xl:ml-4 lg:max-xl:p-3 md:max-lg:col-span-1 md:max-lg:p-0.5  sm:max-md:p-0'>
-                        <button className='w-30 h-12 border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:w-25 xl:max-2xl:h-9  lg:max-xl:h-9 lg:max-xl:w-25 sm:max-lg:hidden block'>Save</button>
-                        <MdOutlineSave className='md:max-lg:block lg:hidden h-13 w-8 ' />
+                        <button className='w-30 h-12 border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:w-25 xl:max-2xl:h-9  lg:max-xl:h-9 lg:max-xl:w-25 sm:max-lg:hidden block cursor-pointer'id='buttons'>Save</button>
+                        <MdOutlineSave className='md:max-lg:block lg:hidden h-13 w-8 cursor-pointer' />
                     </div>
                     <div className='col-span-2 w-45 h-15 p-4 2xl:max-2xl:p-2.5 lg:max-xl:ml-4 lg:max-xl:p-3 lg:max-xl:col-span-3 sm:max-lg:hidden block' onClick={() => setPrompt(!prompt)}>
                         {prompt &&
-                            <button className='w-30 h-12 border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:w-29 xl:max-2xl:h-9 lg:max-xl:h-9 lg:max-xl:w-25'>Hide Prompt</button>
+                            <button className='w-30 h-12 border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:w-29 xl:max-2xl:h-9 lg:max-xl:h-9 lg:max-xl:w-25 cursor-pointer' id='buttons'>Hide Prompt</button>
                         }
                         {!prompt &&
-                            <button className='w-30 h-12  border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:w-29 xl:max-2xl:h-9  lg:max-xl:h-9 lg:max-xl:w-25'>Show Prompt</button>
+                            <button className='w-30 h-12  border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:w-29 xl:max-2xl:h-9  lg:max-xl:h-9 lg:max-xl:w-25 cursor-pointer' id='buttons'>Show Prompt</button>
                         }
                     </div>
 
@@ -80,17 +80,17 @@ function CodeIDE_MainPage() {
                             <input className='p-2 rounded-xl border-gray-300 border w-6xl h-13 2xl:max-2xl:h-10 2xl:max-2xl:w-5xl xl:max-2xl:h-10 xl:max-2xl:w-3xl lg:max-xl:h-10 lg:max-xl:w-xl md:max-lg:h-10 md:max-lg:w-3xs sm:max-md:w-xs sm:max-md:h-10' placeholder='Enter your prompt here...'></input>
                         </div>
                         <div className='col-span-3 p-5 w-17 h-17 2xl:max-2xl:13 2xl:max-2xl:p-2.5 xl:max-2xl:p-3 xl:max-2xl:col-span-2 lg:max-xl:p-2.5 md:max-lg:p-2.5 md:max-lg:col-span-8 sm:max-md:p-3.5 sm:max-md:col-span-6' onClick={() => setMic(!mic)}>
-                            {mic && <Mic className='w-8 h-8 xl:max-2xl:h-7 md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7' />}
-                            {!mic && <MicOff className='w-8 h-8 xl:max-2xl:h-7 md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7' />}
+                            {mic && <Mic className='w-8 h-8 xl:max-2xl:h-7 md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7 cursor-pointer' />}
+                            {!mic && <MicOff className='w-8 h-8 xl:max-2xl:h-7 md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7 cursor-pointer' />}
 
                         </div>
                         <div className='col-span-2 w-40 h-15 p-4 2xl:max-2xl:p-2.5 xl:max-2xl:p-2 lg:max-xl:col-span-3 lg:max-xl:p-3 md:max-lg:p-2 md:max-lg:col-span-4 sm:max-md:p-1'>
-                            <button className='w-30 h-12 rounded-xl border-gray-400 border 2xl:max-2xl:h-10 xl:max-2xl:h-10 lg:max-xl:h-9 lg:max-xl:w-25 md:max-lg:w-23 md:max-lg:h-10 sm:max-md:hidden block'>Generate</button>
-                            <RiAiGenerate2 className='sm:max-md:block md:hidden h-13 w-8 ' />
+                            <button className='w-30 h-12 rounded-xl border-gray-400 border 2xl:max-2xl:h-10 xl:max-2xl:h-10 lg:max-xl:h-9 lg:max-xl:w-25 md:max-lg:w-23 md:max-lg:h-10 sm:max-md:hidden block cursor-pointer' id='buttons'>Generate</button>
+                            <RiAiGenerate2 className='sm:max-md:block md:hidden h-13 w-8 cursor-pointer' />
                         </div>
                         <div className='col-span-2 w-40 h-15 p-4 2xl:max-2xl:p-2.5 xl:max-2xl:p-2 xl:max-2xl:ml-7 lg:max-xl:p-3 md:max-lg:p-2 sm:max-md:p-1'>
-                            <button className='w-30 h-12 border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:h-10 lg:max-xl:h-9 lg:max-xl:w-25 md:max-lg:w-23 md:max-lg:h-10 sm:max-md:hidden block'>Convert</button>
-                            <SiConvertio className='sm:max-md:block md:hidden h-13 w-7 '/>
+                            <button className='w-30 h-12 border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:h-10 lg:max-xl:h-9 lg:max-xl:w-25 md:max-lg:w-23 md:max-lg:h-10 sm:max-md:hidden block cursor-pointer' id='buttons'>Convert</button>
+                            <SiConvertio className='sm:max-md:block md:hidden h-13 w-7 cursor-pointer'/>
                         </div>
                     </div>
                 }
@@ -102,17 +102,17 @@ function CodeIDE_MainPage() {
 
                             {selectedLanguge != "js" ?
                                 <div className='grid grid-cols-10 xl:max-2xl:grid-cols-7 md:max-lg:grid-cols-12 md:max-lg:p-0.5 sm:max-md:grid-cols-13'>
-                                    <p className='bg-gray-200 col-span-9 w-30 h-12 text-center rounded-xl p-3 xl:max-2xl:col-span-4 lg:max-xl:col-span-2 md:max-lg:col-span-9 md:max-lg:h-11 md:max-lg:rounded-md sm:max-md:col-span-7'>{selectedLanguge}</p>
-                                    <button className='w-30 h-10 bg-green-600 shadow-md rounded-md'>Run</button>
+                                    <p className='bg-gray-200 w-30 h-12 col-span-9 text-center rounded-xl p-3 xl:max-2xl:col-span-4 lg:max-xl:col-span-2 md:max-lg:col-span-9 md:max-lg:h-11 md:max-lg:rounded-md sm:max-md:col-span-7'>{selectedLanguge}</p>
+                                    <button className='w-30 h-10 bg-green-600 shadow-md rounded-md cursor-pointer text-white'>Run</button>
                                 </div> :
                                 <div className='grid grid-cols-10 gap-1 2xl:max-2xl:gap-0 xl:max-2xl:grid-cols-14 lg:max-xl:grid-cols-18 md:max-lg:grid-cols-12 sm:max-md:grid-cols-16 sm:max-lg:h-12'>
-                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 lg:max-xl:w-16 lg:max-xl:col-span-2 sm:max-lg:hidden block'>HTML</button>
-                                    <button className='hidden sm:max-lg:block w-10 md:max-lg:col-span-1'><BsFiletypeHtml className='w-8 h-8' /></button>
-                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 lg:max-xl:w-16 lg:max-xl:col-span-2 sm:max-lg:hidden block'>CSS</button>
-                                    <button className='hidden sm:max-lg:block w-10 md:max-lg:col-span-1'><BsFiletypeCss className='w-8 h-8' /></button>
-                                    <button className='w-30 h-10 shadow-md rounded-md col-span-5 bg-gray-200 2xl:max-2xl:col-span-4 xl:max-2xl:col-span-4 lg:max-xl:col-span-4 lg:max-xl:w-27 sm:max-lg:hidden block'>JAVASCRIPT</button>
-                                    <button className='hidden sm:max-lg:block w-10 md:max-lg:col-span-7 sm:max-md:col-span-7'><PiFileJs className='w-8 h-8' /></button>
-                                    <button className='w-30 h-10 bg-green-600 shadow-md rounded-md lg:max-xl:w-23'>Run</button>
+                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 lg:max-xl:w-16 lg:max-xl:col-span-2 sm:max-lg:hidden block cursor-pointer'>HTML</button>
+                                    <button className='hidden sm:max-lg:block w-10 md:max-lg:col-span-1'><BsFiletypeHtml className='w-8 h-8 cursor-pointer' /></button>
+                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 lg:max-xl:w-16 lg:max-xl:col-span-2 sm:max-lg:hidden block cursor-pointer'>CSS</button>
+                                    <button className='hidden sm:max-lg:block w-10 md:max-lg:col-span-1'><BsFiletypeCss className='w-8 h-8 cursor-pointer' /></button>
+                                    <button className='w-30 h-10 shadow-md rounded-md col-span-5 bg-gray-200 2xl:max-2xl:col-span-4 xl:max-2xl:col-span-4 lg:max-xl:col-span-4 lg:max-xl:w-27 sm:max-lg:hidden block cursor-pointer'>JAVASCRIPT</button>
+                                    <button className='hidden sm:max-lg:block w-10 md:max-lg:col-span-7 sm:max-md:col-span-7'><PiFileJs className='w-8 h-8 cursor-pointer' /></button>
+                                    <button className='w-30 h-10 bg-green-600 shadow-md rounded-md lg:max-xl:w-23 cursor-pointer text-white'>Run</button>
                                 </div>
                             }
                         </div>
@@ -128,8 +128,8 @@ function CodeIDE_MainPage() {
                                     <p className='bg-gray-200 w-30 h-12 text-center rounded-xl p-3 md:max-lg:h-11 md:max-lg:rounded-md md:max-lg:mb-2'>Console</p>
                                 </div> :
                                 <div className='grid grid-cols-10 gap-1 md:max-lg:p-1 sm:max-lg:h-12'>
-                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 md:max-lg:h-10 md:max-lg:w-20'>Preview</button>
-                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 md:max-lg:h-10 md:max-lg:w-20'>Console</button>
+                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 md:max-lg:h-10 md:max-lg:w-20 cursor-pointer'>Preview</button>
+                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 md:max-lg:h-10 md:max-lg:w-20 cursor-pointer'>Console</button>
                                 </div>
                             }
                         </div>
@@ -148,7 +148,7 @@ function CodeIDE_MainPage() {
                     </div>
 
                     <div className='col-span-3 w-56 h-18 p-4 2xl:max-2xl:w-56 2xl:max-2xl:h-10 2xl:max-2xl:p-2.5 xl:max-2xl:h-8 xl:max-2xl:p-3 lg:max-xl:p-2.5 lg:max-xl:col-span-6 md:max-lg:p-2.5 md:max-lg:col-span-4 sm:max-md:p-2 sm:max-md:col-span-7'>
-                        <select className='w-55 h-12 p-3 border-gray-300 border rounded-xl hover:border-indigo-400 text-white 2xl:max-2xl:h-10 2xl:max-2xl:p-0.5 2xl:max-2xl:pl-2 xl:max-2xl:h-9 xl:max-2xl:p-1.5 xl:max-2xl:w-45 lg:max-xl:h-10 lg:max-xl:p-1 lg:max-xl:w-44 md:max-lg:h-10 md:max-lg:w-48 md:max-lg:p-1 sm:max-md:h-10 sm:max-md:p-0 sm:max-md:w-40' id="language" onChange={lang}>
+                        <select className='w-55 h-12 p-3 border-gray-300 border rounded-xl hover:border-indigo-400 text-white 2xl:max-2xl:h-10 2xl:max-2xl:p-0.5 2xl:max-2xl:pl-2 xl:max-2xl:h-9 xl:max-2xl:p-1.5 xl:max-2xl:w-45 lg:max-xl:h-10 lg:max-xl:p-1 lg:max-xl:w-44 md:max-lg:h-10 md:max-lg:w-48 md:max-lg:p-1 sm:max-md:h-10 sm:max-md:p-0 sm:max-md:w-40  cursor-pointer' id="language" onChange={lang}>
                             <option value={"js"} className='text-black'>Web Development</option>
                             <option value={"java"} className='text-black'>Java</option>
                             <option value={"python"} className='text-black'>Python</option>
@@ -156,37 +156,37 @@ function CodeIDE_MainPage() {
                         </select>
                     </div>
                     <div className='col-span-2 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-3 lg:max-xl:p-3 lg:max-xl:ml-4 lg:max-xl:col-span-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
-                        <label className='w-30 h-12 border-gray-400 border text-white rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25  lg:max-xl:h-9 lg:max-xl:w-25 sm:max-lg:hidden block text-center p-1.5'>Import
+                        <label className='w-30 h-12 border-gray-400 border text-white rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25  lg:max-xl:h-9 lg:max-xl:w-25 sm:max-lg:hidden block text-center p-2.5  cursor-pointer'>Import
                             <input type='file' className='hidden' accept='.txt'></input> 
                         </label>
                         <label>
-                            <Import className='lg:hidden md:max-lg:block h-15 w-8 text-white'/>
+                            <Import className='lg:hidden md:max-lg:block h-15 w-8 text-white  cursor-pointer'/>
                             <input type='file' className='hidden' accept='.txt'></input> 
                         </label>
                     </div>
                     <div className='col-span-2 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-3 lg:max-xl:p-3 lg:max-xl:ml-4 lg:max-xl:col-span-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
-                        <button className='w-30 h-12 border-gray-400 border rounded-xl text-white 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25  lg:max-xl:h-9 lg:max-xl:w-25 md:max-lg:hidden  sm:max-lg:hidden block'>Export</button>
-                        <CgExport className='hidden sm:max-lg:block h-13 w-8 text-white' />
+                        <button className='w-30 h-12 border-gray-400 border rounded-xl text-white 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25  lg:max-xl:h-9 lg:max-xl:w-25 md:max-lg:hidden  sm:max-lg:hidden block  cursor-pointer'>Export</button>
+                        <CgExport className='hidden sm:max-lg:block h-13 w-8 text-white  cursor-pointer' />
                     </div>
                     <div className='col-span-2 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-3 lg:max-xl:p-3 lg:max-xl:ml-4 lg:max-xl:col-span-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
-                        <button className='w-30 h-12 rounded-xl border-gray-400 border text-white 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25  lg:max-xl:h-9 lg:max-xl:w-25 md:max-lg:hidden  sm:max-lg:hidden block'>Beautify</button>
-                        <PiButterflyFill className='hidden sm:max-lg:block h-13 w-8 text-white' />
+                        <button className='w-30 h-12 rounded-xl border-gray-400 border text-white 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25  lg:max-xl:h-9 lg:max-xl:w-25 md:max-lg:hidden  sm:max-lg:hidden block  cursor-pointer'>Beautify</button>
+                        <PiButterflyFill className='hidden sm:max-lg:block h-13 w-8 text-white  cursor-pointer' />
                     </div>
                     <div className='col-span-7 xl:max-2xl:col-span-6 lg:max-xl:col-span-4 md:max-lg:col-span-2  sm:max-md:col-span-3'></div>
                     <div className='col-span-1 p-5 w-17 h-17 2xl:max-2xl:h-10 2xl:max-2xl:p-3 xl:max-2xl:p-3 xl:max-2xl:h-8 lg:max-xl:p-3 md:max-lg:p-4 md:max-lg:col-span-1 sm:max-md:p-2.5  sm:max-md:col-span-2' onClick={() => setTheme(!theme)}>
-                        {!theme && <Sun className='w-8 h-8 xl:max-2xl:h-8 xl:max-2xl:w-7  md:max-lg:h-7 md:max-lg:w-7 text-white' />}
+                        {!theme && <Sun className='w-8 h-8 xl:max-2xl:h-8 xl:max-2xl:w-7  md:max-lg:h-7 md:max-lg:w-7 text-white  cursor-pointer' />}
 
                     </div>
                     <div className='col-span-2 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 lg:max-xl:col-span-4 lg:max-xl:ml-4 lg:max-xl:p-3 md:max-lg:col-span-1 md:max-lg:p-0.5  sm:max-md:p-0'>
-                        <button className='w-30 h-12 border-gray-400 border rounded-xl text-white 2xl:max-2xl:h-10 xl:max-2xl:w-25 xl:max-2xl:h-9  lg:max-xl:h-9 lg:max-xl:w-25 md:max-lg:hidden sm:max-lg:hidden block'>Save</button>
-                        <MdOutlineSave className='sm:max-lg:block hidden h-13 w-8 text-white' />
+                        <button className='w-30 h-12 border-gray-400 border rounded-xl text-white 2xl:max-2xl:h-10 xl:max-2xl:w-25 xl:max-2xl:h-9  lg:max-xl:h-9 lg:max-xl:w-25 md:max-lg:hidden sm:max-lg:hidden block  cursor-pointer'>Save</button>
+                        <MdOutlineSave className='sm:max-lg:block hidden h-13 w-8 text-white  cursor-pointer' />
                     </div>
                     <div className='col-span-2 w-45 h-15 p-4 text-white 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 lg:max-xl:ml-4 lg:max-xl:p-3 lg:max-xl:col-span-3 md:max-lg:hidden sm:max-lg:hidden block' onClick={() => setPrompt(!prompt)}>
                         {prompt &&
-                            <button className='w-30 h-12  border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:w-29 xl:max-2xl:h-9  lg:max-xl:h-9 lg:max-xl:w-27'>Hide Prompt</button>
+                            <button className='w-30 h-12  border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:w-29 xl:max-2xl:h-9  lg:max-xl:h-9 lg:max-xl:w-27  cursor-pointer'>Hide Prompt</button>
                         }
                         {!prompt &&
-                            <button className='w-30 h-12  border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:w-29 xl:max-2xl:h-9  lg:max-xl:h-9 lg:max-xl:w-27'>Show Prompt</button>
+                            <button className='w-30 h-12  border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:w-29 xl:max-2xl:h-9  lg:max-xl:h-9 lg:max-xl:w-27  cursor-pointer'>Show Prompt</button>
                         }
                     </div>
                 </div>
@@ -196,17 +196,17 @@ function CodeIDE_MainPage() {
                             <input className='p-2 rounded-xl border-gray-300 border w-6xl h-13 2xl:max-2xl:h-10 2xl:max-2xl:w-5xl xl:max-2xl:h-10 xl:max-2xl:w-3xl lg:max-xl:h-10 lg:max-xl:w-xl md:max-lg:h-10 md:max-lg:w-3xs sm:max-md:w-xs sm:max-md:h-10' id='promptTag' placeholder='Enter your prompt here...'></input>
                         </div>
                         <div className='col-span-3 p-5 w-17 h-17 2xl:max-2xl:13 2xl:max-2xl:p-2.5 xl:max-2xl:p-3 xl:max-2xl:col-span-2 lg:max-xl:p-2.5 md:max-lg:p-2.5 md:max-lg:col-span-8 sm:max-md:p-3.5 sm:max-md:col-span-6' onClick={() => setMic(!mic)}>
-                            {mic && <Mic className='w-8 h-8 xl:max-2xl:h-7 text-white md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7' />}
-                            {!mic && <MicOff className='w-8 h-8 xl:max-2xl:h-7 text-white md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7' />}
+                            {mic && <Mic className='w-8 h-8 xl:max-2xl:h-7 text-white md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7  cursor-pointer' />}
+                            {!mic && <MicOff className='w-8 h-8 xl:max-2xl:h-7 text-white md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7  cursor-pointer' />}
 
                         </div>
                         <div className='col-span-2 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-2 lg:max-xl:col-span-3 lg:max-xl:p-3 md:max-lg:p-2 md:max-lg:col-span-4 sm:max-md:p-1'>
-                            <button className='w-30 h-12 rounded-xl border-gray-400 border text-white 2xl:max-2xl:h-10 xl:max-2xl:h-10  lg:max-xl:h-9 lg:max-xl:w-25 md:max-lg:w-23 md:max-lg:h-10 sm:max-md:hidden block'>Generate</button>
-                            <RiAiGenerate2 className='sm:max-md:block md:hidden h-13 w-8 text-white' />
+                            <button className='w-30 h-12 rounded-xl border-gray-400 border text-white 2xl:max-2xl:h-10 xl:max-2xl:h-10  cursor-pointer  lg:max-xl:h-9 lg:max-xl:w-25 md:max-lg:w-23 md:max-lg:h-10 sm:max-md:hidden block'>Generate</button>
+                            <RiAiGenerate2 className='sm:max-md:block md:hidden h-13 w-8 text-white  cursor-pointer' />
                         </div>
                         <div className='col-span-2 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-2 lg:max-xl:p-3 md:max-lg:p-2 sm:max-md:p-1'>
-                            <button className='w-30 h-12 border-gray-400 border rounded-xl text-white 2xl:max-2xl:h-10 xl:max-2xl:h-10 xl:max-2xl:ml-7  lg:max-xl:h-9 lg:max-xl:w-25 md:max-lg:w-23 md:max-lg:h-10 sm:max-md:hidden block'>Convert</button>
-                            <SiConvertio className='sm:max-md:block md:hidden h-13 w-7 text-white'/>
+                            <button className='w-30 h-12 border-gray-400 border rounded-xl text-white 2xl:max-2xl:h-10 xl:max-2xl:h-10  cursor-pointer xl:max-2xl:ml-7  lg:max-xl:h-9 lg:max-xl:w-25 md:max-lg:w-23 md:max-lg:h-10 sm:max-md:hidden block'>Convert</button>
+                            <SiConvertio className='sm:max-md:block md:hidden h-13 w-7 text-white  cursor-pointer'/>
                         </div>
                     </div>
                 }
@@ -219,16 +219,16 @@ function CodeIDE_MainPage() {
                             {selectedLanguge != "js" ?
                                 <div className='grid grid-cols-10 xl:max-2xl:grid-cols-7 md:max-lg:grid-cols-12 md:max-lg:p-0.5 sm:max-md:grid-cols-13'>
                                     <p className='bg-gray-200 col-span-9 w-30 h-12 text-center rounded-xl p-3 xl:max-2xl:col-span-4 lg:max-xl:col-span-2 md:max-lg:col-span-8 md:max-lg:h-11 md:max-lg:rounded-md sm:max-md:col-span-7'>{selectedLanguge}</p>
-                                    <button className='w-30 h-10 bg-green-600 shadow-md text-white rounded-md'>Run</button>
+                                    <button className='w-30 h-10 bg-green-600 shadow-md text-white rounded-md  cursor-pointer'>Run</button>
                                 </div> :
                                 <div className='grid grid-cols-10 gap-1 2xl:max-2xl:gap-0 xl:max-2xl:grid-cols-14 lg:max-xl:grid-cols-18 md:max-lg:grid-cols-12 sm:max-md:grid-cols-16 sm:max-lg:h-12'>
-                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 lg:max-xl:w-16 lg:max-xl:col-span-2 sm:max-lg:hidden block'>HTML</button>
-                                    <button className='hidden sm:max-lg:block w-10 md:max-lg:col-span-1'><BsFiletypeHtml className='w-8 h-8 text-white' /></button>
-                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 lg:max-xl:w-16 lg:max-xl:col-span-2 sm:max-lg:hidden block'>CSS</button>
-                                    <button className='hidden sm:max-lg:block w-10 md:max-lg:col-span-1'><BsFiletypeCss className='w-8 h-8 text-white' /></button>
-                                    <button className='w-30 h-10 shadow-md rounded-md col-span-5 bg-gray-200 2xl:max-2xl:col-span-4 xl:max-2xl:col-span-4 lg:max-xl:col-span-4 lg:max-xl:w-27 sm:max-lg:hidden block'>JAVASCRIPT</button>
-                                    <button className='hidden sm:max-lg:block w-10 md:max-lg:col-span-7'><PiFileJs className='w-8 h-8 text-white' /></button>
-                                    <button className='w-30 h-10 bg-green-600 shadow-md text-white rounded-md lg:max-xl:w-23'>Run</button>
+                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 lg:max-xl:w-16 lg:max-xl:col-span-2 sm:max-lg:hidden block  cursor-pointer'>HTML</button>
+                                    <button className='hidden sm:max-lg:block w-10 md:max-lg:col-span-1'><BsFiletypeHtml className='w-8 h-8 text-white  cursor-pointer' /></button>
+                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 lg:max-xl:w-16 lg:max-xl:col-span-2 sm:max-lg:hidden block  cursor-pointer'>CSS</button>
+                                    <button className='hidden sm:max-lg:block w-10 md:max-lg:col-span-1'><BsFiletypeCss className='w-8 h-8 text-white  cursor-pointer' /></button>
+                                    <button className='w-30 h-10 shadow-md rounded-md col-span-5 bg-gray-200 2xl:max-2xl:col-span-4 xl:max-2xl:col-span-4 lg:max-xl:col-span-4 lg:max-xl:w-27 sm:max-lg:hidden block  cursor-pointer'>JAVASCRIPT</button>
+                                    <button className='hidden sm:max-lg:block w-10 md:max-lg:col-span-7'><PiFileJs className='w-8 h-8 text-white  cursor-pointer' /></button>
+                                    <button className='w-30 h-10 bg-green-600 shadow-md text-white rounded-md lg:max-xl:w-23  cursor-pointer'>Run</button>
                                 </div>
                             }
                         </div>
@@ -244,8 +244,8 @@ function CodeIDE_MainPage() {
                                     <p className='bg-gray-200 w-30 h-12 text-center rounded-xl p-3 md:max-lg:max-lg:h-11 md:max-lg:max-lg:rounded-md md:max-lg:max-lg:mb-2'>Console</p>
                                 </div> :
                                 <div className='grid grid-cols-10 gap-1 md:max-lg:p-1 sm:max-lg:h-12'>
-                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 md:max-lg:h-10 md:max-lg:w-20'>Preview</button>
-                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 md:max-lg:h-10 md:max-lg:w-20'>Console</button>
+                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 md:max-lg:h-10 md:max-lg:w-20  cursor-pointer'>Preview</button>
+                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 md:max-lg:h-10 md:max-lg:w-20  cursor-pointer'>Console</button>
                                 </div>
                             }
                         </div>
@@ -258,6 +258,6 @@ function CodeIDE_MainPage() {
 
 }
 
-export default CodeIDE_MainPage
+export default CodeIDE_Main
 
 
