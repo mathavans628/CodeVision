@@ -1,11 +1,15 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import LoginFetch from './Fetch/LoginFetch';
 
 function CodeIDE_Login() {
     const [isLogin, setIsLogin] = useState(true);
-    const [showPassword, setShowPassword] = useState(true);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(true);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [focusedField, setFocusedField] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [forgotPassword, setForgotPassword] = useState(false);
+
 
     const [formData, setFormData] = useState({
         name: "",
@@ -26,49 +30,48 @@ function CodeIDE_Login() {
     });
 
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordPattern = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
     const handleInputChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
-        setErrors(prev => ({ ...prev, [field]: "" }));
+        const error = validateField(field);
+        setErrors(prev => ({ ...prev, [field]: error }));
     };
 
     const validateField = (field) => {
+        if (isLogin) return ""; 
+    
         switch (field) {
             case 'name':
-                if (!formData.name && !isLogin) return "Name is required";
-                break;
+                return formData.name ? "" : "Name is required";
             case 'email':
                 if (!formData.email) return "Email is required";
-                if (!emailPattern.test(formData.email)) return "Enter a valid email";
-                break;
+                return emailPattern.test(formData.email) ? "" : "Enter a valid email";
             case 'password':
                 if (!formData.password) return "Password is required";
-                if (!passwordPattern.test(formData.password)) 
-                    return "Password must be 8+ characters with uppercase, symbol & number";
-                break;
+                return passwordPattern.test(formData.password) 
+                    ? "" 
+                    : "Password must be 8+ characters with uppercase, symbol & number";
             case 'confirmPassword':
-                if (!formData.confirmPassword && !isLogin) return "Confirm password is required";
-                if (formData.password !== formData.confirmPassword && !isLogin) 
-                    return "Passwords do not match";
-                break;
+                if (!formData.confirmPassword) return "Confirm password is required";
+                return formData.password === formData.confirmPassword 
+                    ? "" 
+                    : "Passwords do not match";
             case 'securityQuestion':
-                if (!formData.securityQuestion && !isLogin) return "Security question is required";
-                break;
+                return formData.securityQuestion ? "" : "Security question is required";
             case 'securityAnswer':
-                if (!formData.securityAnswer && !isLogin) return "Security answer is required";
-                break;
+                return formData.securityAnswer ? "" : "Security answer is required";
             default:
                 return "";
         }
-        return "";
-    };
+    };    
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
+        setLoading(true);
         const newErrors = {};
         let hasErrors = false;
         const fieldsToValidate = isLogin ? ['email', 'password'] : Object.keys(formData);
-
+    
         fieldsToValidate.forEach(field => {
             const error = validateField(field);
             if (error) {
@@ -76,13 +79,34 @@ function CodeIDE_Login() {
                 hasErrors = true;
             }
         });
+        
+        console.log(isLogin);
+        
 
         setErrors(newErrors);
-
+    
         if (!hasErrors) {
-            alert(isLogin ? "Logged in successfully!" : "Account created successfully!");
+            try {
+                const response = await LoginFetch(formData, isLogin);
+                if (response.success) {
+                    alert(isLogin ? "Logged in successfully!" : "Account created successfully!");
+                } else {
+                    alert(response.message || "Something went wrong!");
+                }
+            } catch (error) {
+                alert("Error connecting to the server!");
+            }
         }
-    };
+        else{
+            console.log("===>" + hasErrors);
+            
+        }
+        setLoading(false);
+
+        <button disabled={loading} className="w-full bg-blue-500 text-white text-lg">
+            {loading ? 'Processing...' : (isLogin ? 'Login' : 'Sign Up')}
+        </button>
+    };    
 
     const securityQuestions = [
         "What was the name of your pet?",
@@ -172,16 +196,17 @@ function CodeIDE_Login() {
                                 onFocus={() => setFocusedField("email")}
                                 onBlur={() => setFocusedField("")}
                                 className={getInputClassName("email")}
+                                aria-describedby="emailError"
                             />
                             {errors.email && (
-                                <p className="text-red-500 text-xs md:text-sm mt-1">{errors.email}</p>
+                                <p id="emailError" className="text-red-500 text-xs md:text-sm mt-1">{errors.email}</p>
                             )}
                         </div>
 
                         <div>
                             <div className="relative">
                                 <input
-                                    type={showPassword ? "password" : "text"}
+                                    type={showPassword ? "text" : "password"}
                                     placeholder="Password"
                                     value={formData.password}
                                     onChange={(e) => handleInputChange('password', e.target.value)}
@@ -207,7 +232,7 @@ function CodeIDE_Login() {
                                 <div>
                                     <div className="relative">
                                         <input
-                                            type={showConfirmPassword ? "password" : "text"}
+                                            type={showConfirmPassword ? "text" : "password"}
                                             placeholder="Confirm Password"
                                             value={formData.confirmPassword}
                                             onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
@@ -235,9 +260,8 @@ function CodeIDE_Login() {
                                             onChange={(e) => handleInputChange('securityQuestion', e.target.value)}
                                             onFocus={() => setFocusedField("securityQuestion")}
                                             onBlur={() => setFocusedField("")}
-                                            className={`${getInputClassName("securityQuestion")} appearance-none`}
-                                        >
-                                            <option value="">Select a security question</option>
+                                            className={`${getInputClassName("securityQuestion")} appearance-none`}>
+                                            <option value="" disabled className="text-gray-400">Select a forgot password question</option>
                                             {securityQuestions.map((question, index) => (
                                                 <option key={index} value={question}>
                                                     {question}
@@ -249,8 +273,7 @@ function CodeIDE_Login() {
                                                 className="w-5 h-5 text-gray-400"
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 viewBox="0 0 20 20"
-                                                fill="currentColor"
-                                            >
+                                                fill="currentColor">
                                                 <path
                                                     fillRule="evenodd"
                                                     d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
@@ -285,17 +308,25 @@ function CodeIDE_Login() {
                             onClick={handleSubmit}
                             className="w-full bg-blue-500 text-white text-lg md:text-xl font-semibold px-6 py-3 rounded-lg
                             hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 
-                            transition-all duration-300 shadow-md mt-6"
-                        >
+                            transition-all duration-300 shadow-md mt-6">
                             {isLogin ? 'Login' : 'Sign Up'}
                         </button>
+
+                        {isLogin && !forgotPassword && (
+                            <div className="flex justify-end">
+                                <button
+                                    onClick={() => setForgotPassword(true)}
+                                    className="text-blue-500 hover:text-blue-600 underline font-medium">
+                                    Forgot your password?
+                                </button>
+                             </div>
+                        )}
 
                         <p className="text-center text-gray-600 text-sm md:text-base mt-4">
                             {isLogin ? "Don't have an account? " : "Already have an account? "}
                             <button
                                 onClick={() => setIsLogin(!isLogin)}
-                                className="text-blue-500 hover:text-blue-600 font-medium"
-                            >
+                                className="text-blue-500 hover:text-blue-600 font-medium">
                                 {isLogin ? 'Sign Up' : 'Login'}
                             </button>
                         </p>
