@@ -16,48 +16,62 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
-@WebServlet("/SpeechToTextConvertServlet")
+@WebServlet("/SpeechToTextConvertServlet/*")
+//@WebServlet("/SpeechToTextConvertServlet/*")
 public class SpeechToTextConvertServlet extends HttpServlet {
+    private static WebDriver driver;
     private static final long serialVersionUID = 1L;
 
-    public SpeechToTextConvertServlet() {
-        super();
-    }
-
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    static {
         WebDriverManager.chromedriver().setup();
-        
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--use-fake-device-for-media-stream");
         options.addArguments("--use-fake-ui-for-media-stream");
-        WebDriver driver = new ChromeDriver(options);
+        driver = new ChromeDriver(options);
+    }
 
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        driver.get("http://localhost:5178");
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String path = request.getPathInfo();
+        if ("/StopRecording".equals(path)) {
+            stopRecording(request, response);
+            return;
+        }
 
         try {
-            WebElement startRecord = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"root\"]/div/div[1]/button[2]")));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            driver.get("http://localhost:5178");
+
+            WebElement startRecord = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id='root']/div/div[1]/button[2]")));
             startRecord.click();
+        } catch (Exception e) {
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            response.getWriter().write("Error starting recording: " + e.getMessage());
+        }
+    }
 
-            Thread.sleep(5000);
-
-            WebElement stopRecord = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"root\"]/div/div[1]/button[2]")));
+    private void stopRecording(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        try {
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+            WebElement stopRecord = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id='root']/div/div[1]/button[3]")));
             stopRecord.click();
 
-            WebElement saveButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"root\"]/div/div[1]/button[1]")));
+            WebElement saveButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id='root']/div/div[1]/button[1]")));
             saveButton.click();
 
-            WebElement resultText = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id=\"root\"]/div/div[2]/p")));
+            WebElement resultText = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id='root']/div/div[2]/p")));
             String result = resultText.getText();
 
-            response.setContentType("text/plain");
-            response.getWriter().write("Result Text: " + result);
-
+            String jsonResponse = "{ \"candidates\": [ { \"content\": { \"parts\": [ \"" + result + "\" ] } } ] }";
+            response.getWriter().write(jsonResponse);
         } catch (Exception e) {
-            System.out.println("Error: " + e.getMessage());
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("An error occurred while processing the request.");
-        } finally {
+            response.getWriter().write("Error stopping recording: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void destroy() {
+        if (driver != null) {
             driver.quit();
         }
     }
