@@ -41,19 +41,14 @@ function CodeIDE_Main() {
                     'Content-Type': 'application/json',
                 }
             });
-            console.log("Resp: "+response);
-
-            const result = await response.text(); 
-            getOutput = result;
-            console.log(result);  
-            await output()
         } catch (error) {
             console.error('Error:', error);
         }
     }
 
     const output = async () => {
-        console.log("In")
+        console.log("Result: " + getOutput);
+        
         const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBGFGKKQmRAtoyVR2IfaNfLv3G5XxH2Apg",{
             method: 'POST',
             headers : {
@@ -80,6 +75,32 @@ function CodeIDE_Main() {
             
     }
 
+    const stopRecording = async () => {
+        try {
+            const response = await fetch("http://localhost:8080/CodeVision/SpeechToTextConvertServlet/StopRecording", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+    
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+    
+            const responseObj = await response.json();
+            const result = responseObj.candidates[0].content.parts[0]; // Extract the transcribed text
+            console.log("Result: ", result);
+            getOutput = result;
+            console.log(response);
+            
+            await output();
+            // Assuming you want to set this output somewhere
+            // setOutput(result); // Assuming you have a state like const [output, setOutput] = useState('');
+        } catch (error) {
+            console.error("Error stopping recording:", error);
+        }
+    };    
 
     if (theme) {
         return (
@@ -159,7 +180,7 @@ function CodeIDE_Main() {
                                 {changeProfile &&
                                     <div className='flex items-center gap-6'>
                                         User Name
-                                        <input value={"User Name"} placeholder='User Name' className='border rounded-sm pl-3 h-10  border-gray-400'></input>
+                                        <input placeholder='User Name' className='border rounded-sm pl-3 h-10  border-gray-400'></input>
                                     </div>
                                 }
                                 <div className='relative flex items-center gap-5 hover:bg-gray-300 h-13 row-span-13'>
@@ -180,7 +201,7 @@ function CodeIDE_Main() {
                             <input className='p-2 rounded-xl border-gray-300 border w-6xl h-13 2xl:max-2xl:h-10 2xl:max-2xl:w-5xl xl:max-2xl:h-10 xl:max-2xl:w-3xl lg:max-xl:h-10 lg:max-xl:w-xl md:max-lg:h-10 md:max-lg:w-3xs sm:max-md:w-xs sm:max-md:h-10' placeholder='Enter your prompt here...'></input>
                         </div>
                         <div className='col-span-3 p-5 w-17 h-17 2xl:max-2xl:13 2xl:max-2xl:p-2.5 xl:max-2xl:p-3 xl:max-2xl:col-span-2 lg:max-xl:p-2.5 md:max-lg:p-2.5 md:max-lg:col-span-8 sm:max-md:p-3.5 sm:max-md:col-span-6' onClick={() => setMic(!mic)}>
-                            {mic && <Mic className='w-8 h-8 xl:max-2xl:h-7 md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7 cursor-pointer text-red-500' />}
+                            {mic && <Mic className='w-8 h-8 xl:max-2xl:h-7 md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7 cursor-pointer text-red-500' onClick={stopRecording}/>}
                             {!mic && <MicOff className='w-8 h-8 xl:max-2xl:h-7 md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7 cursor-pointer' onClick={callRecord} />}
 
                         </div>
@@ -331,7 +352,7 @@ function CodeIDE_Main() {
                             <input className='p-2 rounded-xl border-gray-300 border w-6xl h-13 2xl:max-2xl:h-10 2xl:max-2xl:w-5xl xl:max-2xl:h-10 xl:max-2xl:w-3xl lg:max-xl:h-10 lg:max-xl:w-xl md:max-lg:h-10 md:max-lg:w-3xs sm:max-md:w-xs sm:max-md:h-10' id='promptTag' placeholder='Enter your prompt here...'></input>
                         </div>
                         <div className='col-span-3 p-5 w-17 h-17 2xl:max-2xl:13 2xl:max-2xl:p-2.5 xl:max-2xl:p-3 xl:max-2xl:col-span-2 lg:max-xl:p-2.5 md:max-lg:p-2.5 md:max-lg:col-span-8 sm:max-md:p-3.5 sm:max-md:col-span-6' onClick={() => setMic(!mic)}>
-                            {mic && <Mic className='w-8 h-8 xl:max-2xl:h-7 text-red-500 md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7  cursor-pointer' />}
+                            {mic && <Mic className='w-8 h-8 xl:max-2xl:h-7 text-red-500 md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7  cursor-pointer'  onClick={stopRecording}/>}
                             {!mic && <MicOff className='w-8 h-8 xl:max-2xl:h-7 text-white md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7  cursor-pointer' onClick={callRecord}/>}
 
                         </div>
