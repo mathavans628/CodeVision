@@ -1,76 +1,82 @@
 package codevision.util;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import java.time.Duration;
 
-public class MainTesting 
-{
-    public static void main(String[] args) 
-    {
+public class MainTesting {
+    public static void main(String[] args) {
         WebDriverManager.chromedriver().setup();
-        WebDriver driver = new ChromeDriver();
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--disable-gpu", "--no-sandbox");
 
-        try 
-        {
+        WebDriver driver = new ChromeDriver(options);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+
+        try {
             driver.get("https://www.jdoodle.com/online-java-compiler");
-            driver.manage().window().maximize();
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
-            JavascriptExecutor js = (JavascriptExecutor) driver;
 
-            WebElement editorDiv = wait.until(ExpectedConditions.presenceOfElementLocated(By.className("ace_content")));
-            editorDiv.click();  
-            
-            String javaCode = """
-                public class MyClass {
-                  public static void main(String args[]) {
-                    int x=10;
-                    int y=25;
-                    int z=x+y;
-                    System.out.println("Hello, World!");
-                    System.out.println("Sum of x+y = " + z);
-                  }
-                }
-            """;
-            js.executeScript("ace.edit(document.querySelector('.ace_editor')).setValue(arguments[0]);", javaCode);
+            // 🔹 Wait for the code editor textarea to load
+            WebElement editorElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.className("ace_content")));
 
-            WebElement executeButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("execute-ide")));
-            executeButton.click();
-            
-            Thread.sleep(5000);
+            // 🔹 Ensure the element is interactable before interacting
+            wait.until(ExpectedConditions.elementToBeClickable(editorElement));
 
-            WebElement outputDiv = wait.until(ExpectedConditions.presenceOfElementLocated(
-                By.xpath("//*[@id=\"output\"]/div[2]/div/div[3]")
-            ));
-            
-            wait.until(driver1 -> !outputDiv.getText().trim().isEmpty());
+            // 🔹 Inject the code into the editor using JavaScript (ensure editor is ready)
+            String code = "import java.util.Scanner;\n" +
+                          "public class Main {\n" +
+                          "    public static void main(String[] args) {\n" +
+                          "        Scanner sc = new Scanner(System.in);\n" +
+                          "        System.out.println(\"Enter your name:\");\n" +
+                          "        String name = sc.nextLine();\n" +
+                          "        System.out.println(\"Hello, \" + name);\n" +
+                          "        System.out.println(\"Enter your age:\");\n" +
+                          "        int age = sc.nextInt();\n" +
+                          "        System.out.println(\"Your age is: \" + age);\n" +
+                          "    }\n" +
+                          "}";
 
-            String outputText = outputDiv.getText();
-            System.out.println("Extracted Output:\n" + outputText);
-            
-//            https://www.jdoodle.com/python3-programming-online
-//            https://www.jdoodle.com/c-online-compiler
-//            https://www.jdoodle.com/compile-c-sharp-online
-//            https://www.jdoodle.com/online-compiler-c++
-//            https://www.jdoodle.com/execute-r-online
-//            https://www.jdoodle.com/execute-go-online
-//            https://www.jdoodle.com/php-online-editor
-//            https://www.jdoodle.com/execute-swift-online
+            js.executeScript("ace.edit(document.querySelector('.ace_editor')).setValue(arguments[0]);", code);
 
-        } 
-        catch (Exception e) 
-        {
+            // 🔹 Wait for and click the "Run" button
+            WebElement runButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("execute-ide")));
+            runButton.click();
+
+            // 🔹 Wait for Input Field if required
+            Thread.sleep(2000); // Wait for the input field to show (if required)
+
+            // 🔹 Send the first input (name)
+            boolean inputRequired = driver.findElements(By.id("stdin")).size() > 0;
+            if (inputRequired) {
+                WebElement inputField = driver.findElement(By.id("stdin"));
+                System.out.println("Program is waiting for input...");
+
+                // Send first input (e.g., name)
+                inputField.sendKeys("Mari");
+                inputField.sendKeys(Keys.RETURN);
+
+                // 🔹 Wait for the second input (age) prompt to appear
+                Thread.sleep(2000); // Wait for second input field
+                inputField = driver.findElement(By.id("stdin"));
+
+                // Send second input (e.g., age)
+                inputField.sendKeys("25");
+                inputField.sendKeys(Keys.RETURN);
+            }
+
+            // 🔹 Wait for the output to appear
+            WebElement finalOutput = wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("stdout")));
+            System.out.println("Program Output:\n" + finalOutput.getText());
+
+        } catch (Exception e) {
             System.out.println("Error: " + e.getMessage());
-        }
-        finally 
-        {
-            driver.quit();
+        } finally {
+            driver.quit(); // 🔹 Close Browser
         }
     }
 }

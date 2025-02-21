@@ -21,6 +21,14 @@
             <version>4.0.1</version>
             <scope>provided</scope>
         </dependency>
+        
+         <!-- WebSockets API -->
+	    <dependency>
+	        <groupId>jakarta.websocket</groupId>
+	        <artifactId>jakarta.websocket-api</artifactId>
+	        <version>2.1.0</version>
+	        <scope>provided</scope>
+	    </dependency>
 
         <!-- MySQL Connector -->
         <dependency>
@@ -71,6 +79,13 @@
 		    <artifactId>webdrivermanager</artifactId>
 		    <version>5.5.3</version> <!-- Use the latest stable version -->
 		</dependency>
+		<dependency>
+    <groupId>org.apache.tomcat</groupId>
+    <artifactId>tomcat-websocket-api</artifactId>
+    <version>10.1.16</version> <!-- Use the latest version -->
+</dependency>
+
+		
     </dependencies>
 
     <build>
