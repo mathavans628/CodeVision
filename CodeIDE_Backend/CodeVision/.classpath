@@ -38,8 +38,7 @@
 			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
 		</attributes>
 	</classpathentry>
-<<<<<<< HEAD
-=======
+
 	<classpathentry kind="lib" path="/home/priya-zstk395/.m2/repository/org/seleniumhq/selenium/selenium-chrome-driver/4.16.1/selenium-chrome-driver-4.16.1.jar" sourcepath="/home/priya-zstk395/.m2/repository/org/seleniumhq/selenium/selenium-chrome-driver/4.16.1/selenium-chrome-driver-4.16.1-sources.jar">
 		<attributes>
 			<attribute name="maven.pomderived" value="true"/>
@@ -60,6 +59,6 @@
 			<attribute name="maven.scope" value="compile"/>
 		</attributes>
 	</classpathentry>
->>>>>>> 12ca69beb5f4ae0e81d2d683255480125c58f697
+	
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

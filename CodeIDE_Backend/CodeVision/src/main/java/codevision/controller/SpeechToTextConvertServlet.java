@@ -17,7 +17,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
 @WebServlet("/SpeechToTextConvertServlet/*")
-//@WebServlet("/SpeechToTextConvertServlet/*")
 public class SpeechToTextConvertServlet extends HttpServlet {
     private static WebDriver driver;
     private static final long serialVersionUID = 1L;

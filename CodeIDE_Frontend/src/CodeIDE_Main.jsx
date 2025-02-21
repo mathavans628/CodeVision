@@ -13,11 +13,14 @@ import { GrProjects } from "react-icons/gr";
 import SlidingPane from "react-sliding-pane";
 import "react-sliding-pane/dist/react-sliding-pane.css";
 
+import CustomDropdown from "./CustomDropdown.jsx";
+import CodeEditor from "./CodeEditor";
+import OutputFrame from "./OutputFrame";
+
 function CodeIDE_Main() {
     const [theme, setTheme] = useState(true);
     const [prompt, setPrompt] = useState(true);
     const [mic, setMic] = useState(false);
-    const [selectedLanguge, setLanguage] = useState("js");
     const [showProfile, setShowProfile] = useState(false);
     const [convertLang, setConvertLang] = useState(false);
     const [conversionValue, setConversionValue] = useState("");
@@ -26,12 +29,50 @@ function CodeIDE_Main() {
 
     const [slidePanel, setSlidePanel] = useState(false);
 
+
+
+    const defaultCodes = {
+        web: {
+            html: "<h1>Hello, World!</h1>",
+            css: "body { font-family: Arial; text-align: center; }",
+            js: "console.log('Hello, World!');",
+        },
+        javascript: "console.log('Hello, World!');",
+        python3: 'print("Hello, World!")',
+        java: 'public class Main {\n  public static void main(String[] args) {\n    System.out.println("Hello, World!");\n  }\n}',
+        c: '#include <stdio.h>\nint main() {\n  printf("Hello, World!\\n");\n  return 0;\n}',
+        cpp: '#include <iostream>\nint main() {\n  std::cout << "Hello, World!" << std::endl;\n  return 0;\n}',
+        rlang: 'print("Hello, World!")',
+        ruby: 'puts "Hello, World!"',
+        php: '<?php echo "Hello, World!"; ?>',
+        golang: 'package main\nimport "fmt"\nfunc main() {\n  fmt.Println("Hello, World!")\n}',
+    };
+
+
+    const [selectedLanguage, setSelectedLanguage] = useState("web");
+    const [html, setHtml] = useState(defaultCodes.web.html);
+    const [css, setCss] = useState(defaultCodes.web.css);
+    const [js, setJs] = useState(defaultCodes.web.js);
+    const [code, setCode] = useState(defaultCodes.javascript);
+    const [darkMode, setDarkMode] = useState(false);
+
+    const handleLanguageChange = (newLanguage) => {
+        setSelectedLanguage(newLanguage);
+
+        if (newLanguage === "web") {
+            setHtml(defaultCodes.web.html);
+            setCss(defaultCodes.web.css);
+            setJs(defaultCodes.web.js);
+        } else {
+            setCode(defaultCodes[newLanguage] || "");  // Ensure it updates the editor
+        }
+    };
+
+
     var getOutput = "";
 
 
-    function lang() {
-        setLanguage(document.getElementById("language").value);
-    }
+
 
     const callRecord = async () => {
         try {
@@ -48,11 +89,11 @@ function CodeIDE_Main() {
 
     const output = async () => {
         console.log("Result: " + getOutput);
-        
-        const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBGFGKKQmRAtoyVR2IfaNfLv3G5XxH2Apg",{
+
+        const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBGFGKKQmRAtoyVR2IfaNfLv3G5XxH2Apg", {
             method: 'POST',
-            headers : {
-                'Content-Type' : 'application/json'
+            headers: {
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 contents: [{
@@ -61,18 +102,18 @@ function CodeIDE_Main() {
             }),
         });
 
-            const result = await response.text(); 
-            
+        const result = await response.text();
 
-            const extractCode = (response) => {
 
-                let responseObj = JSON.parse(response)
-                const result1 = responseObj.candidates[0].content.parts[0].text
+        const extractCode = (response) => {
+
+            let responseObj = JSON.parse(response)
+            const result1 = responseObj.candidates[0].content.parts[0].text
             getOutput = result1;
             console.log(getOutput)
-            };
-            extractCode(result)
-            
+        };
+        extractCode(result)
+
     }
 
     const stopRecording = async () => {
@@ -83,29 +124,29 @@ function CodeIDE_Main() {
                     'Content-Type': 'application/json',
                 },
             });
-    
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-    
+
             const responseObj = await response.json();
             const result = responseObj.candidates[0].content.parts[0]; // Extract the transcribed text
             console.log("Result: ", result);
             getOutput = result;
             console.log(response);
-            
+
             await output();
             // Assuming you want to set this output somewhere
             // setOutput(result); // Assuming you have a state like const [output, setOutput] = useState('');
         } catch (error) {
             console.error("Error stopping recording:", error);
         }
-    };    
+    };
 
     if (theme) {
         return (
 
-            <div className="w-screen h-screen grid grid-rows-40 grid-cols-20 p-5 gap-2 bg-gray-100 2xl:max-2xl:h-screen 2xl:max-2xl:overflow-hidden xl:max-2xl:w-screen xl:max-2xl:h-screen xl:max-2xl:overflow-hidden lg:max-xl:w-screen lg:max-xl:h-screen lg:max-xl:overflow-hidden  md:max-lg:w-screen  md:max-lg:h-screen md:max-lg:overflow-x-hidden md:max-lg:overflow-y-scroll sm:max-md:overflow-x-hidden" >
+            <div className="w-screen h-screen overflow-hidden grid grid-rows-40 grid-cols-20 p-5 gap-2 bg-gray-100 2xl:max-2xl:h-screen 2xl:max-2xl:overflow-hidden xl:max-2xl:w-screen xl:max-2xl:h-screen xl:max-2xl:overflow-hidden lg:max-xl:w-screen lg:max-xl:h-screen lg:max-xl:overflow-hidden  md:max-lg:w-screen  md:max-lg:h-screen md:max-lg:overflow-x-hidden md:max-lg:overflow-y-scroll sm:max-md:overflow-x-hidden" >
 
                 <div className="row-span-3 col-span-29 grid-cols-22 grid rounded-xl bg-white shadow-neutral-300 shadow-md inset-shadow-sm inset-shadow-neutral-200 lg:max-xl:grid-cols-35 md:max-lg:grid-cols-12 md:max-lg:h-17">
                     <div className="grid-cols-1 w-18 h-18 rounded-full 2xl:max-2xl:15 2xl:max-2xl:h-15 xl:max-2xl:h-13 xl:max-2xl:p-1 lg:max-xl:h-13 lg:max-xl:p-1 lg:max-xl:col-span-2 md:max-lg:p-1.5 md:max-lg:col-span-1 sm:max-md:p-1.5  sm:max-md:col-span-2 relative">
@@ -115,15 +156,7 @@ function CodeIDE_Main() {
 
 
                     <div className='col-span-3 w-56 h-18 p-4 2xl:max-2xl:w-56 2xl:max-2xl:h-10 2xl:max-2xl:p-2.5 xl:max-2xl:h-8 xl:max-2xl:p-3 lg:max-xl:p-2.5 lg:max-xl:col-span-6 md:max-lg:p-2.5 md:max-lg:col-span-4 sm:max-md:p-2 sm:max-md:col-span-7'>
-                        <select className='w-55 h-12 p-3 border-gray-400 border rounded-xl 2xl:max-2xl:h-10 2xl:max-2xl:p-0.5 2xl:max-2xl:pl-2 xl:max-2xl:h-9 xl:max-2xl:p-1.5 xl:max-2xl:w-45 lg:max-xl:h-10 lg:p-1 lg:w-44 md:max-lg:h-10 md:max-lg:w-48 md:max-lg:p-1 sm:max-md:h-10 sm:max-md:p-0 sm:max-md:w-40 cursor-pointer' id="language" onChange={lang}>
-                            <option value={"js"}>Web Development</option>
-                            <option value={"Java"}>Java</option>
-                            <option value={"Python"}>Python</option>
-                            <option value={"C++"}>C++</option>
-                        </select>
-
-
-
+                        <CustomDropdown selected={selectedLanguage} onSelect={handleLanguageChange} />
                     </div>
                     <div className='col-span-2 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-3 lg:max-xl:p-3 lg:max-xl:ml-4 lg:max-xl:col-span-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
                         <label className='w-30 h-12 border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25  lg:max-xl:h-9 lg:max-xl:w-25 sm:max-lg:hidden block text-center p-2.5 cursor-pointer hover:shadow-2xs hover:border-indigo-400 bg-blue-400 text-white' id='buttons'>Import
@@ -201,7 +234,7 @@ function CodeIDE_Main() {
                             <input className='p-2 rounded-xl border-gray-300 border w-6xl h-13 2xl:max-2xl:h-10 2xl:max-2xl:w-5xl xl:max-2xl:h-10 xl:max-2xl:w-3xl lg:max-xl:h-10 lg:max-xl:w-xl md:max-lg:h-10 md:max-lg:w-3xs sm:max-md:w-xs sm:max-md:h-10' placeholder='Enter your prompt here...'></input>
                         </div>
                         <div className='col-span-3 p-5 w-17 h-17 2xl:max-2xl:13 2xl:max-2xl:p-2.5 xl:max-2xl:p-3 xl:max-2xl:col-span-2 lg:max-xl:p-2.5 md:max-lg:p-2.5 md:max-lg:col-span-8 sm:max-md:p-3.5 sm:max-md:col-span-6' onClick={() => setMic(!mic)}>
-                            {mic && <Mic className='w-8 h-8 xl:max-2xl:h-7 md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7 cursor-pointer text-red-500' onClick={stopRecording}/>}
+                            {mic && <Mic className='w-8 h-8 xl:max-2xl:h-7 md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7 cursor-pointer text-red-500' onClick={stopRecording} />}
                             {!mic && <MicOff className='w-8 h-8 xl:max-2xl:h-7 md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7 cursor-pointer' onClick={callRecord} />}
 
                         </div>
@@ -234,44 +267,25 @@ function CodeIDE_Main() {
                 }
 
                 <div className="row-span-34 col-span-29 p-2 grid grid-cols-2 gap-5 sm:max-lg:grid-cols-1 md:max-lg:mt-2">
-                    <div className='inset-shadow-sm inset-shadow-neutral-200 shadow-md shadow-neutral-400 rounded-xl p-4 grid grid-rows-24 2xl:p-2.5 2xl:grid-cols-15 md:max-lg:grid-rows-28 md:max-lg:gap-1 md:max-lg:p-4 '>
+                    <div className='inset-shadow-sm inset-shadow-neutral-200 h-220 shadow-md shadow-neutral-400 rounded-xl p-4 grid grid-rows-24 2xl:p-2.5 2xl:grid-cols-15 md:max-lg:grid-rows-28 md:max-lg:gap-1 md:max-lg:p-4 '>
 
-                        <div className='row-span-2 w-3xl md:max-lg:row-span-3'>
-
-                            {selectedLanguge != "js" ?
-                                <div className='grid grid-cols-10 xl:max-2xl:grid-cols-7 md:max-lg:grid-cols-12 md:max-lg:p-0.5 sm:max-md:grid-cols-13'>
-                                    <p className='bg-gray-200 w-30 h-12 col-span-9 text-center rounded-xl p-3 xl:max-2xl:col-span-4 lg:max-xl:col-span-2 md:max-lg:col-span-9 md:max-lg:h-11 md:max-lg:rounded-md sm:max-md:col-span-7'>{selectedLanguge}</p>
-                                    <button className='w-30 h-10 bg-green-600 shadow-md rounded-md cursor-pointer text-white'>Run</button>
-                                </div> :
-                                <div className='grid grid-cols-10 gap-1 2xl:max-2xl:gap-0 xl:max-2xl:grid-cols-14 lg:max-xl:grid-cols-18 md:max-lg:grid-cols-12 sm:max-md:grid-cols-16 sm:max-lg:h-12'>
-                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 lg:max-xl:w-16 lg:max-xl:col-span-2 sm:max-lg:hidden block cursor-pointer'>HTML</button>
-                                    <button className='hidden sm:max-lg:block w-10 md:max-lg:col-span-1'><BsFiletypeHtml className='w-8 h-8 cursor-pointer' /></button>
-                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 lg:max-xl:w-16 lg:max-xl:col-span-2 sm:max-lg:hidden block cursor-pointer'>CSS</button>
-                                    <button className='hidden sm:max-lg:block w-10 md:max-lg:col-span-1'><BsFiletypeCss className='w-8 h-8 cursor-pointer' /></button>
-                                    <button className='w-30 h-10 shadow-md rounded-md col-span-5 bg-gray-200 2xl:max-2xl:col-span-4 xl:max-2xl:col-span-4 lg:max-xl:col-span-4 lg:max-xl:w-27 sm:max-lg:hidden block cursor-pointer'>JAVASCRIPT</button>
-                                    <button className='hidden sm:max-lg:block w-10 md:max-lg:col-span-7 sm:max-md:col-span-7'><PiFileJs className='w-8 h-8 cursor-pointer' /></button>
-                                    <button className='w-30 h-10 bg-green-600 shadow-md rounded-md lg:max-xl:w-23 cursor-pointer text-white'>Run</button>
-                                </div>
-                            }
-                        </div>
+                        <CodeEditor
+                            className='border border-gray-300 rounded-xl p-5 row-span-22 col-span-20 2xl:max-2xl:col-span-15 xl:max-2xl:w-xl lg:max-xl:w-110 md:max-lg:w-2xl md:max-lg:row-span-25 md:max-lg:mt-1.5 sm:max-md:mt-2.5 sm:max-md:w-140' style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                            html={html} setHtml={setHtml}
+                            css={css} setCss={setCss}
+                            js={js} setJs={setJs}
+                            code={code} setCode={setCode}
+                            selectedLanguage={selectedLanguage}
+                        />
 
 
-                        <textarea className='border border-gray-300 rounded-xl p-5 row-span-22 col-span-20 2xl:max-2xl:col-span-15 xl:max-2xl:w-xl lg:max-xl:w-110 md:max-lg:w-2xl md:max-lg:row-span-25 md:max-lg:mt-1.5 sm:max-md:mt-2.5 sm:max-md:w-140' style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} placeholder='Type your codes here...'></textarea>
                     </div>
-                    <div disabled className=' inset-shadow-sm inset-shadow-neutral-200 shadow-md shadow-neutral-400 rounded-xl p-4 grid grid-rows-24 2xl:max-2xl:p-2.5 2xl:max-2xl:grid-cols-15 md:max-lg:grid-rows-28 md:max-lg:gap-1'>
-                        <div className='row-span-2 w-3xl md:max-lg:row-span-3'>
-
-                            {selectedLanguge != "js" ?
-                                <div>
-                                    <p className='bg-gray-200 w-30 h-12 text-center rounded-xl p-3 md:max-lg:h-11 md:max-lg:rounded-md md:max-lg:mb-2'>Console</p>
-                                </div> :
-                                <div className='grid grid-cols-10 gap-1 md:max-lg:p-1 sm:max-lg:h-12'>
-                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 md:max-lg:h-10 md:max-lg:w-20 cursor-pointer'>Preview</button>
-                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 md:max-lg:h-10 md:max-lg:w-20 cursor-pointer'>Console</button>
-                                </div>
-                            }
-                        </div>
-                        <div className='border border-gray-300 rounded-xl p-5 shadow-md row-span-22 2xl:max-2xl:col-span-15 xl:max-2xl:w-xl lg:max-xl:w-110 md:max-lg:w-2xl md:max-lg:row-span-25 sm:max-md:mt-2.5 sm:max-md:w-140 text-gray-500' style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>Output will be printed...</div>
+                    <div disabled className=' inset-shadow-sm inset-shadow-neutral-200 h-220 shadow-md shadow-neutral-400 rounded-xl pl-3 grid grid-rows-24 2xl:max-2xl:p-2.5 2xl:max-2xl:grid-cols-15 md:max-lg:grid-rows-28 md:max-lg:gap-1'>
+                        <OutputFrame
+                            className='border border-gray-300 rounded-xl p-5 shadow-md row-span-22 2xl:max-2xl:col-span-15 xl:max-2xl:w-xl lg:max-xl:w-110 md:max-lg:w-2xl md:max-lg:row-span-25 sm:max-md:mt-2.5 sm:max-md:w-140 text-gray-500' style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                            html={html} css={css} js={js} code={code}
+                            selectedLanguage={selectedLanguage}
+                        />
                     </div>
                 </div>
             </div >
@@ -279,7 +293,7 @@ function CodeIDE_Main() {
     }
     else {
         return (
-            <div className="w-screen h-screen grid grid-rows-40 grid-cols-20 p-5 gap-2 bg-gray-100 2xl:max-2xl:w-screen 2xl:max-2xl:h-screen 2xl:max-2xl:overflow-hidden xl:max-2xl:w-screen xl:max-2xl:h-screen xl:max-2xl:overflow-hidden lg:max-xl:w-screen lg:max-xl:h-screen lg:max-xl:overflow-hidden  md:max-lg:w-screen md:max-lg:h-screen md:max-lg:overflow-x-hidden sm:max-md:overflow-x-hidden" id="wholeDiv">
+            <div className="w-screen h-screen overflow-hidden grid grid-rows-40 grid-cols-20 p-5 gap-2 bg-gray-100 2xl:max-2xl:w-screen 2xl:max-2xl:h-screen 2xl:max-2xl:overflow-hidden xl:max-2xl:w-screen xl:max-2xl:h-screen xl:max-2xl:overflow-hidden lg:max-xl:w-screen lg:max-xl:h-screen lg:max-xl:overflow-hidden  md:max-lg:w-screen md:max-lg:h-screen md:max-lg:overflow-x-hidden sm:max-md:overflow-x-hidden" id="wholeDiv">
                 <div className="row-span-3 col-span-29 grid-cols-22 grid rounded-xl bg-white shadow-neutral-300 shadow-md inset-shadow-sm inset-shadow-neutral-200 lg:max-xl:grid-cols-35 md:max-lg:grid-cols-12 md:max-lg:h-17 md:max-lg:p-1" id='textArea'>
                     <div className="relative grid-cols-1 w-18 h-18 rounded-full 2xl:max-2xl:15 2xl:max-2xl:h-15 xl:max-2xl:h-13 xl:max-2xl:p-1 lg:max-xl:h-13 lg:max-xl:p-1 lg:max-xl:col-span-2 md:max-lg:p-1.5 md:max-lg:col-span-1 sm:max-md:p-1.5  sm:max-md:col-span-2">
                         <img src="https://i.postimg.cc/fbfvCLrQ/p1.png" className='rounded-full 2xl:max-2xl:w-15 2xl:max-2xl:h-15 xl:max-2xl:w-13 xl:max-2xl:h-13 lg:max-xl:w-12 lg:max-xl:h-12 md:max-lg:w-13 md:max-lg:h-13 sm:max-md:h-12 sm:max-md:w-12 cursor-pointer' onClick={() => setShowProfile(!showProfile)}></img>
@@ -287,12 +301,7 @@ function CodeIDE_Main() {
 
 
                     <div className='col-span-3 w-56 h-18 p-4 2xl:max-2xl:w-56 2xl:max-2xl:h-10 2xl:max-2xl:p-2.5 xl:max-2xl:h-8 xl:max-2xl:p-3 lg:max-xl:p-2.5 lg:max-xl:col-span-6 md:max-lg:p-2.5 md:max-lg:col-span-4 sm:max-md:p-2 sm:max-md:col-span-7'>
-                        <select className='w-55 h-12 p-3 border-gray-300 border rounded-xl hover:border-indigo-400 text-white 2xl:max-2xl:h-10 2xl:max-2xl:p-0.5 2xl:max-2xl:pl-2 xl:max-2xl:h-9 xl:max-2xl:p-1.5 xl:max-2xl:w-45 lg:max-xl:h-10 lg:max-xl:p-1 lg:max-xl:w-44 md:max-lg:h-10 md:max-lg:w-48 md:max-lg:p-1 sm:max-md:h-10 sm:max-md:p-0 sm:max-md:w-40  cursor-pointer' id="language" onChange={lang}>
-                            <option value={"js"} className='text-black'>Web Development</option>
-                            <option value={"java"} className='text-black'>Java</option>
-                            <option value={"python"} className='text-black'>Python</option>
-                            <option value={"c++"} className='text-black'>C++</option>
-                        </select>
+                        <CustomDropdown selected={selectedLanguage} onSelect={handleLanguageChange} />
                     </div>
                     <div className='col-span-2 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-3 lg:max-xl:p-3 lg:max-xl:ml-4 lg:max-xl:col-span-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
                         <label className='w-30 h-12 border-gray-400 border text-white rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25  lg:max-xl:h-9 lg:max-xl:w-25 sm:max-lg:hidden block text-center p-2.5  cursor-pointer hover:border-indigo-400 bg-blue-400' id='buttons'>Import
@@ -352,8 +361,8 @@ function CodeIDE_Main() {
                             <input className='p-2 rounded-xl border-gray-300 border w-6xl h-13 2xl:max-2xl:h-10 2xl:max-2xl:w-5xl xl:max-2xl:h-10 xl:max-2xl:w-3xl lg:max-xl:h-10 lg:max-xl:w-xl md:max-lg:h-10 md:max-lg:w-3xs sm:max-md:w-xs sm:max-md:h-10' id='promptTag' placeholder='Enter your prompt here...'></input>
                         </div>
                         <div className='col-span-3 p-5 w-17 h-17 2xl:max-2xl:13 2xl:max-2xl:p-2.5 xl:max-2xl:p-3 xl:max-2xl:col-span-2 lg:max-xl:p-2.5 md:max-lg:p-2.5 md:max-lg:col-span-8 sm:max-md:p-3.5 sm:max-md:col-span-6' onClick={() => setMic(!mic)}>
-                            {mic && <Mic className='w-8 h-8 xl:max-2xl:h-7 text-red-500 md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7  cursor-pointer'  onClick={stopRecording}/>}
-                            {!mic && <MicOff className='w-8 h-8 xl:max-2xl:h-7 text-white md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7  cursor-pointer' onClick={callRecord}/>}
+                            {mic && <Mic className='w-8 h-8 xl:max-2xl:h-7 text-red-500 md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7  cursor-pointer' onClick={stopRecording} />}
+                            {!mic && <MicOff className='w-8 h-8 xl:max-2xl:h-7 text-white md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7  cursor-pointer' onClick={callRecord} />}
 
                         </div>
                         <div className='col-span-2 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-2 lg:max-xl:col-span-3 lg:max-xl:p-3 md:max-lg:p-2 md:max-lg:col-span-4 sm:max-md:p-1'>
@@ -370,42 +379,24 @@ function CodeIDE_Main() {
                 <div className="row-span-34 col-span-29 p-2 grid grid-cols-2 gap-5 sm:max-lg:grid-cols-1 md:max-lg:mt-2">
                     <div className=' inset-shadow-sm inset-shadow-neutral-200 shadow-md shadow-neutral-400 rounded-xl p-4 grid grid-rows-24 2xl:max-2xl:p-2.5 2xl:max-2xl:grid-cols-15 md:max-lg:grid-rows-28 md:max-lg:gap-1' id='textArea'>
 
-                        <div className='row-span-2 w-3xl md:max-lg:row-span-3'>
+                        <div className=' inset-shadow-sm inset-shadow-neutral-200 shadow-md shadow-neutral-400 rounded-xl p-4 grid h-220 2xl:max-2xl:p-2.5 2xl:max-2xl:grid-cols-15 md:max-lg:grid-rows-28 md:max-lg:gap-1' id='textArea'>
 
-                            {selectedLanguge != "js" ?
-                                <div className='grid grid-cols-10 xl:max-2xl:grid-cols-7 md:max-lg:grid-cols-12 md:max-lg:p-0.5 sm:max-md:grid-cols-13'>
-                                    <p className='bg-gray-200 col-span-9 w-30 h-12 text-center rounded-xl p-3 xl:max-2xl:col-span-4 lg:max-xl:col-span-2 md:max-lg:col-span-8 md:max-lg:h-11 md:max-lg:rounded-md sm:max-md:col-span-7'>{selectedLanguge}</p>
-                                    <button className='w-30 h-10 bg-green-600 shadow-md text-white rounded-md  cursor-pointer'>Run</button>
-                                </div> :
-                                <div className='grid grid-cols-10 gap-1 2xl:max-2xl:gap-0 xl:max-2xl:grid-cols-14 lg:max-xl:grid-cols-18 md:max-lg:grid-cols-12 sm:max-md:grid-cols-16 sm:max-lg:h-12'>
-                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 lg:max-xl:w-16 lg:max-xl:col-span-2 sm:max-lg:hidden block  cursor-pointer'>HTML</button>
-                                    <button className='hidden sm:max-lg:block w-10 md:max-lg:col-span-1'><BsFiletypeHtml className='w-8 h-8 text-white  cursor-pointer' /></button>
-                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 lg:max-xl:w-16 lg:max-xl:col-span-2 sm:max-lg:hidden block  cursor-pointer'>CSS</button>
-                                    <button className='hidden sm:max-lg:block w-10 md:max-lg:col-span-1'><BsFiletypeCss className='w-8 h-8 text-white  cursor-pointer' /></button>
-                                    <button className='w-30 h-10 shadow-md rounded-md col-span-5 bg-gray-200 2xl:max-2xl:col-span-4 xl:max-2xl:col-span-4 lg:max-xl:col-span-4 lg:max-xl:w-27 sm:max-lg:hidden block  cursor-pointer'>JAVASCRIPT</button>
-                                    <button className='hidden sm:max-lg:block w-10 md:max-lg:col-span-7'><PiFileJs className='w-8 h-8 text-white  cursor-pointer' /></button>
-                                    <button className='w-30 h-10 bg-green-600 shadow-md text-white rounded-md lg:max-xl:w-23  cursor-pointer'>Run</button>
-                                </div>
-                            }
+                            <CodeEditor
+                                className='border border-gray-300 rounded-xl p-5 text-white 2xl:max-2xl:col-span-15 xl:max-2xl:w-xl lg:max-xl:w-110 md:max-lg:w-2xl md:max-lg:row-span-25 sm:max-md:mt-2.5 sm:max-md:w-140' id='input' style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                                html={html} setHtml={setHtml}
+                                css={css} setCss={setCss}
+                                js={js} setJs={setJs}
+                                code={code} setCode={setCode}
+                                selectedLanguage={selectedLanguage}
+                            />
                         </div>
-
-
-                        <textarea className='border border-gray-300 rounded-xl p-5 row-span-22 text-white 2xl:max-2xl:col-span-15 xl:max-2xl:w-xl lg:max-xl:w-110 md:max-lg:w-2xl md:max-lg:row-span-25 sm:max-md:mt-2.5 sm:max-md:w-140' id='input' style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }} placeholder='Type your codes here...'></textarea>
                     </div>
                     <div disabled className=' inset-shadow-sm inset-shadow-neutral-200 shadow-md shadow-neutral-400 rounded-xl p-4 grid grid-rows-24 2xl:max-2xl:p-2.5 2xl:max-2xl:grid-cols-15 md:max-lg:grid-rows-28 md:max-lg:gap-1' id='textArea'>
-                        <div className='row-span-2 w-3xl md:max-lg:row-span-3'>
-
-                            {selectedLanguge != "js" ?
-                                <div>
-                                    <p className='bg-gray-200 w-30 h-12 text-center rounded-xl p-3 md:max-lg:max-lg:h-11 md:max-lg:max-lg:rounded-md md:max-lg:max-lg:mb-2'>Console</p>
-                                </div> :
-                                <div className='grid grid-cols-10 gap-1 md:max-lg:p-1 sm:max-lg:h-12'>
-                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 md:max-lg:h-10 md:max-lg:w-20  cursor-pointer'>Preview</button>
-                                    <button className='w-20 h-10 shadow-md rounded-md col-span-2 bg-gray-200 md:max-lg:h-10 md:max-lg:w-20  cursor-pointer'>Console</button>
-                                </div>
-                            }
-                        </div>
-                        <div className='border border-gray-300 rounded-xl p-5 shadow-md row-span-22 text-white 2xl:max-2xl:col-span-15 xl:max-2xl:w-xl lg:max-xl:w-110 md:max-lg:w-2xl md:max-lg:row-span-25 sm:max-md:mt-2.5 sm:max-md:w-140 ' id='input' style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>Output will be printed...</div>
+                        <OutputFrame
+                            className='border border-gray-300 rounded-xl p-5 shadow-md row-span-22 text-white 2xl:max-2xl:col-span-15 xl:max-2xl:w-xl lg:max-xl:w-110 md:max-lg:w-2xl md:max-lg:row-span-25 sm:max-md:mt-2.5 sm:max-md:w-140 ' id='input' style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                            html={html} css={css} js={js} code={code}
+                            selectedLanguage={selectedLanguage}
+                        />
                     </div>
                 </div>
             </div >
