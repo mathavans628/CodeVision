@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+<<<<<<< HEAD
 #buttons:hover {
   background: linear-gradient(135deg, #cce7ff, #e6f7ff);
  border-color: #63b3ed;
@@ -14,6 +15,8 @@
  color: #2f855a;
  box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.2);
  } 
+=======
+>>>>>>> 12ca69beb5f4ae0e81d2d683255480125c58f697
 
 /* #root {
   max-width: 1280px;
