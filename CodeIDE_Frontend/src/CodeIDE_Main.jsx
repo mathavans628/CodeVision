@@ -160,7 +160,7 @@ function CodeIDE_Main() {
                     </div>
                     <div className='col-span-2 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-3 lg:max-xl:p-3 lg:max-xl:ml-4 lg:max-xl:col-span-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
                         <label className='w-30 h-12 border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25  lg:max-xl:h-9 lg:max-xl:w-25 sm:max-lg:hidden block text-center p-2.5 cursor-pointer hover:shadow-2xs hover:border-indigo-400 bg-blue-400 text-white' id='buttons'>Import
-                            <input type='file' className='hidden' accept='.txt'></input>
+                            <input type='file' className='hidden' accept='.txt' onChange={this.handleFile}></input>
                         </label>
                         <label>
                             <Import className='lg:hidden md:max-lg:block h-15 w-8 cursor-pointer' />
