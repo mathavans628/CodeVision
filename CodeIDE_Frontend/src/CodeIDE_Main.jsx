@@ -2,11 +2,10 @@ import { Sun, Moon, Mic, MicOff, Import } from 'lucide-react'
 import { CgExport } from "react-icons/cg";
 import { PiButterflyFill, PiFileJs } from "react-icons/pi";
 import { MdOutlineSave } from "react-icons/md";
-import { BsFiletypeHtml, BsFiletypeCss } from "react-icons/bs";
 import { RiAiGenerate2 } from "react-icons/ri";
 import { SiConvertio } from "react-icons/si";
 import { FaEdit } from "react-icons/fa";
-import { useEffect, useState, useRef } from 'react';
+import {useState } from 'react';
 import { LuLogOut } from 'react-icons/lu';
 import { GrProjects } from "react-icons/gr";
 
@@ -16,6 +15,8 @@ import "react-sliding-pane/dist/react-sliding-pane.css";
 import CustomDropdown from "./CustomDropdown.jsx";
 import CodeEditor from "./CodeEditor";
 import OutputFrame from "./OutputFrame";
+
+import FileReaderComponent from './ImportFile.jsx';
 
 function CodeIDE_Main() {
     const [theme, setTheme] = useState(true);
@@ -116,6 +117,16 @@ function CodeIDE_Main() {
 
     }
 
+    const [fileContent, setFileContent] = useState("");
+
+    // This function will receive the file content
+    const handleFileContent = (content) => {
+        setFileContent(content);
+        console.log("File content received:", content); // Log to console
+    };
+
+
+
     const stopRecording = async () => {
         try {
             const response = await fetch("http://localhost:8080/CodeVision/SpeechToTextConvertServlet/StopRecording", {
@@ -159,12 +170,23 @@ function CodeIDE_Main() {
                         <CustomDropdown selected={selectedLanguage} onSelect={handleLanguageChange} />
                     </div>
                     <div className='col-span-2 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-3 lg:max-xl:p-3 lg:max-xl:ml-4 lg:max-xl:col-span-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
-                        <label className='w-30 h-12 border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25  lg:max-xl:h-9 lg:max-xl:w-25 sm:max-lg:hidden block text-center p-2.5 cursor-pointer hover:shadow-2xs hover:border-indigo-400 bg-blue-400 text-white' id='buttons'>Import
+                        {/* <label className='w-30 h-12 border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25  lg:max-xl:h-9 lg:max-xl:w-25 sm:max-lg:hidden block text-center p-2.5 cursor-pointer hover:shadow-2xs hover:border-indigo-400 bg-blue-400 text-white' id='buttons'>Import
                             <input type='file' className='hidden' accept='.txt' onChange={this.handleFile}></input>
                         </label>
                         <label>
                             <Import className='lg:hidden md:max-lg:block h-15 w-8 cursor-pointer' />
                             <input type='file' className='hidden' accept='.txt'></input>
+                        </label> */}
+                        <label
+                            htmlFor="file-input"
+                            className="w-30 h-12 border-gray-400 border rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25 lg:max-xl:h-9 lg:max-xl:w-25 sm:max-lg:hidden block text-center p-2.5 cursor-pointer hover:shadow-2xs hover:border-indigo-400 bg-blue-400 text-white"
+                        >
+                            Import
+                        </label>
+                        <FileReaderComponent onFileRead={handleFileContent} triggerId="file-input" />
+
+                        <label htmlFor="file-input">
+                            <Import className="lg:hidden md:max-lg:block h-15 w-8 cursor-pointer" />
                         </label>
                     </div>
                     <div className='col-span-2 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-3 lg:max-xl:p-3 lg:max-xl:ml-4 lg:max-xl:col-span-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
@@ -304,12 +326,23 @@ function CodeIDE_Main() {
                         <CustomDropdown selected={selectedLanguage} onSelect={handleLanguageChange} />
                     </div>
                     <div className='col-span-2 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-3 lg:max-xl:p-3 lg:max-xl:ml-4 lg:max-xl:col-span-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
-                        <label className='w-30 h-12 border-gray-400 border text-white rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25  lg:max-xl:h-9 lg:max-xl:w-25 sm:max-lg:hidden block text-center p-2.5  cursor-pointer hover:border-indigo-400 bg-blue-400' id='buttons'>Import
+                        {/* <label className='w-30 h-12 border-gray-400 border text-white rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25  lg:max-xl:h-9 lg:max-xl:w-25 sm:max-lg:hidden block text-center p-2.5  cursor-pointer hover:border-indigo-400 bg-blue-400' id='buttons'>Import
                             <input type='file' className='hidden' accept='.txt'></input>
                         </label>
                         <label>
                             <Import className='lg:hidden md:max-lg:block h-15 w-8 text-white  cursor-pointer' />
                             <input type='file' className='hidden' accept='.txt'></input>
+                        </label> */}
+                         <label
+                            htmlFor="file-input"
+                            className="w-30 h-12 border-gray-400 border text-white rounded-xl 2xl:max-2xl:h-10 xl:max-2xl:h-9 xl:max-2xl:ml-5 xl:max-2xl:w-25  lg:max-xl:h-9 lg:max-xl:w-25 sm:max-lg:hidden block text-center p-2.5  cursor-pointer hover:border-indigo-400 bg-blue-400' id='buttons"
+                        >
+                            Import
+                        </label>
+                        <FileReaderComponent onFileRead={handleFileContent} triggerId="file-input" />
+
+                        <label htmlFor="file-input">
+                            <Import className="lg:hidden md:max-lg:block h-15 w-8 cursor-pointer" />
                         </label>
                     </div>
                     <div className='col-span-2 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-3 lg:max-xl:p-3 lg:max-xl:ml-4 lg:max-xl:col-span-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
@@ -379,7 +412,7 @@ function CodeIDE_Main() {
                 <div className="row-span-34 col-span-29 p-2 grid grid-cols-2 gap-5 sm:max-lg:grid-cols-1 md:max-lg:mt-2">
                     <div className=' inset-shadow-sm inset-shadow-neutral-200 shadow-md shadow-neutral-400 rounded-xl p-4 grid grid-rows-24 2xl:max-2xl:p-2.5 2xl:max-2xl:grid-cols-15 md:max-lg:grid-rows-28 md:max-lg:gap-1' id='textArea'>
 
-                        <div className=' inset-shadow-sm inset-shadow-neutral-200 shadow-md shadow-neutral-400 rounded-xl p-4 grid h-220 2xl:max-2xl:p-2.5 2xl:max-2xl:grid-cols-15 md:max-lg:grid-rows-28 md:max-lg:gap-1' id='textArea'>
+                        {/* <div className=' inset-shadow-sm inset-shadow-neutral-200 shadow-md shadow-neutral-400 rounded-xl p-4 grid h-220 2xl:max-2xl:p-2.5 2xl:max-2xl:grid-cols-15 md:max-lg:grid-rows-28 md:max-lg:gap-1' id='textArea'>
 
                             <CodeEditor
                                 className='border border-gray-300 rounded-xl p-5 text-white 2xl:max-2xl:col-span-15 xl:max-2xl:w-xl lg:max-xl:w-110 md:max-lg:w-2xl md:max-lg:row-span-25 sm:max-md:mt-2.5 sm:max-md:w-140' id='input' style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -389,7 +422,15 @@ function CodeIDE_Main() {
                                 code={code} setCode={setCode}
                                 selectedLanguage={selectedLanguage}
                             />
-                        </div>
+                        </div> */}
+                        <CodeEditor
+                            className='border border-gray-300 rounded-xl p-5 row-span-22 col-span-20 2xl:max-2xl:col-span-15 xl:max-2xl:w-xl lg:max-xl:w-110 md:max-lg:w-2xl md:max-lg:row-span-25 md:max-lg:mt-1.5 sm:max-md:mt-2.5 sm:max-md:w-140' style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                            html={html} setHtml={setHtml}
+                            css={css} setCss={setCss}
+                            js={js} setJs={setJs}
+                            code={code} setCode={setCode}
+                            selectedLanguage={selectedLanguage}
+                        />
                     </div>
                     <div disabled className=' inset-shadow-sm inset-shadow-neutral-200 shadow-md shadow-neutral-400 rounded-xl p-4 grid grid-rows-24 2xl:max-2xl:p-2.5 2xl:max-2xl:grid-cols-15 md:max-lg:grid-rows-28 md:max-lg:gap-1' id='textArea'>
                         <OutputFrame
