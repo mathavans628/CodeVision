@@ -7,12 +7,7 @@
  box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.2);
  }
  
- #run:hover {
- background: linear-gradient(135deg, #f5f7fa, #f0fff4);
- border-color: #48bb78;
- color: #2f855a;
- box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.2);
- } 
+ 
 
 /* :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -107,16 +102,16 @@ button:focus-visible {
   color:white
 }
 
-#buttons:hover {
+/* #buttons:hover {
   background: linear-gradient(135deg, #cce7ff, #e6f7ff);
   border-color: #63b3ed;
   color: #2b6cb0;
   box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.2);
-}
+} */
 
-#run:hover {
+/* #run:hover {
   background: linear-gradient(135deg, #f5f7fa, #f0fff4);
   border-color: #48bb78;
   color: #2f855a;
   box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.2);
-}
+} */

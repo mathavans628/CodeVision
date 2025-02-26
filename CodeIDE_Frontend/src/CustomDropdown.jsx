@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { SiJavascript, SiPython, SiC, SiCplusplus, SiPhp, SiRuby, SiGo, SiR, SiHtml5, SiCss3 } from "react-icons/si";
 import { FaJava } from "react-icons/fa";
 import { TbWorldCode } from "react-icons/tb";
+import Beautifier from "./Beautifier";
 
 const languageOptions = [
   { label: "Web Development", value: "web", icon: <TbWorldCode className="text-green-500" /> },
@@ -19,6 +20,7 @@ const languageOptions = [
 const CustomDropdown = ({ selected, onSelect }) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectedOption = languageOptions.find((opt) => opt.value === selected);
+
 
   return (
     <div className="relative inline-block w-64">

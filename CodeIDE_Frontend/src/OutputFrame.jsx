@@ -293,8 +293,8 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
                 </div>
             )}
 
-            <button
-                className="mt-4 bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg transition-colors duration-200 flex items-center"
+            <button 
+                className="mt-4 h-12 font-bold bg-[#6BCB77] hover:bg-green-700 px-6 py-2 rounded-lg transition-colors duration-200 flex items-center"
                 onClick={runCode}
             >
                 <span className="mr-2">Run Code</span>

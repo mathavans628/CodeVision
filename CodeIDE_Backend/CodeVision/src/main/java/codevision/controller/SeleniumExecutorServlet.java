@@ -129,17 +129,13 @@ public class SeleniumExecutorServlet extends HttpServlet {
         try {
         	   WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
-               // Find the input field inside the form
                WebElement inputField = wait.until(ExpectedConditions.elementToBeClickable(By.id("term-input")));
 
-               // Clear any existing text and enter the user input
                inputField.clear();
                inputField.sendKeys(userInput);
 
-               // Press ENTER to submit the input
                inputField.sendKeys(Keys.RETURN);
 
-//            out.write("{\"message\": \"User input sent successfully.\"}");
         } catch (NoSuchElementException e) {
             out.write("{\"error\": \"Input field not found.\"}");
         }

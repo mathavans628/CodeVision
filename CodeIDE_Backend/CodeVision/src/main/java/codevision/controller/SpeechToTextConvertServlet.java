@@ -38,6 +38,7 @@ public class SpeechToTextConvertServlet extends HttpServlet {
 
         try {
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+
             driver.get("http://localhost:5173");
 
             WebElement startRecord = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id='root']/div/div[1]/button[2]")));
