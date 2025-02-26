@@ -26,14 +26,7 @@ public class ResetPasswordServlet extends HttpServlet {
         JSONObject jsonResponse = new JSONObject();
         UserDAO userDAO = null;
         
-		try 
-		{
-			userDAO = new UserDAO();
-		}
-		catch (SQLException e) 
-		{
-			System.out.println("Error during UserDAO object creation: " + e.getMessage());
-		}
+		userDAO = new UserDAO();
 
         try {
             // Read JSON request

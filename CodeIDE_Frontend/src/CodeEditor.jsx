@@ -91,6 +91,7 @@ const CodeEditor = ({ html, setHtml, css, setCss, js, setJs, code, setCode, sele
               language={selectedLanguage} 
               theme="vs-dark" 
               value={code} 
+              inherit= {true}
               onChange={setCode} 
               options={{ fontSize }}
             />

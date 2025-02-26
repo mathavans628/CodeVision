@@ -28,17 +28,7 @@ public class CheckEmailServlet extends HttpServlet
         PrintWriter out = response.getWriter();
         
         UserDAO userDAO = null;
-        try 
-        {
-            userDAO = new UserDAO();
-        }
-        catch (SQLException e) 
-        {
-            System.err.println("Error initializing UserDAO: " + e.getMessage());
-            out.print("{\"success\": false, \"message\": \"Database connection error\"}");
-            out.close();
-            return;
-        }
+        userDAO = new UserDAO();
         
         try 
         {

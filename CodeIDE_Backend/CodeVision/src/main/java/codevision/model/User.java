@@ -15,6 +15,11 @@ public class User
     private IvParameterSpec iv; // Initialization Vector
     private byte[] profileImage; // Profile Image as byte array
 
+    public User()
+    {
+    	// Empty Constructor
+    }
+    
     // Constructor with all fields
     public User(int userId, String username, String email, String password, String forgotPasswordQuestion,
                 String forgotPasswordAnswer, SecretKey aesKey, IvParameterSpec iv, byte[] profileImage) 

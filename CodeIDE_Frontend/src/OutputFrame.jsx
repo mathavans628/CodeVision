@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import checkAuth from "./components/auth/checkAuth";
 
 const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
     const [output, setOutput] = useState("");
@@ -55,30 +56,42 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
     const [requiresInput, setRequiresInput] = useState(false);
 
     const sendUserInput = async () => {
-        if (!userInput.trim()) return; 
-    
-        setOutput((prev) => prev + "\n" + userInput); 
-        setRequiresInput(false); 
-    
+        const authStatus = await checkAuth();
+        if (!authStatus.isAuthenticated) {
+            alert("You are not authenticated! Please log in.");
+            return;
+        }
+        if (!userInput.trim()) return;
+
+        setOutput((prev) => prev + "\n" + userInput);
+        setRequiresInput(false);
+
         try {
             const response = await fetch("http://localhost:8080/CodeVision/SeleniumExecutorServlet/submitUserInput", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: new URLSearchParams({
-                    userInput 
+                    userInput
                 }),
+                credentials: "include",
             });
-    
+
             const text = await response.text();
             setOutput((prev) => prev + "\n" + text);
         } catch (error) {
             setOutput(`Error: ${error.message}`);
         }
-    };    
-    
+    };
+
     const runCode = async () => {
+        const authStatus = await checkAuth();
+        if (!authStatus.isAuthenticated) {
+            alert("You are not authenticated! Please log in.");
+            return;
+        }
+
         setOutput("Running...");
-        setRequiresInput(false);  
+        setRequiresInput(false);
 
         if (selectedLanguage === "web") {
             runJavaScriptCode();
@@ -90,6 +103,7 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: new URLSearchParams({ code, language: selectedLanguage, userInput }),
+                credentials: "include",
             });
 
             const reader = response.body.getReader();
@@ -109,15 +123,13 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
                         fullOutput = parsed.output.replace(/\\n/g, "\n");
                         setOutput(fullOutput);
 
-                        if(!fullOutput.includes("Process exited - Return Code:"))
-                        {
+                        if (!fullOutput.includes("Process exited - Return Code:")) {
                             setRequiresInput(true);
                         }
-                        else
-                        {
+                        else {
                             setRequiresInput(false);
                         }
-                        
+
                     });
                 } catch (jsonError) {
                     fullOutput = chunk.replace(/\\n/g, "\n");
@@ -132,12 +144,12 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
             setOutput(`Error: ${error.message}`);
         }
     };
-      
+
     const runJavaScriptCode = () => {
         try {
             const iframe = iframeRef.current;
             if (!iframe) return;
-    
+
             const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
             iframeDoc.open();
             iframeDoc.write(`
@@ -213,8 +225,8 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
         } catch (error) {
             setOutput(`Error: ${error.message}`);
         }
-    };    
-    
+    };
+
     const generatePreview = () => `
         <html>
             <head><style>${css}</style></head>
@@ -236,17 +248,15 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
             {selectedLanguage === "web" && (
                 <div className="flex  p-4">
                     <button
-                        className={`px-4 py-2 rounded-t-lg transition-colors ${
-                            activeTab === "preview" ? "bg-gray-700" : "bg-gray-800 hover:bg-gray-700"
-                        }`}
+                        className={`px-4 py-2 rounded-t-lg transition-colors ${activeTab === "preview" ? "bg-gray-700" : "bg-gray-800 hover:bg-gray-700"
+                            }`}
                         onClick={() => setActiveTab("preview")}
                     >
                         Preview
                     </button>
                     <button
-                        className={`px-4 py-2 rounded-t-lg ml-2 transition-colors ${
-                            activeTab === "console" ? "bg-gray-700" : "bg-gray-800 hover:bg-gray-700"
-                        }`}
+                        className={`px-4 py-2 rounded-t-lg ml-2 transition-colors ${activeTab === "console" ? "bg-gray-700" : "bg-gray-800 hover:bg-gray-700"
+                            }`}
                         onClick={() => setActiveTab("console")}
                     >
                         Console
@@ -283,7 +293,7 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
                 </div>
             )}
 
-            <button 
+            <button
                 className="mt-4 bg-blue-600 hover:bg-blue-700 px-6 py-2 rounded-lg transition-colors duration-200 flex items-center"
                 onClick={runCode}
             >

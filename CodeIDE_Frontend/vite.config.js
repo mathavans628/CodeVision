@@ -15,5 +15,11 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, '')
       }
     }
-  }
+  },
+  build: {
+    sourcemap: false, // Disable source maps in build (optional)
+  },
+  // Add this to disable source maps in dev mode
+  css: { devSourcemap: false },
+  esbuild: { sourcemap: false },
 })

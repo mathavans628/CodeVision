@@ -5,9 +5,12 @@ import { MdOutlineSave } from "react-icons/md";
 import { RiAiGenerate2 } from "react-icons/ri";
 import { SiConvertio } from "react-icons/si";
 import { FaEdit } from "react-icons/fa";
-import {useState } from 'react';
+import {useState, useEffect } from 'react';
 import { LuLogOut } from 'react-icons/lu';
 import { GrProjects } from "react-icons/gr";
+import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
+import checkAuth from "./components/auth/checkAuth";
 
 import SlidingPane from "react-sliding-pane";
 import "react-sliding-pane/dist/react-sliding-pane.css";
@@ -26,6 +29,7 @@ function CodeIDE_Main() {
     const [convertLang, setConvertLang] = useState(false);
     const [conversionValue, setConversionValue] = useState("");
     const [changeProfile, setChangeProfile] = useState(false);
+    const navigate = useNavigate();
 
 
     const [slidePanel, setSlidePanel] = useState(false);
@@ -56,6 +60,7 @@ function CodeIDE_Main() {
     const [js, setJs] = useState(defaultCodes.web.js);
     const [code, setCode] = useState(defaultCodes.javascript);
     const [darkMode, setDarkMode] = useState(false);
+    const [email, setEmail] = useState("");
 
     const handleLanguageChange = (newLanguage) => {
         setSelectedLanguage(newLanguage);
@@ -69,11 +74,62 @@ function CodeIDE_Main() {
         }
     };
 
+    const [profileImage, setProfileImage] = useState("https://via.placeholder.com/100");
+    const [userName, setUserName] = useState("John Doe"); // Default username
+    const [projects, setProjects] = useState([
+        { name: "Project 1", url: "https://example.com/project1" },
+        { name: "Project 2", url: "https://example.com/project2" }
+    ]);
+
+    const fetchUserData = async () => {
+        try {
+            const authStatus = await checkAuth();
+            if (!authStatus.isAuthenticated) {
+                alert("You are not authenticated! Please log in.");
+                return;
+            }
+    
+            const response = await fetch("http://localhost:8080/CodeVision/FetchUserDetailsServlet", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                credentials: "include",
+            });
+    
+            if (!response.ok) {
+                throw new Error("Failed to fetch user data");
+            }
+    
+            const data = await response.json();
+            console.log("User Data:", data);
+        } catch (error) {
+            console.error("Error fetching user data:", error);
+        }
+    }; 
+
+    useEffect(() => {
+        fetchUserData();
+    }, []);
+
+    // Handle Profile Image Upload
+    const handleProfileImageChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            const imageUrl = URL.createObjectURL(file);
+            setProfileImage(imageUrl);
+        }
+    };
+
+    // Handle Opening a Project
+    const openProject = (project) => {
+        console.log("Opening project:", project.name);
+        if (project.url) {
+            window.open(project.url, "_blank"); // Open in new tab
+        }
+    };
 
     var getOutput = "";
-
-
-
 
     const callRecord = async () => {
         try {
@@ -219,35 +275,95 @@ function CodeIDE_Main() {
                     </div>
 
 
-                    {slidePanel &&
-                        <SlidingPane
-                            closeIcon={<span className='flex justify-end' style={{ fontSize: "30px", fontWeight: "bold", cursor: "pointer", color: "red" }}>X</span>}
-
-                            isOpen={slidePanel}
-                            title="My Profile"
-                            width="500px"
-                            onRequestClose={() => setSlidePanel(false)}
-                        >
-                            <div className='grid grid-rows-16 gap-2 p-0'>
-                                <div className='relative flex items-center gap-5 hover:bg-gray-300 h-13 row-span-1' onClick={() => setChangeProfile(!changeProfile)}>
-                                    <FaEdit className='ml-1 cursor-pointer' /> Edit Profile
-                                </div>
-                                {changeProfile &&
-                                    <div className='flex items-center gap-6'>
-                                        User Name
-                                        <input placeholder='User Name' className='border rounded-sm pl-3 h-10  border-gray-400'></input>
-                                    </div>
-                                }
-                                <div className='relative flex items-center gap-5 hover:bg-gray-300 h-13 row-span-13'>
-                                    <GrProjects className='ml-1 cursor-pointer' /> My Projects
-                                </div>
-                                <div className='flex items-center gap-5 hover:bg-gray-300 h-13 row-span-1'>
-                                    <LuLogOut className='ml-1 cursor-pointer' /> Logout
-                                </div>
-
-                            </div>
-                        </SlidingPane>
+                    {slidePanel && (
+                <SlidingPane
+                    closeIcon={
+                        <span className="text-3xl font-bold cursor-pointer text-red-500 hover:text-red-700 transition duration-200">
+                            X
+                        </span>
                     }
+                    isOpen={slidePanel}
+                    title="My Profile"
+                    width="500px"
+                    onRequestClose={() => setSlidePanel(false)}
+                    className="!p-5"
+                >
+                    <div className="flex flex-col gap-6 p-3">
+                        {/* Profile Section */}
+                        <div className="flex flex-col items-center gap-5 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
+                            {/* Profile Image */}
+                            <div className="relative w-28 h-28">
+                                <img
+                                    src={profileImage}
+                                    alt="Profile"
+                                    className="w-full h-full rounded-full border-4 border-gray-300 shadow-md object-cover"
+                                />
+                                <label className="absolute bottom-1 right-1 bg-blue-500 p-2 rounded-full cursor-pointer shadow-md hover:bg-blue-600 transition duration-200">
+                                    <FaEdit className="text-white text-lg" />
+                                    <input type="file" className="hidden" onChange={handleProfileImageChange} />
+                                </label>
+                            </div>
+
+                            {/* User Details */}
+                            <div className="w-full flex flex-col gap-3 text-center">
+                                {/* Name Edit */}
+                                <div className="flex flex-col items-center">
+                                    <label className="text-sm font-semibold text-gray-700">User Name</label>
+                                    <input
+                                        value={userName}
+                                        onChange={(e) => setUserName(e.target.value)}
+                                        placeholder="Enter new username"
+                                        className="w-3/4 h-11 px-4 text-sm border rounded-lg border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-center"
+                                    />
+                                </div>
+
+                                {/* Email (Non-Editable) */}
+                                <div className="flex flex-col items-center">
+                                    <label className="text-sm font-semibold text-gray-700">Email</label>
+                                    <input
+                                        value={email}
+                                        className="w-3/4 h-11 px-4 text-sm border rounded-lg border-gray-300 bg-gray-200 text-gray-600 cursor-not-allowed text-center"
+                                        disabled
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Saved Projects Section */}
+                        <div className="flex flex-col gap-3 p-4 bg-white rounded-lg shadow-md border border-gray-200">
+                            <h2 className="text-lg font-semibold text-gray-800">My Projects</h2>
+
+                            {projects.length > 0 ? (
+                                projects.map((project, index) => (
+                                    <div
+                                        key={index}
+                                        className="flex items-center justify-between p-3 bg-gray-100 rounded-md shadow-sm hover:bg-gray-200 transition duration-200"
+                                    >
+                                        <span className="text-gray-800">{project.name}</span>
+                                        <button
+                                            className="text-blue-500 text-sm font-medium hover:underline"
+                                            onClick={() => openProject(project)}
+                                        >
+                                            Open
+                                        </button>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-gray-500 text-sm italic text-center">No projects saved</p>
+                            )}
+                        </div>
+
+                        {/* Logout Button */}
+                        <div
+                            className="mt-auto flex items-center gap-4 px-6 py-4 rounded-lg cursor-pointer transition duration-300 bg-red-500 text-white font-semibold shadow-md hover:bg-red-600 active:bg-red-700"
+                            onClick={() => navigate("/logout")}
+                        >
+                            <LuLogOut className="text-2xl" />
+                            <span className="text-lg">Logout</span>
+                        </div>
+                    </div>
+                </SlidingPane>
+            )}
 
                 </div>
                 {prompt &&

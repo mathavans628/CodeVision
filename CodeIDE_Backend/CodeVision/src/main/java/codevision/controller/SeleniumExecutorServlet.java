@@ -36,6 +36,11 @@ public class SeleniumExecutorServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	response.setContentType("application/json");
+        response.setHeader("Access-Control-Allow-Origin", "http://localhost:5174"); 
+        response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
 

@@ -1,28 +1,35 @@
-// Update the LoginForm.jsx to add the forgot password link
 import React, { useState } from "react";
-import { Mail, Lock } from "lucide-react";
+import { Mail, Lock, Cookie } from "lucide-react";
 import TextInput from "./TextInput";
 import PasswordInput from "./PasswordInput";
 import ForgotPasswordForm from "./ForgotPasswordForm";
 import { validateField } from "../../utils/validation";
 import LoginFetch from "../../Fetch/LoginFetch";
+import { useNavigate } from "react-router-dom";
+import checkAuth from "./checkAuth";
 
-const LoginForm = ({ switchMode }) => {
+const LoginForm = ({ setIsAuthenticated, switchMode }) => {
     const [showForgotPassword, setShowForgotPassword] = useState(false);
     const [formData, setFormData] = useState({ email: "", password: "" });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
 
+    const navigate = useNavigate();
+
     const handleInputChange = (field, value) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
-        setErrors((prev) => ({ ...prev, [field]: validateField(field, formData, true) }));
+
+        // Validate with the latest value
+        const errorMessage = validateField(field, { ...formData, [field]: value }, true);
+        setErrors((prev) => ({ ...prev, [field]: errorMessage }));
     };
 
     const handleSubmit = async () => {
         setLoading(true);
+        
         const emailError = validateField("email", formData, true);
         const passwordError = validateField("password", formData, true);
-        
+
         if (emailError || passwordError) {
             setErrors({ email: emailError, password: passwordError });
             setLoading(false);
@@ -31,14 +38,38 @@ const LoginForm = ({ switchMode }) => {
 
         try {
             const response = await LoginFetch(formData, "login");
-            if (response.success) {
+            console.log("Login Response:", response);
+    
+            if (response.success) 
+            {
                 alert("Logged in successfully!");
-            } else {
-                alert(response.message || "Login failed!");
+                const authStatus = await checkAuth();
+                console.log("Auth Check:", authStatus);
+                console.log("Is Authenticated:", authStatus.isAuthenticated);
+    
+                if (authStatus.isAuthenticated) 
+                {
+                    setIsAuthenticated(true);
+                    navigate("/main", { replace: true });
+                }
+                else
+                {
+                    setErrors({ email: "Authentication failed. Please log in again.",
+                                password: "Authentication failed. Please log in again." });
+                }
+            } 
+            else
+            {
+                setErrors({ email: response.message || "Invalid credentials",
+                            password: response.message || "Invalid credentials"});
             }
-        } catch (error) {
-            alert("Error connecting to the server!");
+        } 
+        catch (error)
+        {
+            setErrors({ email: "Network error. Please try again." });
+            console.error("Login error:", error);
         }
+
         setLoading(false);
     };
 
@@ -81,7 +112,8 @@ const LoginForm = ({ switchMode }) => {
 
             <button
                 disabled={loading}
-                className="w-full bg-blue-500 text-white p-2 rounded-lg cursor-pointer"
+                className={`w-full p-2 rounded-lg cursor-pointer transition 
+                    ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-500 text-white hover:bg-blue-600"}`}
                 onClick={handleSubmit}
             >
                 {loading ? "Logging in..." : "Login"}

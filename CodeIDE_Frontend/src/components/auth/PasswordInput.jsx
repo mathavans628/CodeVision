@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Eye, EyeOff, Lock } from "lucide-react";
+import { Eye, EyeOff, Lock, AlertCircle } from "lucide-react";
 
 const PasswordInput = ({ value, onChange, placeholder, error }) => {
     const [showPassword, setShowPassword] = useState(true);
@@ -13,7 +13,7 @@ const PasswordInput = ({ value, onChange, placeholder, error }) => {
 
                 {/* Password Input Field */}
                 <input
-                    type={!showPassword ? "text" : "password"}
+                    type={showPassword ? "text" : "password"}
                     placeholder={placeholder}
                     value={value}
                     onChange={onChange}
@@ -34,7 +34,11 @@ const PasswordInput = ({ value, onChange, placeholder, error }) => {
                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
             </div>
-            {error && <p className="text-red-500 text-xs md:text-sm mt-1">{error}</p>}
+            {error && (
+                <p className="flex items-center text-red-500 text-xs md:text-sm mt-1">
+                    <AlertCircle className="w-4 h-4 mr-1" /> {error}
+                </p>
+            )}
         </div>
     );
 };

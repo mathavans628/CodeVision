@@ -2,11 +2,13 @@ import { useState } from "react";
 import TextInput from "./TextInput";
 import PasswordInput from "./PasswordInput";
 import { validateField } from "../../utils/validation";
-import LoginFetch from "../../Fetch/LoginFetch";
+import SignupFetch from "../../Fetch/LoginFetch"; // Renamed for clarity (create this if needed)
 import SecurityQuestionDropdown from "./SecurityQuestionDropdown";
 import { Mail, User, ShieldCheck } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import checkAuth from "./checkAuth";
 
-const SignupForm = ({ switchMode }) => {
+const SignupForm = ({ setIsAuthenticated, switchMode }) => { 
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -16,19 +18,27 @@ const SignupForm = ({ switchMode }) => {
         securityAnswer: ""
     });
 
+    const navigate = useNavigate();
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
 
     const handleInputChange = (field, value) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
-        setErrors(prev => ({ ...prev, [field]: validateField(field, { ...formData, [field]: value }) }));
+        setFormData(prev => {
+            const updatedFormData = { ...prev, [field]: value };
+            setErrors(prevErrors => ({
+                ...prevErrors,
+                [field]: validateField(field, updatedFormData)
+            }));
+            return updatedFormData;
+        });
     };
 
     const handleSubmit = async () => {
         setLoading(true);
         const newErrors = {};
         let hasErrors = false;
-
+    
+        // Client-side validation
         Object.keys(formData).forEach(field => {
             const error = validateField(field, formData);
             if (error) {
@@ -36,23 +46,44 @@ const SignupForm = ({ switchMode }) => {
                 hasErrors = true;
             }
         });
-
+    
         if (hasErrors) {
             setErrors(newErrors);
             setLoading(false);
             return;
         }
-
+    
         try {
-            const response = await LoginFetch(formData, "signup");
+            const response = await SignupFetch(formData, "signup");
+            console.log("Signup Response:", response);
+    
             if (response.message === "User already exists with this email.") {
-                setErrors(prev => ({ ...prev, email: response.message }));
-            }            
-                
-            alert(response.success ? "Account created successfully!" : response.message);
+                setErrors({ email: response.message });
+                setLoading(false);
+                return;
+            }
+    
+            if (response.success) {
+                alert("Account created successfully!");
+                const authStatus = await checkAuth();
+                console.log("Auth Check:", authStatus);
+                console.log("Is Authenticated:", authStatus.isAuthenticated);
+    
+                if (authStatus.isAuthenticated) {
+                    setIsAuthenticated(true);
+                    navigate("/main", { replace: true });
+                } else {
+                    // User-friendly alert
+                    alert("Your account was created, but we couldn’t log you in automatically. Please log in with your new credentials.");
+                }
+            } else {
+                setErrors({ email: response.message || "Signup failed!" });
+            }
         } catch (error) {
-            alert("Error connecting to the server!");
+            setErrors({ email: "Error connecting to the server!" });
+            console.error("Signup error:", error);
         }
+    
         setLoading(false);
     };
 
@@ -123,7 +154,9 @@ const SignupForm = ({ switchMode }) => {
             {/* Switch to Login */}
             <p className="text-center text-sm">
                 Already have an account?{" "}
-                <button className="text-blue-500 font-medium hover:underline cursor-pointer" onClick={switchMode}>Login</button>
+                <button className="text-blue-500 font-medium hover:underline cursor-pointer" onClick={switchMode}>
+                    Login
+                </button>
             </p>
         </div>
     );

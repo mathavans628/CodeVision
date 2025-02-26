@@ -18,7 +18,7 @@
   
   <filter>
     <filter-name>CORSFilter</filter-name>
-    <filter-class>codevision.util.CORSFilter</filter-class>
+    <filter-class>codevision.filter.CORSFilter</filter-class>
   </filter>
   
   <filter-mapping>
