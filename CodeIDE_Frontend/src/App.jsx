@@ -53,14 +53,9 @@ function App() {
         {
             try 
             {
-<<<<<<< HEAD
-                if (isAuthenticated) 
-                {
-=======
                 console.log(document.cookie.includes("is_logged_in"));
                 
                 if (document.cookie.includes("is_logged_in")) { // Check flag cookie
->>>>>>> 304d35c4f8dfd93d12f3448e0f0da17a20551766
                     const authStatus = await checkAuth();
                     console.log("Auth Check:", authStatus);
                     setIsAuthenticated(authStatus.isAuthenticated);

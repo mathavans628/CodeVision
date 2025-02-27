@@ -30,16 +30,12 @@ public class SpeechToTextConvertServlet extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-<<<<<<< HEAD
-    	
-    	
     	System.out.println("kashgfhkjshafthew");
-=======
+    	
     	response.setContentType("application/json");
         response.setHeader("Access-Control-Allow-Origin", "http://localhost:5174"); 
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
->>>>>>> 304d35c4f8dfd93d12f3448e0f0da17a20551766
         String path = request.getPathInfo();
         if ("/StopRecording".equals(path)) {
             stopRecording(request, response);

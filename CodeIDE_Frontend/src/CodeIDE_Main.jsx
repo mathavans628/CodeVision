@@ -11,10 +11,13 @@ import { useRef, useState } from 'react';
 import { LuLogOut, LuImport } from 'react-icons/lu';
 import { GrProjects } from "react-icons/gr";
 import { FaCircleArrowRight } from "react-icons/fa6";
-import logo from "./assets/logo-Bg.png"
+import logo from "./assets/logo-noBg.png"
+import logo1 from "./assets/CodeAiD_DarkTheme.png";
 import SlidingPane from "react-sliding-pane";
 import "react-sliding-pane/dist/react-sliding-pane.css";
 import profileImage from "./assets/logo-Bg.png";
+import { useNavigate } from "react-router-dom";
+
 
 import CustomDropdown from "./CustomDropdown.jsx";
 import CodeEditor from "./CodeEditor";
@@ -35,11 +38,13 @@ function CodeIDE_Main() {
     const [userName, setUserName] = useState("");
     const [email, setEmailName] = useState("");
     const [projects, setProjects] = useState([]);
-    const navigate = useNavigate();
-
     let outputFromVoice = "";
     var getOutput = "";
     const generate = useRef();
+
+
+    const navigate = useNavigate();
+
 
     const getDefaultCode = (fileContent, fileName) => ({
 
@@ -90,11 +95,14 @@ function CodeIDE_Main() {
     const [code, setCode] = useState(defaultCodes.javascript);
     var selectedLanguageForVoice = "";
 
+
+
     // This function will receive the file content
     const handleFileContent = (content, fileName) => {
         setFileContent(content);
         setFileName(fileName)
     };
+
 
     const handleLanguageChange = (newLanguage) => {
         setSelectedLanguage(newLanguage);
@@ -138,8 +146,10 @@ function CodeIDE_Main() {
         URL.revokeObjectURL(url);
     };
 
+    const handleProfileImageChange = async () => {
 
-    
+    }
+
 
     const callRecord = async () => {
         try {
@@ -147,14 +157,15 @@ function CodeIDE_Main() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                }
+                },
+                credentials: 'include',
             });
         } catch (error) {
             console.error('Error:', error);
         }
     }
 
-   
+
 
     const codeConverter = async (lang) => {
         console.log(lang);
@@ -172,6 +183,7 @@ function CodeIDE_Main() {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
+                credentials: 'include',
                 body: new URLSearchParams({ selectedLanguage, lang, code })
             })
             if (response.ok) {
@@ -217,6 +229,7 @@ function CodeIDE_Main() {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
+                credentials: 'include',
                 body: new URLSearchParams({ lang, prompt })
             })
 
@@ -277,29 +290,49 @@ function CodeIDE_Main() {
 
 
 
-            return lines.slice(1, -1).join("\n");
-        }
-
+        return lines.slice(1, -1).join("\n");
+    }
 
     const extractCode = (response) => {
 
-            let responseObj = JSON.parse(response)
-            const result1 = responseObj.candidates[0].content.parts[0].text
-            getOutput = result1;
-            outputFromVoice = getCode(getOutput)
-            
-            setCode(outputFromVoice);
-            return(
-                
-                <>
-                <CodeEditor code={setCode(outputFromVoice)}/>
-                </>
-            )
-            
-        };
+        let responseObj = JSON.parse(response)
+        const result1 = responseObj.candidates[0].content.parts[0].text
+        getOutput = result1;
+        outputFromVoice = getCode(getOutput)
+
+        setCode(outputFromVoice);
+        console.log(code);
+        return (
+
+            <>
+                <CodeEditor code={setCode(outputFromVoice)} />
+            </>
+        )
+
+    };
+
+    const output = async () => {
+
+        const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBGFGKKQmRAtoyVR2IfaNfLv3G5XxH2Apg", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                contents: [{
+                    parts: [{ text: getOutput }],
+                }],
+            }),
+        });
+
+        const result = await response.text();
+
         extractCode(result)
 
     }
+
+
+
 
     const stopRecording = async () => {
         try {
@@ -308,6 +341,7 @@ function CodeIDE_Main() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
             });
 
             if (!response.ok) {
@@ -336,6 +370,7 @@ function CodeIDE_Main() {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
+                credentials: 'include',
                 body: new URLSearchParams({ code, selectedLanguage }),
             });
             if (response.ok) {
@@ -529,57 +564,21 @@ function CodeIDE_Main() {
 
                 </div>
                 {prompt &&
-                    <div className=' row-span-3 col-span-29 grid-cols-23 grid rounded-2xl bg-white shadow-md shadow-neutral-300 md:max-lg:p-1.5 md:max-lg:h-18 md:max-lg:mt-2'>
-                        <div className='flex  items-center justify-between flex-wrap col-span-15  h-13 mt-2 ml-1 2xl:max-2xl:h-15 lg:max-xl:col-span-14 md:max-lg:col-span-8 sm:max-md:col-span-13'>
-                            <input className='p-2 rounded-xl border-gray-300 border w-6xl h-12 2xl:max-2xl:h-10 2xl:max-2xl:w-5xl xl:max-2xl:h-10 xl:max-2xl:w-3xl lg:max-xl:h-10 lg:max-xl:w-xl md:max-lg:h-10 md:max-lg:w-3xs sm:max-md:w-xs sm:max-md:h-10' placeholder='Enter your prompt here...' ref={generate}></input>
-                            <p className='text-red-600 text-xs ml-5' id="field"></p>
+                    <div className='row-span-3 col-span-29 grid-cols-23 grid rounded-2xl bg-white shadow-md shadow-neutral-300 md:max-lg:h-18 md:max-lg:p-1.5'>
+                        <div className='col-span-15 p-2 h-18 2xl:max-2xl:h-15 lg:max-xl:col-span-14 md:max-lg:col-span-8 sm:max-md:col-span-13'>
+                            <input className='p-2 rounded-xl border-gray-300 border w-320 h-13 2xl:max-2xl:h-10 2xl:max-2xl:w-5xl xl:max-2xl:h-10 xl:max-2xl:w-3xl lg:max-xl:h-10 lg:max-xl:w-xl md:max-lg:h-10 md:max-lg:w-3xs sm:max-md:w-xs sm:max-md:h-10' placeholder='Enter your prompt here...' ref={generate} id='field'></input>
                         </div>
-                        <div className='col-span-1 p-5 w-17 h-17 2xl:max-2xl:13 2xl:max-2xl:p-2.5 xl:max-2xl:p-3 xl:max-2xl:col-span-2 lg:max-xl:p-2.5 md:max-lg:p-2.5 md:max-lg:col-span-8 sm:max-md:p-3.5 sm:max-md:col-span-6' onClick={() => setMic(!mic)}>
-                            {mic && <Mic className='w-8 h-8 xl:max-2xl:h-7 md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7 cursor-pointer text-red-500' onClick={stopRecording} />}
-                            {!mic && <MicOff className='w-8 h-8 xl:max-2xl:h-7 md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7 cursor-pointer' onClick={callRecord} />}
+                        <div className='flex items-center mt-1 col-span-1 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-2 lg:max-xl:col-span-3 lg:max-xl:p-3 md:max-lg:p-2 md:max-lg:col-span-4 sm:max-md:p-1'>
+                            <FaCircleArrowRight className='sm:max-md:h-13 sm:max-md:w-8 h-20 w-10 text-blue-600  cursor-pointer' onClick={generateCodeFromText} />
+                        </div>
+                        <div className='col-span-1 p-4 w-17 h-17 2xl:max-2xl:13 2xl:max-2xl:p-2.5 xl:max-2xl:p-3 xl:max-2xl:col-span-2 lg:max-xl:p-2.5 md:max-lg:p-2.5 md:max-lg:col-span-8 sm:max-md:p-3.5 sm:max-md:col-span-6' onClick={() => setMic(!mic)}>
+                            {mic && <Mic className='w-8 h-8 xl:max-2xl:h-7 text-red-500 md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7  cursor-pointer' onClick={stopRecording} />}
+                            {!mic && <MicOff className='w-8 h-8 xl:max-2xl:h-7 text-gray-700 md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7  cursor-pointer' onClick={callRecord} />}
 
                         </div>
-                        <div className='ml-4 flex pt-2 items-center col-span-6 w-40 h-15 2xl:max-2xl:p-2.5 xl:max-2xl:p-2 lg:max-xl:col-span-3 lg:max-xl:p-3 md:max-lg:p-2 md:max-lg:col-span-4 sm:max-md:p-1'>
-                            <FaCircleArrowRight className='text-blue-600 sm:max-md: sm:max-md:h-13 sm:max-md:w-8 h-20 w-10 cursor-pointer' onClick={generateCode} />
-                        </div>
-                        <div className='flex items-center ml-5 col-span-1 w-40 h-15  2xl:max-2xl:p-2.5 xl:max-2xl:p-2 xl:max-2xl:ml-7 lg:max-xl:p-3 md:max-lg:p-2 sm:max-md:p-1'>
-                            <SiConvertio className='text-gray-600 sm:max-md:h-13 sm:max-md:w-7 h-20 w-10 cursor-pointer' onClick={() => setConvertLang(!convertLang)} />
-                        </div>
-                        {convertLang && <div className='absolute right-4 z-10 w-50 h-120 mt-20 bg-white font-extrabold text-left rounded-xl shadow-xl shadow-gray-500'>
-                            <ul>
-                                <li className=' flex items-center hover:bg-gray-300 h-13' onClick={() => { setConvertLang(!convertLang); converter("java") }}>
-                                    <p className='ml-6'>Java</p>
 
-                                </li>
-                                <li className=' flex items-center hover:bg-gray-300 h-13' onClick={() => {  setConvertLang(!convertLang); converter("javascript") }}>
-                                    <p className='ml-6'>JavaScript</p>
-                                </li>
-                                <li className=' flex items-center hover:bg-gray-300 h-13' onClick={() => {  setConvertLang(!convertLang); converter("python3") }}>
-                                    <p className='ml-6'>Python</p>
-                                </li>
-                                <li className=' flex items-center hover:bg-gray-300 h-13' onClick={() => {  setConvertLang(!convertLang); converter("c") }}>
-                                    <p className='ml-6'>C</p>
-                                </li>
-                                <li className=' flex items-center hover:bg-gray-300 h-13' onClick={() => { setConvertLang(!convertLang); converter("cpp") }}>
-                                    <p className='ml-6'>C++</p>
-                                </li>
-                                <li className=' flex items-center hover:bg-gray-300 h-13' onClick={() => { setConvertLang(!convertLang); converter("php") }}>
-                                    <p className='ml-6'>Php</p>
-                                </li>
-                                <li className=' flex items-center hover:bg-gray-300 h-13' onClick={() => { setConvertLang(!convertLang); converter("ruby") }}>
-                                    <p className='ml-6'>Ruby</p>
-                                </li>
-                                <li className=' flex items-center hover:bg-gray-300 h-13' onClick={() => {  setConvertLang(!convertLang); converter("golang") }}>
-                                    <p className='ml-6'>Go</p>
-                                </li>
-                                <li className=' flex items-center hover:bg-gray-300 h-13' onClick={() => { setConvertLang(!convertLang); converter("rlang") }}>
-                                    <p className='ml-6'>R</p>
-                                </li>
 
-                            </ul>
-                        </div>}
-
-                </div>
+                    </div>
                 }
 
                 <div className="row-span-34 col-span-29 p-2 grid grid-cols-2 gap-5 sm:max-lg:grid-cols-1 md:max-lg:mt-2">
@@ -683,7 +682,7 @@ function CodeIDE_Main() {
                             {!mic && <MicOff className='w-8 h-8 xl:max-2xl:h-7 text-white md:max-lg:w-7 md:max-lg:h-7 sm:max-md:h-7 sm:max-md:w-7  cursor-pointer' onClick={callRecord} />}
 
                         </div>
-                        
+
 
                     </div>
                 }
