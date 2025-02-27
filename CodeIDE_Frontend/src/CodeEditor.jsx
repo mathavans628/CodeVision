@@ -27,7 +27,7 @@ const CodeEditor = ({ html, setHtml, css, setCss, js, setJs, code, setCode, sele
       (activeTab === "html" ? html : activeTab === "css" ? css : js) : code;
 
     navigator.clipboard.writeText(textToCopy).then(() => {
-      setCopied(true); // Show tooltip
+      setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     }).catch(err => {
       console.error("Failed to copy: ", err);
@@ -113,9 +113,9 @@ const CodeEditor = ({ html, setHtml, css, setCss, js, setJs, code, setCode, sele
 
             {/* Code Editor for Web Languages */}
             <div className="flex-1 overflow-hidden rounded-lg border border-gray-700 shadow-md"> 
-              {activeTab === "html" && <Editor height="100%" language="html" theme="vs-dark" value={html} onChange={setHtml} options={{ fontSize }} />}
-              {activeTab === "css" && <Editor height="100%" language="css" theme="vs-dark" value={css} onChange={setCss} options={{ fontSize }} />}
-              {activeTab === "javascript" && <Editor height="100%" language="javascript" theme="vs-dark" value={js} onChange={setJs} options={{ fontSize }} />}
+              {activeTab === "html" && <Editor height="100%" language="html" theme="vs-powerSell" value={html} onChange={setHtml} options={{ fontSize }} />}
+              {activeTab === "css" && <Editor height="100%" language="css" theme="vs-powerSell" value={css} onChange={setCss} options={{ fontSize }} />}
+              {activeTab === "javascript" && <Editor height="100%" language="javascript" theme="vs-powerSell" value={js} onChange={setJs} options={{ fontSize }} />}
             </div>
           </div>
         ) : (
@@ -124,7 +124,7 @@ const CodeEditor = ({ html, setHtml, css, setCss, js, setJs, code, setCode, sele
             <Editor 
               height="100%" 
               language={selectedLanguage} 
-              theme="vs-dark" 
+              theme="vs-powerShell" 
               value={code} 
               inherit= {true}
               onChange={setCode} 

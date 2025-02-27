@@ -38,6 +38,11 @@ public class CodeBeautifyServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		System.out.println("In");
 		
+		response.setHeader("Access-Control-Allow-Origin", "http://localhost:5174");
+	    response.setHeader("Access-Control-Allow-Credentials", "true");
+	    response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+	    response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");	
+		
 		WebDriverManager.chromedriver().setup();
 		driver = new ChromeDriver();
 		driver.manage().window().maximize();
@@ -120,14 +125,7 @@ public class CodeBeautifyServlet extends HttpServlet {
 		        WebElement outputBox = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"result\"]/div[2]/div/div[3]")));
 		        beautifiedCode = outputBox.getText();
 		}
-	    
-	    
-        
-       
-        
-        
-        
-
+	
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         

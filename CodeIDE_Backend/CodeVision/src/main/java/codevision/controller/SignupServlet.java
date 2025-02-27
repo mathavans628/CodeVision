@@ -84,10 +84,16 @@ public class SignupServlet extends HttpServlet {
 
                 Cookie authCookie = new Cookie("auth_token", jwtToken);
                 authCookie.setHttpOnly(true);
-                authCookie.setSecure(false); // Set to true in production
+                authCookie.setSecure(false); 
                 authCookie.setPath("/");
                 authCookie.setMaxAge((int) (expirationTime / 1000));
                 response.addCookie(authCookie);
+                
+                Cookie flagCookie = new Cookie("is_logged_in", "true");
+                flagCookie.setHttpOnly(false); 
+                flagCookie.setPath("/");
+                flagCookie.setMaxAge((int) (expirationTime / 1000));
+                response.addCookie(flagCookie);
 
                 // Create session
                 boolean sessionAdded = sessionDAO.createSession(jwtToken, user.getUserId(), expiryTimestamp);
