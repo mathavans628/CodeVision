@@ -26,6 +26,8 @@ public class LoginServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Handle CORS preflight
+    	
+    	System.out.println("kjhsakfas");
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             setCorsHeaders(response);
             response.setStatus(HttpServletResponse.SC_OK);

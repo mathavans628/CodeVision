@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { SiJavascript, SiPython, SiC, SiCplusplus, SiPhp, SiRuby, SiGo, SiR, SiHtml5, SiCss3 } from "react-icons/si";
 import { FaJava } from "react-icons/fa";
 import { TbWorldCode } from "react-icons/tb";
-import Beautifier from "./Beautifier";
 
 const languageOptions = [
   { label: "Web Development", value: "web", icon: <TbWorldCode className="text-green-500" /> },
@@ -26,7 +25,7 @@ const CustomDropdown = ({ selected, onSelect }) => {
     <div className="relative inline-block w-64">
       {/* Selected Option (Trigger) */}
       <div
-        className="bg-gray-800 w-56 h-12 text-white px-4 py-2 rounded-lg cursor-pointer flex justify-between items-center transition-all duration-200 hover:bg-gray-700"
+        className=" px-4 py-2 rounded-lg cursor-pointer flex justify-between items-center transition-all duration-200"
         onClick={() => setIsOpen(!isOpen)}
       >
         <div className="flex items-center gap-2">

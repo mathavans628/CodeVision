@@ -26,6 +26,7 @@ public class CORSFilter implements Filter {
         httpResponse.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
         httpResponse.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
         httpResponse.setHeader("Access-Control-Allow-Credentials", "true");
+        
 
         System.out.println("CORSFilter applied");
 

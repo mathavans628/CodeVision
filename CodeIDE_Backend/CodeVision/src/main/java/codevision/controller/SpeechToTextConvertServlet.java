@@ -30,6 +30,9 @@ public class SpeechToTextConvertServlet extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	
+    	
+    	System.out.println("kashgfhkjshafthew");
         String path = request.getPathInfo();
         if ("/StopRecording".equals(path)) {
             stopRecording(request, response);

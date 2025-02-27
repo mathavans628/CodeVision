@@ -34,6 +34,7 @@
 
 // export default App
 
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
@@ -52,9 +53,7 @@ function App() {
         {
             try 
             {
-                console.log("Cookies: " + document.cookie);
-
-                if (!document.cookie.includes("auth_token")) 
+                if (isAuthenticated) 
                 {
                     const authStatus = await checkAuth();
                     console.log("Auth Check:", authStatus);

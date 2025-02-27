@@ -101,6 +101,10 @@ button:focus-visible {
   background-color: #1F2937;
   color:white
 }
+#dropDown{
+  background-color: white;
+  color: black;
+}
 
 /* #buttons:hover {
   background: linear-gradient(135deg, #cce7ff, #e6f7ff);

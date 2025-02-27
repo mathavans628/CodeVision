@@ -13,7 +13,7 @@ const PasswordInput = ({ value, onChange, placeholder, error }) => {
 
                 {/* Password Input Field */}
                 <input
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? "password" : "text"}
                     placeholder={placeholder}
                     value={value}
                     onChange={onChange}
