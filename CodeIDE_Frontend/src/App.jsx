@@ -52,16 +52,14 @@ function App() {
         {
             try 
             {
-                console.log("Cookies: " + document.cookie);
-
-                if (!document.cookie.includes("auth_token")) 
-                {
+                console.log(document.cookie.includes("is_logged_in"));
+                
+                if (document.cookie.includes("is_logged_in")) { // Check flag cookie
                     const authStatus = await checkAuth();
                     console.log("Auth Check:", authStatus);
                     setIsAuthenticated(authStatus.isAuthenticated);
-                } 
-                else 
-                {
+                } else {
+                    console.log("No is_logged_in cookie, skipping checkAuth");
                     setIsAuthenticated(false);
                 }
             } 

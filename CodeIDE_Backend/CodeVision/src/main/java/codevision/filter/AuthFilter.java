@@ -20,7 +20,8 @@ public class AuthFilter implements Filter {
         String path = req.getRequestURI();
 
         // Allow public endpoints
-        if (path.endsWith("/LoginServlet") || path.endsWith("/SignupServlet") || path.endsWith("/CheckAuthServlet")) {
+        if (path.endsWith("/LoginServlet") || path.endsWith("/SignupServlet") || path.endsWith("/CheckAuthServlet") || path.endsWith("/") || path.endsWith("/SpeechToTextConvertServlet/StopRecording")
+        		|| path.endsWith("/CheckEmailServlet") || path.endsWith("/VerifySecurityServlet") || path.endsWith("/ResetPasswordServlet")) {
             chain.doFilter(request, response);
             return;
         }

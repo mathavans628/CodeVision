@@ -31,41 +31,43 @@ public class LogoutServlet extends HttpServlet {
         JSONObject jsonResponse = new JSONObject();
 
         try {
-        	String token = getTokenFromCookie(request);
-        	System.out.println("SFDCGVBHJMKL" + JwtUtil.decodeToken(token));
-        	
-        	if(token != null && JwtUtil.verifyToken(token))
-        	{
-        		Cookie cookie = new Cookie("auth_token", "");
-                cookie.setHttpOnly(true);
-                cookie.setSecure(request.isSecure());
-                cookie.setPath("/");
-                cookie.setMaxAge(0);
-                response.addCookie(cookie);
+            String token = getTokenFromCookie(request);
+            
+            if (token == null || token.trim().isEmpty()) {
+                jsonResponse.put("message", "No active session");
+                response.setStatus(HttpServletResponse.SC_OK);
+                return;
+            }
+
+            boolean isVerified = JwtUtil.verifyToken(token);
+            System.out.println("Token Verification: " + isVerified);
+
+            if (isVerified) {
+                // Clear auth_token cookie
+                clearCookie(response, "auth_token");
+                // Clear is_logged_in cookie (if present)
+                clearCookie(response, "is_logged_in");
 
                 boolean sessionRemoved = sessionDAO.deleteSession(token);
-                
-                if(sessionRemoved)
+
+                if (sessionRemoved) 
                 {
-                	System.out.println("Session Deleted");
-                    
-                	jsonResponse.put("message", "Logout successful");
-                    response.setStatus(HttpServletResponse.SC_OK);
-                }
+                    System.out.println("Session Deleted");
+                    jsonResponse.put("message", "Logout successful");
+                } 
                 else 
                 {
-                	System.out.println("Session not Deleted");
-                    
-                	jsonResponse.put("message", "Logout failed");
-                    response.setStatus(HttpServletResponse.SC_OK);
+                    System.out.println("Session not Deleted");
+                    jsonResponse.put("message", "Logout failed");
                 }
 
-        	}
-        	else
-        	{
-        		jsonResponse.put("message", "No active session");
-        		response.setStatus(HttpServletResponse.SC_OK);
-        	}
+                response.setStatus(HttpServletResponse.SC_OK);
+            }
+            else 
+            {
+                jsonResponse.put("message", "Invalid token or no active session");
+                response.setStatus(HttpServletResponse.SC_OK);
+            }
         }
         catch (Exception e) 
         {
@@ -87,6 +89,15 @@ public class LogoutServlet extends HttpServlet {
             }
         }
         return null;
+    }
+    
+    private void clearCookie(HttpServletResponse response, String cookieName) {
+        Cookie cookie = new Cookie(cookieName, "");
+        cookie.setHttpOnly(cookieName.equals("auth_token"));
+        cookie.setSecure(false);
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
     }
 
     private void setCorsHeaders(HttpServletResponse response) {

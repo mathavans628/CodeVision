@@ -9,10 +9,11 @@ import { useRef, useState } from 'react';
 import { LuLogOut, LuImport } from 'react-icons/lu';
 import { GrProjects } from "react-icons/gr";
 import { FaCircleArrowRight } from "react-icons/fa6";
+import { useNavigate } from "react-router-dom";
 import logo from "./assets/logo-Bg.png"
 import SlidingPane from "react-sliding-pane";
 import "react-sliding-pane/dist/react-sliding-pane.css";
-
+import profileImage from "./assets/logo-Bg.png";
 
 import CustomDropdown from "./CustomDropdown.jsx";
 import CodeEditor from "./CodeEditor";
@@ -30,14 +31,15 @@ function CodeIDE_Main() {
     const [slidePanel, setSlidePanel] = useState(false);
     const [fileContent, setFileContent] = useState("");
     const [fileName, setFileName] = useState("");
+    const [userName, setUserName] = useState("");
+    const [email, setEmailName] = useState("");
+    const [projects, setProjects] = useState([]);
+    const navigate = useNavigate();
+
     let outputFromVoice = "";
     var getOutput = "";
     var textPrompt = "";
     const generate = useRef();
-
-
-
-
 
     const getDefaultCode = (fileContent, fileName) => ({
 
@@ -87,14 +89,11 @@ function CodeIDE_Main() {
     const [code, setCode] = useState(defaultCodes.javascript);
     var selectedLanguageForVoice = "";
 
-
-
     // This function will receive the file content
     const handleFileContent = (content, fileName) => {
         setFileContent(content);
         setFileName(fileName)
     };
-
 
     const handleLanguageChange = (newLanguage) => {
         setSelectedLanguage(newLanguage);
@@ -138,8 +137,9 @@ function CodeIDE_Main() {
         URL.revokeObjectURL(url);
     };
 
-
-    
+    const handleProfileImageChange = async () => {
+        
+    }
 
     const callRecord = async () => {
         try {
@@ -147,14 +147,13 @@ function CodeIDE_Main() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                }
+                },
+                credentials: "include",
             });
         } catch (error) {
             console.error('Error:', error);
         }
     }
-
-   
 
     const converter = async (lang) => {
         try {
@@ -163,6 +162,7 @@ function CodeIDE_Main() {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
+                credentials: "include",
                 body: new URLSearchParams({ selectedLanguage, lang, code })
             })
             if (response.ok) {
@@ -174,7 +174,7 @@ function CodeIDE_Main() {
             <>
                 <CustomDropdown selected={selectedLanguage} onSelect={handleLanguageChange} />
                 <CodeEditor />
-                
+
             </>
         }
         catch (error) {
@@ -202,6 +202,7 @@ function CodeIDE_Main() {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
+                credentials: "include",
                 body: new URLSearchParams({ lang, prompt })
             })
 
@@ -214,7 +215,7 @@ function CodeIDE_Main() {
             }
             <>
                 <CodeEditor />
-                <CustomDropdown selected={selectedLanguage} onSelect={handleLanguageChange}/>
+                <CustomDropdown selected={selectedLanguage} onSelect={handleLanguageChange} />
             </>
         }
         catch (error) {
@@ -279,29 +280,25 @@ function CodeIDE_Main() {
             return lines.slice(1, -1).join("\n");
         }
 
-
         const extractCode = (response) => {
 
             let responseObj = JSON.parse(response)
             const result1 = responseObj.candidates[0].content.parts[0].text
             getOutput = result1;
             outputFromVoice = getCode(getOutput)
-            
+
             setCode(outputFromVoice);
-            return(
-                
+            return (
+
                 <>
-                <CodeEditor code={setCode(outputFromVoice)}/>
+                    <CodeEditor code={setCode(outputFromVoice)} />
                 </>
             )
-            
+
         };
         extractCode(result)
 
     }
-
-
-
 
     const stopRecording = async () => {
         try {
@@ -310,6 +307,7 @@ function CodeIDE_Main() {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: "include",
             });
 
             if (!response.ok) {
@@ -322,9 +320,9 @@ function CodeIDE_Main() {
 
             // geterateBothCodes(getOutput,selectedLanguage);
 
-            setTimeout(()=>{
+            setTimeout(() => {
                 output();
-            },2000)
+            }, 2000)
 
         } catch (error) {
             console.error("Error stopping recording:", error);
@@ -338,6 +336,7 @@ function CodeIDE_Main() {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
+                credentials: "include",
                 body: new URLSearchParams({ code, selectedLanguage }),
             });
             if (response.ok) {
@@ -346,10 +345,10 @@ function CodeIDE_Main() {
             } else {
                 console.log("Error Status: ", response.status);
             }
-            return(
-                <CodeEditor/>
+            return (
+                <CodeEditor />
             )
-    
+
         }
         catch (error) {
             console.log("Failed to fetch")
@@ -404,94 +403,94 @@ function CodeIDE_Main() {
 
 
                     {slidePanel && (
-                <SlidingPane
-                    closeIcon={
-                        <span className="text-3xl font-bold cursor-pointer text-red-500 hover:text-red-700 transition duration-200">
-                            X
-                        </span>
-                    }
-                    isOpen={slidePanel}
-                    title="My Profile"
-                    width="500px"
-                    onRequestClose={() => setSlidePanel(false)}
-                    className="!p-5"
-                >
-                    <div className="flex flex-col gap-6 p-3">
-                        {/* Profile Section */}
-                        <div className="flex flex-col items-center gap-5 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
-                            {/* Profile Image */}
-                            <div className="relative w-28 h-28">
-                                <img
-                                    src={profileImage}
-                                    alt="Profile"
-                                    className="w-full h-full rounded-full border-4 border-gray-300 shadow-md object-cover"
-                                />
-                                <label className="absolute bottom-1 right-1 bg-blue-500 p-2 rounded-full cursor-pointer shadow-md hover:bg-blue-600 transition duration-200">
-                                    <FaEdit className="text-white text-lg" />
-                                    <input type="file" className="hidden" onChange={handleProfileImageChange} />
-                                </label>
-                            </div>
-
-                            {/* User Details */}
-                            <div className="w-full flex flex-col gap-3 text-center">
-                                {/* Name Edit */}
-                                <div className="flex flex-col items-center">
-                                    <label className="text-sm font-semibold text-gray-700">User Name</label>
-                                    <input
-                                        value={userName}
-                                        onChange={(e) => setUserName(e.target.value)}
-                                        placeholder="Enter new username"
-                                        className="w-3/4 h-11 px-4 text-sm border rounded-lg border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-center"
-                                    />
-                                </div>
-
-                                {/* Email (Non-Editable) */}
-                                <div className="flex flex-col items-center">
-                                    <label className="text-sm font-semibold text-gray-700">Email</label>
-                                    <input
-                                        value={email}
-                                        className="w-3/4 h-11 px-4 text-sm border rounded-lg border-gray-300 bg-gray-200 text-gray-600 cursor-not-allowed text-center"
-                                        disabled
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Saved Projects Section */}
-                        <div className="flex flex-col gap-3 p-4 bg-white rounded-lg shadow-md border border-gray-200">
-                            <h2 className="text-lg font-semibold text-gray-800">My Projects</h2>
-
-                            {projects.length > 0 ? (
-                                projects.map((project, index) => (
-                                    <div
-                                        key={index}
-                                        className="flex items-center justify-between p-3 bg-gray-100 rounded-md shadow-sm hover:bg-gray-200 transition duration-200"
-                                    >
-                                        <span className="text-gray-800">{project.name}</span>
-                                        <button
-                                            className="text-blue-500 text-sm font-medium hover:underline"
-                                            onClick={() => openProject(project)}
-                                        >
-                                            Open
-                                        </button>
-                                    </div>
-                                ))
-                            ) : (
-                                <p className="text-gray-500 text-sm italic text-center">No projects saved</p>
-                            )}
-                        </div>
-
-                        {/* Logout Button */}
-                        <div
-                            className="mt-auto flex items-center gap-4 px-6 py-4 rounded-lg cursor-pointer transition duration-300 bg-red-500 text-white font-semibold shadow-md hover:bg-red-600 active:bg-red-700"
-                            onClick={() => navigate("/logout")}
+                        <SlidingPane
+                            closeIcon={
+                                <span className="text-3xl font-bold cursor-pointer text-red-500 hover:text-red-700 transition duration-200">
+                                    X
+                                </span>
+                            }
+                            isOpen={slidePanel}
+                            title="My Profile"
+                            width="500px"
+                            onRequestClose={() => setSlidePanel(false)}
+                            className="!p-5"
                         >
-                            <LuLogOut className="text-2xl" />
-                            <span className="text-lg">Logout</span>
-                        </div>
-                    </div>
-                </SlidingPane>
-            )}
+                            <div className="flex flex-col gap-6 p-3">
+                                {/* Profile Section */}
+                                <div className="flex flex-col items-center gap-5 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
+                                    {/* Profile Image */}
+                                    <div className="relative w-28 h-28">
+                                        <img
+                                            src={profileImage}
+                                            alt="Profile"
+                                            className="w-full h-full rounded-full border-4 border-gray-300 shadow-md object-cover"
+                                        />
+                                        <label className="absolute bottom-1 right-1 bg-blue-500 p-2 rounded-full cursor-pointer shadow-md hover:bg-blue-600 transition duration-200">
+                                            <FaEdit className="text-white text-lg" />
+                                            <input type="file" className="hidden" onChange={handleProfileImageChange} />
+                                        </label>
+                                    </div>
+
+                                    {/* User Details */}
+                                    <div className="w-full flex flex-col gap-3 text-center">
+                                        {/* Name Edit */}
+                                        <div className="flex flex-col items-center">
+                                            <label className="text-sm font-semibold text-gray-700">User Name</label>
+                                            <input
+                                                value={userName}
+                                                onChange={(e) => setUserName(e.target.value)}
+                                                placeholder="Enter new username"
+                                                className="w-3/4 h-11 px-4 text-sm border rounded-lg border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-center"
+                                            />
+                                        </div>
+
+                                        {/* Email (Non-Editable) */}
+                                        <div className="flex flex-col items-center">
+                                            <label className="text-sm font-semibold text-gray-700">Email</label>
+                                            <input
+                                                value={email}
+                                                className="w-3/4 h-11 px-4 text-sm border rounded-lg border-gray-300 bg-gray-200 text-gray-600 cursor-not-allowed text-center"
+                                                disabled
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Saved Projects Section */}
+                                <div className="flex flex-col gap-3 p-4 bg-white rounded-lg shadow-md border border-gray-200">
+                                    <h2 className="text-lg font-semibold text-gray-800">My Projects</h2>
+
+                                    {projects.length > 0 ? (
+                                        projects.map((project, index) => (
+                                            <div
+                                                key={index}
+                                                className="flex items-center justify-between p-3 bg-gray-100 rounded-md shadow-sm hover:bg-gray-200 transition duration-200"
+                                            >
+                                                <span className="text-gray-800">{project.name}</span>
+                                                <button
+                                                    className="text-blue-500 text-sm font-medium hover:underline"
+                                                    onClick={() => openProject(project)}
+                                                >
+                                                    Open
+                                                </button>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-gray-500 text-sm italic text-center">No projects saved</p>
+                                    )}
+                                </div>
+
+                                {/* Logout Button */}
+                                <div
+                                    className="mt-auto flex items-center gap-4 px-6 py-4 rounded-lg cursor-pointer transition duration-300 bg-red-500 text-white font-semibold shadow-md hover:bg-red-600 active:bg-red-700"
+                                    onClick={() => navigate("/logout")}
+                                >
+                                    <LuLogOut className="text-2xl" />
+                                    <span className="text-lg">Logout</span>
+                                </div>
+                            </div>
+                        </SlidingPane>
+                    )}
 
                 </div>
                 {prompt &&
@@ -517,13 +516,13 @@ function CodeIDE_Main() {
                                     <p className='ml-6'>Java</p>
 
                                 </li>
-                                <li className=' flex items-center hover:bg-gray-300 h-13' onClick={() => {  setConvertLang(!convertLang); converter("javascript") }}>
+                                <li className=' flex items-center hover:bg-gray-300 h-13' onClick={() => { setConvertLang(!convertLang); converter("javascript") }}>
                                     <p className='ml-6'>JavaScript</p>
                                 </li>
-                                <li className=' flex items-center hover:bg-gray-300 h-13' onClick={() => {  setConvertLang(!convertLang); converter("python3") }}>
+                                <li className=' flex items-center hover:bg-gray-300 h-13' onClick={() => { setConvertLang(!convertLang); converter("python3") }}>
                                     <p className='ml-6'>Python</p>
                                 </li>
-                                <li className=' flex items-center hover:bg-gray-300 h-13' onClick={() => {  setConvertLang(!convertLang); converter("c") }}>
+                                <li className=' flex items-center hover:bg-gray-300 h-13' onClick={() => { setConvertLang(!convertLang); converter("c") }}>
                                     <p className='ml-6'>C</p>
                                 </li>
                                 <li className=' flex items-center hover:bg-gray-300 h-13' onClick={() => { setConvertLang(!convertLang); converter("cpp") }}>
@@ -535,7 +534,7 @@ function CodeIDE_Main() {
                                 <li className=' flex items-center hover:bg-gray-300 h-13' onClick={() => { setConvertLang(!convertLang); converter("ruby") }}>
                                     <p className='ml-6'>Ruby</p>
                                 </li>
-                                <li className=' flex items-center hover:bg-gray-300 h-13' onClick={() => {  setConvertLang(!convertLang); converter("golang") }}>
+                                <li className=' flex items-center hover:bg-gray-300 h-13' onClick={() => { setConvertLang(!convertLang); converter("golang") }}>
                                     <p className='ml-6'>Go</p>
                                 </li>
                                 <li className=' flex items-center hover:bg-gray-300 h-13' onClick={() => { setConvertLang(!convertLang); converter("rlang") }}>

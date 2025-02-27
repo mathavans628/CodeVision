@@ -1,59 +1,49 @@
 import { useState, useEffect, useRef } from "react";
-import checkAuth from "./components/auth/checkAuth";
+import { Trash2 } from "lucide-react"; 
 
 const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
     const [output, setOutput] = useState("");
-    const [activeTab, setActiveTab] = useState("console");
+    const [activeTab, setActiveTab] = useState(selectedLanguage === "web" ? "preview" : "console");
     const [userInput, setUserInput] = useState("");
+    const [requiresInput, setRequiresInput] = useState(false);
     const iframeRef = useRef(null);
+    const hasRunRef = useRef(false); // Track if code has run to prevent repeats
 
-    const formatOutput = (text) => {
-        // Replace common control characters and format special outputs
-        return text
-            .split('\n')
-            .map((line, index) => {
-                // Style error messages
-                if (line.includes("Error:")) {
-                    return (
-                        <div key={index} className="text-red-500 font-medium">
-                            {line}
-                        </div>
-                    );
-                }
-                // Style warning messages
-                if (line.includes("Warning:")) {
-                    return (
-                        <div key={index} className="text-yellow-500">
-                            {line}
-                        </div>
-                    );
-                }
-                // Style input prompts
-                if (line.includes("Enter") || line.includes("Input:")) {
-                    return (
-                        <div key={index} className="text-blue-400">
-                            {line}
-                        </div>
-                    );
-                }
-                // Style success messages
-                if (line.includes("Success") || line.includes("Completed")) {
-                    return (
-                        <div key={index} className="text-green-500">
-                            {line}
-                        </div>
-                    );
-                }
-                // Default styling for regular output
-                return (
-                    <div key={index} className="font-mono">
-                        {line}
-                    </div>
-                );
+    const checkAuth = async () => {
+        try {
+            const response = await fetch("http://localhost:8080/CodeVision/CheckAuthServlet", {
+                method: "GET",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
             });
+            if (!response.ok) {
+                throw new Error(`Authentication check failed: ${response.status}`);
+            }
+            const data = await response.json();
+            return { isAuthenticated: data.success };
+        } catch (error) {
+            console.error("Failed to check authentication:", error);
+            return { isAuthenticated: false };
+        }
     };
 
-    const [requiresInput, setRequiresInput] = useState(false);
+    const formatOutput = (text) => {
+        return text.split('\n').map((line, index) => {
+            if (line.includes("Error:")) {
+                return <div key={index} className="text-red-500 font-medium">{line}</div>;
+            }
+            if (line.includes("Warning:")) {
+                return <div key={index} className="text-yellow-500">{line}</div>;
+            }
+            if (line.includes("Enter") || line.includes("Input:")) {
+                return <div key={index} className="text-blue-400">{line}</div>;
+            }
+            if (line.includes("Success") || line.includes("Completed")) {
+                return <div key={index} className="text-green-500">{line}</div>;
+            }
+            return <div key={index} className="font-mono text-green-400">{line}</div>;
+        });
+    };
 
     const sendUserInput = async () => {
         const authStatus = await checkAuth();
@@ -70,12 +60,9 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
             const response = await fetch("http://localhost:8080/CodeVision/SeleniumExecutorServlet/submitUserInput", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: new URLSearchParams({
-                    userInput
-                }),
+                body: new URLSearchParams({ userInput }),
                 credentials: "include",
             });
-
             const text = await response.text();
             setOutput((prev) => prev + "\n" + text);
         } catch (error) {
@@ -93,7 +80,7 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
         setOutput("Running...");
         setRequiresInput(false);
 
-        if (selectedLanguage === "web") {
+        if (selectedLanguage === "javascript") {
             runJavaScriptCode();
             return;
         }
@@ -115,26 +102,17 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
                 if (done) break;
 
                 const chunk = decoder.decode(value, { stream: true });
-
                 try {
                     const lines = chunk.trim().split("\n");
                     lines.forEach(line => {
                         const parsed = JSON.parse(line);
                         fullOutput = parsed.output.replace(/\\n/g, "\n");
                         setOutput(fullOutput);
-
-                        if (!fullOutput.includes("Process exited - Return Code:")) {
-                            setRequiresInput(true);
-                        }
-                        else {
-                            setRequiresInput(false);
-                        }
-
+                        setRequiresInput(!fullOutput.includes("Process exited - Return Code:"));
                     });
                 } catch (jsonError) {
                     fullOutput = chunk.replace(/\\n/g, "\n");
                     setOutput(fullOutput);
-
                     if (fullOutput.includes("Enter") || fullOutput.includes("Input:")) {
                         setRequiresInput(true);
                     }
@@ -154,65 +132,36 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
             iframeDoc.open();
             iframeDoc.write(`
                 <html>
-                    <head>
-                        <style>${css}</style>
-                    </head>
+                    <head></head>
                     <body>
-                        <div id="console-output" style="
-                            white-space: pre-wrap;
-                            word-wrap: break-word;
-                            font-family: monospace;
-                            padding: 1rem;
-                        "></div>
+                        <div id="console-output" style="white-space: pre-wrap; word-wrap: break-word; font-family: monospace; font-size: 1.3rem; padding: 1rem; color: #1eb932;"></div>
                         <script>
                             (function() {
-                                const originalConsole = {
-                                    log: console.log,
-                                    error: console.error,
-                                    warn: console.warn,
-                                    info: console.info
-                                };
-    
+                                const originalConsole = { log: console.log, error: console.error, warn: console.warn, info: console.info };
+                                let outputLines = [];
                                 function updateOutput(type, args) {
                                     const output = document.getElementById("console-output");
-                                    const line = document.createElement("div");
-                                    line.textContent = args.join(" ");
-                                    
-                                    switch(type) {
-                                        case "error":
-                                            line.style.color = "#ef4444";
-                                            break;
-                                        case "warn":
-                                            line.style.color = "#eab308";
-                                            break;
-                                        case "info":
-                                            line.style.color = "#3b82f6";
-                                            break;
-                                    }
-                                    
-                                    output.appendChild(line);
+                                    output.innerHTML = ""; // Clear previous output
+                                    const line = args.join(" ");
+                                    outputLines.push({ type, line });
+                                    outputLines.forEach(({ type: t, line: l }) => {
+                                        const div = document.createElement("div");
+                                        div.textContent = l;
+                                        switch(t) {
+                                            case "error": div.style.color = "#ef4444"; break;
+                                            case "warn": div.style.color = "#eab308"; break;
+                                            case "info": div.style.color = "#3b82f6"; break;
+                                            default: div.style.color = "#34d399"; // Green for log
+                                        }
+                                        output.appendChild(div);
+                                    });
                                 }
-    
-                                // Override console methods
-                                console.log = (...args) => {
-                                    originalConsole.log(...args);
-                                    updateOutput("log", args);
-                                };
-                                console.error = (...args) => {
-                                    originalConsole.error(...args);
-                                    updateOutput("error", args);
-                                };
-                                console.warn = (...args) => {
-                                    originalConsole.warn(...args);
-                                    updateOutput("warn", args);
-                                };
-                                console.info = (...args) => {
-                                    originalConsole.info(...args);
-                                    updateOutput("info", args);
-                                };
-    
+                                console.log = (...args) => { originalConsole.log(...args); updateOutput("log", args); };
+                                console.error = (...args) => { originalConsole.error(...args); updateOutput("error", args); };
+                                console.warn = (...args) => { originalConsole.warn(...args); updateOutput("warn", args); };
+                                console.info = (...args) => { originalConsole.info(...args); updateOutput("info", args); };
                                 try {
-                                    ${js}
+                                    ${selectedLanguage === "web" ? js : code}
                                 } catch (error) {
                                     console.error("Error:", error.message);
                                 }
@@ -234,36 +183,83 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
         </html>
     `;
 
+    const clearConsole = () => {
+        setOutput("");
+        if (iframeRef.current) {
+            const iframeDoc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document;
+            iframeDoc.open();
+            iframeDoc.write(`
+                <html><body><div id="console-output" style="white-space: pre-wrap; word-wrap: break-word; font-family: monospace; padding: 1rem; color: #1eb932;"></div></body></html>
+            `);
+            iframeDoc.close();
+        }
+    };
+
     useEffect(() => {
         setOutput("");
+        if (selectedLanguage === "web" || selectedLanguage === "javascript") {
+            if (!hasRunRef.current) {
+                runJavaScriptCode();
+                hasRunRef.current = true;
+            }
+        }
     }, [selectedLanguage]);
 
     useEffect(() => {
-        const iframe = iframeRef.current;
-        if (iframe) iframe.contentDocument.open();
-    }, [selectedLanguage, js]);
+        if (selectedLanguage === "web" || selectedLanguage === "javascript") {
+            runJavaScriptCode();
+        }
+    }, [html, css, js, code]);
 
     return (
         <div className="bg-gray-900 text-white rounded-lg p-4 pt-10 mt-4 w-213 h-213">
-            {selectedLanguage === "web" && (
-                <div className="flex  p-4">
+            <div className="flex flex-wrap justify-between items-center mb-4">
+                {/* Left Side: Preview & Console Buttons */}
+                <div className="flex space-x-4">
+                    {selectedLanguage === "web" && (
+                        <>
+                            <button
+                                className={`px-4 py-2 rounded-lg transition-colors ${
+                                    activeTab === "preview" ? "bg-gray-700" : "bg-gray-800 hover:bg-gray-700"
+                                }`}
+                                onClick={() => setActiveTab("preview")}
+                            >
+                                Preview
+                            </button>
+                            <button
+                                className={`px-4 py-2 rounded-lg transition-colors ${
+                                    activeTab === "console" ? "bg-gray-700" : "bg-gray-800 hover:bg-gray-700"
+                                }`}
+                                onClick={() => setActiveTab("console")}
+                            >
+                                Console
+                            </button>
+                        </>
+                    )}
+                </div>
+
+                {/* Right Side: Run & Clear Buttons */}
+                <div className="flex space-x-4">
+                    {selectedLanguage !== "web" && selectedLanguage !== "javascript" && (
+                        <button
+                            className="font-bold bg-[#1eb932] hover:bg-green-700 px-6 py-2 rounded-lg transition-colors duration-200 cursor-pointer"
+                            onClick={runCode}
+                        >
+                            Run
+                        </button>
+                    )}
+
                     <button
-                        className={`px-4 py-2 rounded-t-lg transition-colors ${activeTab === "preview" ? "bg-gray-700" : "bg-gray-800 hover:bg-gray-700"
-                            }`}
-                        onClick={() => setActiveTab("preview")}
+                        className="font-bold bg-gray-600 hover:bg-gray-700 px-6 py-2 flex items-center gap-2 rounded-lg transition-colors duration-200 cursor-pointer"
+                        onClick={clearConsole}
                     >
-                        Preview
-                    </button>
-                    <button
-                        className={`px-4 py-2 rounded-t-lg ml-2 transition-colors ${activeTab === "console" ? "bg-gray-700" : "bg-gray-800 hover:bg-gray-700"
-                            }`}
-                        onClick={() => setActiveTab("console")}
-                    >
-                        Console
+                        <Trash2 size={20} />
                     </button>
                 </div>
-            )}
+            </div>
 
+
+            {/* Output Area */}
             {selectedLanguage === "web" && activeTab === "preview" ? (
                 <iframe
                     title="preview"
@@ -272,12 +268,12 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
                     sandbox="allow-scripts"
                 />
             ) : (
-                <div className="w-205 h-150 mt-3 bg-gray-950 text-green-400 p-4 mr-10 rounded-lg overflow-auto font-mono">
-                    {(selectedLanguage === "javascript" || selectedLanguage === "web") && activeTab === "console" ? (
+                <div className="w-205 h-150 mt-3  bg-gray-800 text-xl text-green-400 p-4 mr-10 rounded-lg overflow-auto font-mono">
+                    {(selectedLanguage === "javascript" || (selectedLanguage === "web" && activeTab === "console")) ? (
                         <iframe
                             title="js-output"
                             ref={iframeRef}
-                            className="w-full h-full bg-gray-200  border border-gray-500 rounded-md"
+                            className="w-full h-full bg-gray-800 text-green-400 border border-gray-500 rounded-md"
                         />
                     ) : (
                         <div>{formatOutput(output || "Console is empty")}</div>
@@ -288,22 +284,22 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
             {requiresInput && (
                 <div className="mt-4">
                     <label htmlFor="userInput" className="block text-sm font-medium text-gray-300">Program Input</label>
-                    <input id="userInput" className="mt-1 p-2 w-full bg-gray-800 text-white rounded focus:ring-2 focus:ring-blue-500 focus:outline-none" value={userInput} onChange={(e) => setUserInput(e.target.value)} placeholder="Enter input for your program..." />
-                    <button className="mt-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg" onClick={sendUserInput}>Submit Input</button>
+                    <input
+                        id="userInput"
+                        className="mt-1 p-2 w-full bg-gray-800 text-white rounded focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                        value={userInput}
+                        autoComplete="false"
+                        onLoad={(e) => e.target.value = ""}
+                        onChange={(e) => setUserInput(e.target.value)}
+                        placeholder="Enter input for your program..."
+                    />
+                    <button className="mt-2 bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg" onClick={sendUserInput}>
+                        Submit Input
+                    </button>
                 </div>
             )}
-
-            <button 
-                className="mt-4 h-12 font-bold bg-[#6BCB77] hover:bg-green-700 px-6 py-2 rounded-lg transition-colors duration-200 flex items-center"
-                onClick={runCode}
-            >
-                <span className="mr-2">Run Code</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                </svg>
-            </button>
         </div>
     );
-}
+};
 
 export default OutputFrame;

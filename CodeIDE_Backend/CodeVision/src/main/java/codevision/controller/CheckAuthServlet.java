@@ -54,10 +54,13 @@ public class CheckAuthServlet extends HttpServlet {
             }
 
             // Validate token if present
-            if (token != null && JwtUtil.verifyToken(token)) {
+            boolean isVerified = JwtUtil.verifyToken(token);
+        	if(isVerified)
+        	{
                 jsonResponse.put("success", true);
                 jsonResponse.put("message", "User is authenticated");
-            } else {
+            } 
+        	else {
                 jsonResponse.put("success", false);
                 jsonResponse.put("message", "User is not authenticated");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 for unauthenticated

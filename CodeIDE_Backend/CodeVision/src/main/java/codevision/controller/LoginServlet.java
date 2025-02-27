@@ -74,6 +74,12 @@ public class LoginServlet extends HttpServlet {
                 authCookie.setMaxAge((int) (expirationTime / 1000));
                 response.addCookie(authCookie);
                 
+                Cookie flagCookie = new Cookie("is_logged_in", "true");
+                flagCookie.setHttpOnly(false); 
+                flagCookie.setPath("/");
+                flagCookie.setMaxAge((int) (expirationTime / 1000));
+                response.addCookie(flagCookie);
+                
                 boolean sessionAdded = sessionDAO.createSession(jwtToken, user.getUserId(), expiryTimestamp);
                 System.out.println("IS the Session is created" + sessionDAO.isSessionValid(jwtToken));
                 

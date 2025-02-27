@@ -13,10 +13,13 @@ const PasswordInput = ({ value, onChange, placeholder, error }) => {
 
                 {/* Password Input Field */}
                 <input
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? "password" : "text"}
                     placeholder={placeholder}
                     value={value}
                     onChange={onChange}
+                    onCopy={(e) => e.preventDefault()}
+                    onCut={(e) => e.preventDefault()}
+                    onPaste={(e) => e.preventDefault()}
                     className={`w-full pl-10 pr-10 py-2 rounded-lg border ${
                         error ? "border-red-500" : "border-gray-300"
                     } text-gray-700 placeholder-gray-400 focus:outline-none 
