@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Mail, Lock, Cookie } from "lucide-react";
+import { Mail, Lock } from "lucide-react";
 import TextInput from "./TextInput";
 import PasswordInput from "./PasswordInput";
 import ForgotPasswordForm from "./ForgotPasswordForm";

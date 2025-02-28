@@ -14,6 +14,7 @@ public class User
     private SecretKey aesKey; // AES encryption key
     private IvParameterSpec iv; // Initialization Vector
     private byte[] profileImage; // Profile Image as byte array
+    private String profileImageType;
 
     public User()
     {
@@ -21,18 +22,18 @@ public class User
     }
     
     // Constructor with all fields
-    public User(int userId, String username, String email, String password, String forgotPasswordQuestion,
-                String forgotPasswordAnswer, SecretKey aesKey, IvParameterSpec iv, byte[] profileImage) 
-    {
-        this.userId = userId;
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.forgotPasswordQuestion = forgotPasswordQuestion;
-        this.forgotPasswordAnswer = forgotPasswordAnswer;
-        this.aesKey = aesKey;
-        this.iv = iv;
-        this.profileImage = profileImage;
+    public User(int userId, String username, String email, String password, String forgotPasswordQuestion, 
+            String forgotPasswordAnswer, SecretKey aesKey, IvParameterSpec iv, byte[] profileImage, String profileImageType) {
+	    this.userId = userId;
+	    this.username = username;
+	    this.email = email;
+	    this.password = password;
+	    this.forgotPasswordQuestion = forgotPasswordQuestion;
+	    this.forgotPasswordAnswer = forgotPasswordAnswer;
+	    this.aesKey = aesKey;
+	    this.iv = iv;
+	    this.profileImage = profileImage;
+	    this.profileImageType = profileImageType;
     }
 
     // Constructor without user ID (For new user registration)
@@ -139,11 +140,21 @@ public class User
     {
         this.profileImage = profileImage;
     }
+    
+    public String getProfileImageType() 
+    {
+    	return profileImageType; 
+    }
+    
+    public void setProfileImageType(String profileImageType) 
+    {
+    	this.profileImageType = profileImageType; 
+    }
 
     @Override
     public String toString() 
     {
         return "User [userId=" + userId + ", username=" + username + ", email=" + email + 
-               ", forgotPasswordQuestion=" + forgotPasswordQuestion + ", forgotPasswordAnswer=" + forgotPasswordAnswer + "]";
+               ", forgotPasswordQuestion=" + forgotPasswordQuestion + ", forgotPasswordAnswer=" + forgotPasswordAnswer + ", Image" + profileImage + "]";
     }
 }

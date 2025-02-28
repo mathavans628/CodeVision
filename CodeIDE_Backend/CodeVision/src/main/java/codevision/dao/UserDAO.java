@@ -134,7 +134,7 @@ public class UserDAO
         return -1;
     }
     
-    public void storeUserDetails(int userId, String name, String profileUrl) throws Exception {
+    public void storeUserDetails(int userId, String name,  byte[] profileUrl) throws Exception {
         String sql = "INSERT INTO user_profiles (user_id, encrypted_username, profile_image) VALUES (?, ?, ?)";
         
         connection = getValidConnection(connection);
@@ -149,7 +149,7 @@ public class UserDAO
 
             pstmt.setInt(1, userId);
             pstmt.setString(2, AESUtil.encrypt(name, aesKey, iv)); 
-            pstmt.setString(3, profileUrl);
+            pstmt.setBytes(3, profileUrl);
             pstmt.executeUpdate();
         } catch (SQLException e) {
             System.err.println("Error storing user details: " + e.getMessage());
@@ -187,60 +187,50 @@ public class UserDAO
 		}
     }
     
-    public User login(String email, String password) throws SQLException
-    {
-        User user = null;
-        String query = "SELECT u.user_id, up.encrypted_username, u.email, u.password, " +
-                       "u.aes_key, u.iv, up.profile_image " +
+    public User login(String email, String password) throws SQLException {
+        String query = "SELECT u.user_id, up.encrypted_username, u.email, u.password, u.aes_key, u.iv, " +
+                       "up.profile_image, up.profile_image_type, " +
+                       "usq.encrypted_question, usq.encrypted_answer " +
                        "FROM users u " +
-                       "JOIN user_profiles up ON u.user_id = up.user_id";
+                       "JOIN user_profiles up ON u.user_id = up.user_id " +
+                       "LEFT JOIN user_security_questions usq ON u.user_id = usq.user_id " +
+                       "WHERE u.email IS NOT NULL"; 
         
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
+        connection = DatabaseConnection.getConnection();
         
-        connection = getValidConnection(connection);
-        
-        try 
-        {
-        	pstmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
-        	rs = pstmt.executeQuery();
-        	
-            while (rs.next())
-            {
+        try (PreparedStatement pstmt = connection.prepareStatement(query); ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
                 SecretKey aesKey = AESUtil.getSecretKey(rs.getString("aes_key"));
                 IvParameterSpec iv = AESUtil.getIvParameterSpec(rs.getString("iv"));
-
                 String decryptedEmail = AESUtil.decrypt(rs.getString("email"), aesKey, iv);
-                System.out.println(decryptedEmail.equals(email) + " " + decryptedEmail + " " + email + " " + BcryptUtil.verifyPassword(password, rs.getString("password")));
-                if (decryptedEmail.equals(email) && BcryptUtil.verifyPassword(password, rs.getString("password"))) 
-                {
-                    user = new User(
+
+                if (decryptedEmail.equals(email) && BcryptUtil.verifyPassword(password, rs.getString("password"))) {
+                    String encryptedUsername = rs.getString("encrypted_username");
+                    String encryptedQuestion = rs.getString("encrypted_question");
+                    String encryptedAnswer = rs.getString("encrypted_answer");
+
+                    return new User(
                         rs.getInt("user_id"),
-                        AESUtil.decrypt(rs.getString("encrypted_username"), aesKey, iv),
+                        encryptedUsername != null ? AESUtil.decrypt(encryptedUsername, aesKey, iv) : null,
                         decryptedEmail,
                         rs.getString("password"),
-                        null,
-                        null,
+                        encryptedQuestion != null ? AESUtil.decrypt(encryptedQuestion, aesKey, iv) : null, // Decrypt question
+                        encryptedAnswer != null ? AESUtil.decrypt(encryptedAnswer, aesKey, iv) : null,   // Decrypt answer
                         aesKey,
                         iv,
-                        rs.getBytes("profile_image")
+                        rs.getBytes("profile_image"),
+                        rs.getString("profile_image_type")
                     );
-                    break;
                 }
             }
-        }
-        catch (SQLException e) 
-        {
+        } catch (Exception e) {
             System.out.println("Error logging in: " + e.getMessage());
-        }
-        catch (Exception e) 
-        {
-            System.out.println("Error logging in: " + e.getMessage());
+            throw new SQLException("Login failed", e);
         }
         finally {
 			closeConnection(connection);
 		}
-        return user;
+        return null;
     }
 
     public boolean isUserExists(String email) 
@@ -487,75 +477,102 @@ public class UserDAO
         return iv;
     }
     
-    public User getUserDetails(int userID) {
-        User user = null;
+    public User getUserDetails(int userId) throws SQLException {
         String query = "SELECT u.user_id, u.email, u.password, u.aes_key, u.iv, " +
-                       "up.encrypted_username, up.profile_image, " +
-                       "usq.encrypted_question, usq.encrypted_answer " +
-                       "FROM users u " +
-                       "LEFT JOIN user_profiles up ON u.user_id = up.user_id " +
-                       "LEFT JOIN user_security_questions usq ON u.user_id = usq.user_id " +
+                       "up.encrypted_username, up.profile_image, up.profile_image_type " +
+                       "FROM users u JOIN user_profiles up ON u.user_id = up.user_id " +
                        "WHERE u.user_id = ?";
         
-        PreparedStatement pstmt = null;
+        connection = DatabaseConnection.getConnection();
         
-        try {
-        	connection = getValidConnection(connection);
-        	pstmt = connection.prepareStatement(query);
-            pstmt.setInt(1, userID);
-            ResultSet rs = pstmt.executeQuery();
-            
-            if (rs.next()) {
-                user = new User();
-                // Convert stored Base64 AES key and IV back to SecretKey and IvParameterSpec
-                String aesKeyBase64 = rs.getString("aes_key");
-                String ivBase64 = rs.getString("iv");
-                
-                if (aesKeyBase64 == null || ivBase64 == null) {
-                    throw new IllegalStateException("Encryption key or IV is missing for user: " + userID);
+        try (PreparedStatement pstmt = connection.prepareStatement(query)) {
+            pstmt.setInt(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    SecretKey aesKey = AESUtil.getSecretKey(rs.getString("aes_key"));
+                    IvParameterSpec iv = AESUtil.getIvParameterSpec(rs.getString("iv"));
+
+                    return new User(
+                        rs.getInt("user_id"),
+                        AESUtil.decrypt(rs.getString("encrypted_username"), aesKey, iv),
+                        AESUtil.decrypt(rs.getString("email"), aesKey, iv),
+                        rs.getString("password"),
+                        null,
+                        null,
+                        aesKey,
+                        iv,
+                        rs.getBytes("profile_image"),
+                        rs.getString("profile_image_type")
+                    );
                 }
-
-                SecretKey secretKey = AESUtil.getSecretKey(aesKeyBase64);
-                IvParameterSpec iv = AESUtil.getIvParameterSpec(ivBase64);
-                
-                user.setUserId(rs.getInt("user_id"));
-                
-                String email = AESUtil.decrypt(rs.getString("email"), secretKey, iv);
-                user.setEmail(email);
-
-                String password = rs.getString("password");
-                user.setPassword(password);
-
-                user.setAesKey(secretKey);
-                user.setIv(iv);
-                
-                String username = AESUtil.decrypt(rs.getString("encrypted_username"), secretKey, iv);
-                user.setUsername(username);
-                
-                user.setProfileImage(rs.getBytes("profile_image"));
-                System.out.println(user.getProfileImage());
-                
-                String forgotPasswordQuestion = AESUtil.decrypt(rs.getString("encrypted_question"), secretKey, iv);
-                user.setForgotPasswordQuestion(forgotPasswordQuestion);
-                
-                String forgotPasswordAnswer = AESUtil.decrypt(rs.getString("encrypted_answer"), secretKey, iv);
-                user.setForgotPasswordAnswer(forgotPasswordAnswer);
             }
-        } 
-        catch (SQLException e) {
+        } catch (Exception e) {
             System.out.println("Error fetching user details: " + e.getMessage());
-        } 
-        catch (NumberFormatException e) {
-        	System.out.println("Error fetching user details: " + e.getMessage());
-		} 
-        catch (Exception e) {
-			System.out.println("Error fetching user details: " + e.getMessage());
-		}
-        finally {
-			closeConnection(connection);
-		}
-        
-        return user;
+            throw new SQLException("Failed to fetch user details", e);
+        }
+        return null;
+    }
+
+    public byte[] getProfileImage(int userId) throws SQLException {
+        String sql = "SELECT profile_image FROM user_profiles WHERE user_id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getBytes("profile_image");
+                }
+            }
+        }
+        return null;
+    }
+
+    public String getProfileImageType(int userId) throws SQLException {
+        String sql = "SELECT profile_image_type FROM user_profiles WHERE user_id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("profile_image_type");
+                }
+            }
+        }
+        return "image/png"; // Default MIME type
+    }
+    
+    public void updateUserDetails(int userId, String username, byte[] profileImage, String profileImageType) throws SQLException {
+        // Fetch current data to preserve if not updating
+        User currentUser = getUserDetails(userId);
+        if (currentUser == null) {
+            throw new SQLException("User not found: " + userId);
+        }
+
+        String sql = "UPDATE user_profiles SET encrypted_username = ?, profile_image = ?, profile_image_type = ? WHERE user_id = ?";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            SecretKey aesKey = getAESKeyByUserId(userId);
+            IvParameterSpec iv = getIVByUserId(userId);
+
+            // Update username if provided, else keep current
+            pstmt.setString(1, username != null ? AESUtil.encrypt(username, aesKey, iv) : currentUser.getUsername());
+
+            // Update image only if new data provided, else preserve existing
+            if (profileImage != null) {
+                pstmt.setBytes(2, profileImage);
+                pstmt.setString(3, profileImageType);
+            } else {
+                pstmt.setBytes(2, currentUser.getProfileImage());
+                pstmt.setString(3, currentUser.getProfileImageType() != null ? currentUser.getProfileImageType() : "image/png");
+            }
+
+            pstmt.setInt(4, userId);
+
+            int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("No user found with user_id: " + userId);
+            }
+        } catch (Exception e) {
+            System.err.println("Error updating user details: " + e.getMessage());
+            throw new SQLException("Failed to update user details", e);
+        }
     }
     
     private void closeConnection(Connection con) {
