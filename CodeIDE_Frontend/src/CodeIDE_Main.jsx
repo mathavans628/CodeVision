@@ -7,7 +7,7 @@ import { MdOutlineSave } from "react-icons/md";
 import { RiAiGenerate2 } from "react-icons/ri";
 import { RiExchangeLine } from "react-icons/ri";
 import { FaEdit } from "react-icons/fa";
-import { useRef, useState } from 'react';
+import { useRef, useState,useEffect } from 'react';
 import { LuLogOut, LuImport } from 'react-icons/lu';
 import { GrProjects } from "react-icons/gr";
 import { FaCircleArrowRight } from "react-icons/fa6";
@@ -28,9 +28,7 @@ function CodeIDE_Main() {
     const [theme, setTheme] = useState(true);
     const [prompt, setPrompt] = useState(true);
     const [mic, setMic] = useState(false);
-    const [showProfile, setShowProfile] = useState(false);
     const [convertLang, setConvertLang] = useState(false);
-    const [changeProfile, setChangeProfile] = useState(false);
     const [selectedLanguage, setSelectedLanguage] = useState("web");
     const [slidePanel, setSlidePanel] = useState(false);
     const [fileContent, setFileContent] = useState("");
@@ -46,47 +44,51 @@ function CodeIDE_Main() {
     const navigate = useNavigate();
 
 
-    const getDefaultCode = (fileContent, fileName) => ({
-
+    const getDefaultCode = (fileContent, fileName) => (
+        {
         web: {
             html: (fileContent === "" || !fileName.includes(".html")) ? "<h1>Hello, World!</h1>" : fileContent,
             css: (fileContent === "" || !fileName.includes(".css")) ? "body { font-family: Arial; text-align: center; }" : fileContent,
             js: (fileContent === "" || !fileName.includes(".js")) ? "console.log('Hello, World!');" : fileContent,
         },
-        javascript: (fileContent === "" || !fileName.includes(".js")) ? "console.log('Hello, World!');" : fileContent,
-        python3: (fileContent === "" || !fileName.includes(".py")) ? 'print("Hello, World!")' : fileContent,
-        java: (fileContent === "" || !fileName.includes(".java")) ? `public class Main {
+        javascript: "console.log('Hello, World!');",
+        python3: 'print("Hello, World!")',
+        java: `public class Main {
         public static void main(String[] args) {
           System.out.println("Hello, World!");
         }
-      }`: fileContent,
+      }`,
 
-        c: (fileContent === "" || !fileName.includes(".c"))
-            ? `#include <stdio.h>
+        c: `#include <stdio.h>
       int main() {
         printf("Hello, World!\\n");
         return 0;
-      }`
-            : fileContent,
-        cpp: (fileContent === "" || !fileName.includes(".cpp"))
-            ? `#include <iostream>
+      }`,
+        cpp: `#include <iostream>
       int main() {
         std::cout << "Hello, World!" << std::endl;
         return 0;
-      }`: fileContent,
-        rlang: (fileContent === "" || !fileName.includes(".r")) ? 'print("Hello, World!")' : fileContent,
-        ruby: (fileContent === "" || !fileName.includes(".rb")) ? 'puts "Hello, World!"' : fileContent,
-        php: (fileContent === "" || !fileName.includes(".php")) ? '<?php echo "Hello, World!"; ?>' : fileContent,
-        golang: (fileContent === "" || !fileName.includes(".go")) ? `package main
+      }`,
+        rlang: 'print("Hello, World!")' ,
+        ruby: 'puts "Hello, World!"' ,
+        php: '<?php echo "Hello, World!"; ?>' ,
+        golang: `package main
       import "fmt"
       func main() {
         fmt.Println("Hello, World!")
-      }` : fileContent,
+      }` ,
+      
     });
 
+    
+
+    useEffect(() => {
+        console.log("Updated Language:", selectedLanguage);
+      }, [selectedLanguage]);
 
 
     const defaultCodes = getDefaultCode(fileContent, fileName);
+    
 
 
     const [html, setHtml] = useState(defaultCodes.web.html);
@@ -94,13 +96,17 @@ function CodeIDE_Main() {
     const [js, setJs] = useState(defaultCodes.web.js);
     const [code, setCode] = useState(defaultCodes.javascript);
     var selectedLanguageForVoice = "";
+    
 
 
 
     // This function will receive the file content
-    const handleFileContent = (content, fileName) => {
+    const handleFileContent = (content, fileName,language) => {
         setFileContent(content);
-        setFileName(fileName)
+        setFileName(fileName);
+        setSelectedLanguage(language);
+        <CustomDropdown selected={language}/>
+        setCode(content);
     };
 
 
@@ -350,7 +356,8 @@ function CodeIDE_Main() {
 
             const responseObj = await response.json();
             const result = responseObj.candidates[0].content.parts[0];
-            getOutput = result + " without mentioning any other text or language or single quotes";
+            getOutput = result + " without mentioning any other text or language or single quotes in "+selectedLanguage;
+            console.log(getOutput);
 
             // geterateBothCodes(getOutput,selectedLanguage);
 
@@ -396,7 +403,7 @@ function CodeIDE_Main() {
 
                 <div className="row-span-3 col-span-29 grid-cols-22 grid rounded-xl bg-white shadow-neutral-300 shadow-md inset-shadow-sm inset-shadow-neutral-200 lg:max-xl:grid-cols-35 md:max-lg:grid-cols-12 md:max-lg:h-17">
                     <div className="col-span-1 grid-cols-1 mt-1 w-19 h-16 rounded-full 2xl:max-2xl:15 2xl:max-2xl:h-15 xl:max-2xl:h-13 xl:max-2xl:p-1 lg:max-xl:h-13 lg:max-xl:p-1 lg:max-xl:col-span-2 md:max-lg:p-1.5 md:max-lg:col-span-1 sm:max-md:p-1.5  sm:max-md:col-span-2 relative">
-                        <img src={logo} className='rounded-full 2xl:max-2xl:w-15 2xl:max-2xl:h-15 xl:max-2xl:w-13 xl:max-2xl:h-13 lg:max-xl:w-12 lg:max-xl:h-12 md:max-lg:w-13 md:max-lg:h-13 sm:max-md:h-12 sm:max-md:w-12 cursor-pointer' onClick={() => setShowProfile(!showProfile)}></img>
+                        <img src={logo} className='rounded-full 2xl:max-2xl:w-15 2xl:max-2xl:h-15 xl:max-2xl:w-13 xl:max-2xl:h-13 lg:max-xl:w-12 lg:max-xl:h-12 md:max-lg:w-13 md:max-lg:h-13 sm:max-md:h-12 sm:max-md:w-12 cursor-pointer' onClick={() => window.location.reload()}></img>
                     </div>
 
                     <div className='mt-4 col-span-3 w-54 h-10 text-white py-2 rounded-lg cursor-pointer flex justify-between items-center transition-all duration-200 2xl:max-2xl:w-56 2xl:max-2xl:h-10 2xl:max-2xl:p-2.5 xl:max-2xl:h-8 xl:max-2xl:p-3 lg:max-xl:p-2.5 lg:max-xl:col-span-6 md:max-lg:p-2.5 md:max-lg:col-span-4 sm:max-md:p-2 sm:max-md:col-span-7 bg-gray-800 '>
@@ -405,8 +412,8 @@ function CodeIDE_Main() {
                     <div className='col-span-1  justify-center w-50 h-15 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-3 lg:max-xl:p-3 lg:max-xl:ml-4 lg:max-xl:col-span-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
 
                         <label htmlFor="file-input" className='items-center flex justify-center w-12 h-20'>
-                            <LuImport className="text-gray-600 h-20 w-10 md:max-lg:h-15 md:max-lg:w-8 mb-2 cursor-pointer" title='Import' />
-                            <FileReaderComponent onFileRead={handleFileContent} triggerId="file-input" />
+                            <LuImport className="text-gray-600 h-20 w-10 md:max-lg:h-15 md:max-lg:w-8 mb-2 cursor-pointer" title='Import'/>
+                            <FileReaderComponent onFileRead={handleFileContent} triggerId="file-input"/>
                         </label>
                     </div>
                     <div className='mt-0.5 flex  items-center  col-span-1 w-40 h-14 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-3 lg:max-xl:p-3 lg:max-xl:ml-4 lg:max-xl:col-span-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
@@ -566,7 +573,7 @@ function CodeIDE_Main() {
                 {prompt &&
                     <div className='row-span-3 col-span-29 grid-cols-23 grid rounded-2xl bg-white shadow-md shadow-neutral-300 md:max-lg:h-18 md:max-lg:p-1.5'>
                         <div className='col-span-15 p-2 h-18 2xl:max-2xl:h-15 lg:max-xl:col-span-14 md:max-lg:col-span-8 sm:max-md:col-span-13'>
-                            <input className='p-2 rounded-xl border-gray-300 border w-320 h-13 2xl:max-2xl:h-10 2xl:max-2xl:w-5xl xl:max-2xl:h-10 xl:max-2xl:w-3xl lg:max-xl:h-10 lg:max-xl:w-xl md:max-lg:h-10 md:max-lg:w-3xs sm:max-md:w-xs sm:max-md:h-10' placeholder='Enter your prompt here...' ref={generate} id='field'></input>
+                            <input className='p-2 rounded-xl border-gray-300 border w-310 h-13 2xl:max-2xl:h-10 2xl:max-2xl:w-5xl xl:max-2xl:h-10 xl:max-2xl:w-3xl lg:max-xl:h-10 lg:max-xl:w-xl md:max-lg:h-10 md:max-lg:w-3xs sm:max-md:w-xs sm:max-md:h-10' placeholder='Enter your prompt here...' ref={generate} id='field'></input>
                         </div>
                         <div className='flex items-center mt-1 col-span-1 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-2 lg:max-xl:col-span-3 lg:max-xl:p-3 md:max-lg:p-2 md:max-lg:col-span-4 sm:max-md:p-1'>
                             <FaCircleArrowRight className='sm:max-md:h-13 sm:max-md:w-8 h-20 w-10 text-blue-600  cursor-pointer' onClick={generateCodeFromText} />
@@ -611,7 +618,7 @@ function CodeIDE_Main() {
             <div className="w-screen h-screen overflow-hidden grid grid-rows-40 grid-cols-20 p-5 gap-2 bg-gray-100 2xl:max-2xl:h-screen 2xl:max-2xl:overflow-hidden xl:max-2xl:w-screen xl:max-2xl:h-screen xl:max-2xl:overflow-hidden lg:max-xl:w-screen lg:max-xl:h-screen lg:max-xl:overflow-hidden  md:max-lg:w-screen  md:max-lg:h-screen md:max-lg:overflow-x-hidden md:max-lg:overflow-y-scroll sm:max-md:overflow-x-hidden sm:max-md:overflow-y-scroll" id="wholeDiv">
                 <div className="row-span-3 col-span-29 grid-cols-22 grid rounded-xl bg-white shadow-neutral-300 shadow-md inset-shadow-sm inset-shadow-neutral-200 lg:max-xl:grid-cols-35 md:max-lg:grid-cols-12 md:max-lg:h-17" id='textArea'>
                     <div className="col-span-1 grid-cols-1 mt-1 w-19 h-16 rounded-full 2xl:max-2xl:15 2xl:max-2xl:h-15 xl:max-2xl:h-13 xl:max-2xl:p-1 lg:max-xl:h-13 lg:max-xl:p-1 lg:max-xl:col-span-2 md:max-lg:p-1.5 md:max-lg:col-span-1 sm:max-md:p-1.5  sm:max-md:col-span-2 relative">
-                        <img src={logo1} className='rounded-full 2xl:max-2xl:w-15 2xl:max-2xl:h-15 xl:max-2xl:w-13 xl:max-2xl:h-13 lg:max-xl:w-12 lg:max-xl:h-12 md:max-lg:w-13 md:max-lg:h-13 sm:max-md:h-12 sm:max-md:w-12 cursor-pointer' onClick={() => setShowProfile(!showProfile)}></img>
+                        <img src={logo1} className='rounded-full 2xl:max-2xl:w-15 2xl:max-2xl:h-15 xl:max-2xl:w-13 xl:max-2xl:h-13 lg:max-xl:w-12 lg:max-xl:h-12 md:max-lg:w-13 md:max-lg:h-13 sm:max-md:h-12 sm:max-md:w-12 cursor-pointer' onClick={() => window.location.reload()}></img>
                     </div>
 
 
@@ -652,22 +659,98 @@ function CodeIDE_Main() {
                         }
                     </div>
                     <div className="relative grid-cols-1 w-18 h-18 rounded-full 2xl:max-2xl:15 2xl:max-2xl:h-15 xl:max-2xl:h-13 xl:max-2xl:p-1 lg:max-xl:h-13 lg:max-xl:p-1 lg:max-xl:col-span-2 md:max-lg:p-1.5 md:max-lg:col-span-1 sm:max-md:p-1.5  sm:max-md:col-span-2">
-                        <img src="https://i.postimg.cc/fbfvCLrQ/p1.png" className='rounded-full 2xl:max-2xl:w-15 2xl:max-2xl:h-15 xl:max-2xl:w-13 xl:max-2xl:h-13 lg:max-xl:w-12 lg:max-xl:h-12 md:max-lg:w-13 md:max-lg:h-13 sm:max-md:h-12 sm:max-md:w-12 cursor-pointer' onClick={() => setShowProfile(!showProfile)}></img>
+                        <img src="https://i.postimg.cc/fbfvCLrQ/p1.png" className='rounded-full 2xl:max-2xl:w-15 2xl:max-2xl:h-15 xl:max-2xl:w-13 xl:max-2xl:h-13 lg:max-xl:w-12 lg:max-xl:h-12 md:max-lg:w-13 md:max-lg:h-13 sm:max-md:h-12 sm:max-md:w-12 cursor-pointer' onClick={() => setSlidePanel(!slidePanel)}></img>
                     </div>
-                    {showProfile && <div className='absolute right-0 z-10 w-50 h-50 mt-20 bg-gray-800 text-white font-extrabold text-left rounded-xl shadow-lg shadow-gray-500'>
 
-                        <h4 className='flex items-center h-13 hover:bg-gray-500'>
-                            <p className='ml-5'>User Name</p></h4>
-                        <ul>
-                            <li className='flex items-center gap-2 hover:bg-gray-500 h-13'>
-                                <FaEdit className='ml-5 cursor-pointer' /> Edit Profile
-                            </li>
-                            <li className='flex items-center gap-2 hover:bg-gray-500 h-13'>
-                                <LuLogOut className='ml-5 cursor-pointer' /> Logout
-                            </li>
+                    {slidePanel && (
+                        <SlidingPane
+                            closeIcon={
+                                <span className="text-3xl font-bold cursor-pointer text-red-500 hover:text-red-700 transition duration-200">
+                                    X
+                                </span>
+                            }
+                            isOpen={slidePanel}
+                            title="My Profile"
+                            width="500px"
+                            onRequestClose={() => setSlidePanel(false)}
+                            className="!p-5"
+                        >
+                            <div className="flex flex-col gap-6 p-3">
+                                {/* Profile Section */}
+                                <div className="flex flex-col items-center gap-5 p-6 bg-white rounded-xl shadow-lg border border-gray-200">
+                                    {/* Profile Image */}
+                                    <div className="relative w-28 h-28">
+                                        <img
+                                            src={profileImage}
+                                            alt="Profile"
+                                            className="w-full h-full rounded-full border-4 border-gray-300 shadow-md object-cover"
+                                        />
+                                        <label className="absolute bottom-1 right-1 bg-blue-500 p-2 rounded-full cursor-pointer shadow-md hover:bg-blue-600 transition duration-200">
+                                            <FaEdit className="text-white text-lg" />
+                                            <input type="file" className="hidden" onChange={handleProfileImageChange} />
+                                        </label>
+                                    </div>
 
-                        </ul>
-                    </div>}
+                                    {/* User Details */}
+                                    <div className="w-full flex flex-col gap-3 text-center">
+                                        {/* Name Edit */}
+                                        <div className="flex flex-col items-center">
+                                            <label className="text-sm font-semibold text-gray-700">User Name</label>
+                                            <input
+                                                value={userName}
+                                                onChange={(e) => setUserName(e.target.value)}
+                                                placeholder="Enter new username"
+                                                className="w-3/4 h-11 px-4 text-sm border rounded-lg border-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-center"
+                                            />
+                                        </div>
+
+                                        {/* Email (Non-Editable) */}
+                                        <div className="flex flex-col items-center">
+                                            <label className="text-sm font-semibold text-gray-700">Email</label>
+                                            <input
+                                                value={email}
+                                                className="w-3/4 h-11 px-4 text-sm border rounded-lg border-gray-300 bg-gray-200 text-gray-600 cursor-not-allowed text-center"
+                                                disabled
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Saved Projects Section */}
+                                <div className="flex flex-col gap-3 p-4 bg-white rounded-lg shadow-md border border-gray-200">
+                                    <h2 className="text-lg font-semibold text-gray-800">My Projects</h2>
+
+                                    {projects.length > 0 ? (
+                                        projects.map((project, index) => (
+                                            <div
+                                                key={index}
+                                                className="flex items-center justify-between p-3 bg-gray-100 rounded-md shadow-sm hover:bg-gray-200 transition duration-200"
+                                            >
+                                                <span className="text-gray-800">{project.name}</span>
+                                                <button
+                                                    className="text-blue-500 text-sm font-medium hover:underline"
+                                                    onClick={() => openProject(project)}
+                                                >
+                                                    Open
+                                                </button>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-gray-500 text-sm italic text-center">No projects saved</p>
+                                    )}
+                                </div>
+
+                                {/* Logout Button */}
+                                <div
+                                    className="mt-auto flex items-center gap-4 px-6 py-4 rounded-lg cursor-pointer transition duration-300 bg-red-500 text-white font-semibold shadow-md hover:bg-red-600 active:bg-red-700"
+                                    onClick={() => navigate("/logout")}
+                                >
+                                    <LuLogOut className="text-2xl" />
+                                    <span className="text-lg">Logout</span>
+                                </div>
+                            </div>
+                        </SlidingPane>
+                    )}
                 </div>
                 {prompt &&
                     <div className='row-span-3 col-span-29 grid-cols-23 grid rounded-2xl bg-white shadow-md shadow-neutral-300 md:max-lg:h-18 md:max-lg:p-1.5' id='textArea'>

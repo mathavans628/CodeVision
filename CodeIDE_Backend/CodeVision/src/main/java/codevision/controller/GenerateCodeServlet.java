@@ -38,16 +38,13 @@ public class GenerateCodeServlet extends HttpServlet {
 		String lang = request.getParameter("lang");
 		String generatedCode = "";
 		
-		System.out.println("Prompt: "+prompt);
-		System.out.println("Language: "+lang);
-		
 		
 		WebDriverManager.chromedriver().setup();
 		driver = new ChromeDriver();
 		
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50));
 		
-		String[] arr= new String[] {"java","js","javascript","java script","python","rlang"," r lang"," r","go","golang","go lang","php","ruby"," c ","cpp","c++"};
+		String[] arr= new String[] {" java "," js "," javascript ","java script","python","rlang"," r lang"," r ","go","golang","go lang","php","ruby"," c ","cpp","c++"};
 		
 		for(int i=0;i<arr.length;i++)
 		{
@@ -73,7 +70,7 @@ public class GenerateCodeServlet extends HttpServlet {
 		run.click();
 		
 		try {
-		Thread.sleep(1000);
+		Thread.sleep(5000);
 		}
 		catch(InterruptedException e)
 		{
