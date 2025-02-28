@@ -219,7 +219,7 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
                     {selectedLanguage === "web" && (
                         <>
                             <button
-                                className={`px-4 py-2 rounded-lg transition-colors ${
+                                className={`px-4 py-2 rounded-lg transition-colors cursor-pointer ${
                                     activeTab === "preview" ? "bg-gray-700" : "bg-gray-800 hover:bg-gray-700"
                                 }`}
                                 onClick={() => setActiveTab("preview")}
@@ -227,7 +227,7 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
                                 Preview
                             </button>
                             <button
-                                className={`px-4 py-2 rounded-lg transition-colors ${
+                                className={`px-4 py-2 rounded-lg transition-colors cursor-pointer ${
                                     activeTab === "console" ? "bg-gray-700" : "bg-gray-800 hover:bg-gray-700"
                                 }`}
                                 onClick={() => setActiveTab("console")}

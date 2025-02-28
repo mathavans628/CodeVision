@@ -48,7 +48,6 @@ const CodeEditor = ({ html, setHtml, css, setCss, js, setJs, code, setCode, sele
       case "r": return "rlang";
       case "html": return "web";
       case "css": return "web";
-      default: return "unknown";
     }
   };
   
@@ -67,7 +66,7 @@ const CodeEditor = ({ html, setHtml, css, setCss, js, setJs, code, setCode, sele
         <div>
           <label className="text-gray-300 text-sm mr-2">Font Size:</label>
           <select 
-            className="bg-gray-800 text-white px-3 py-1 rounded focus:outline-none"
+            className="bg-gray-800 text-white px-3 py-1 rounded focus:outline-none cursor-pointer"
             value={fontSize}
             onChange={(e) => setFontSize(parseInt(e.target.value))}
           >
@@ -79,8 +78,8 @@ const CodeEditor = ({ html, setHtml, css, setCss, js, setJs, code, setCode, sele
 
         {/* Copy Button with Tooltip */}
         <div className="relative">
-          <button 
-            className="bg-blue-600 hover:bg-blue-500 p-2 rounded-lg text-white flex items-center transition duration-200 relative"
+          <button title="Copy"
+            className="bg-blue-600 hover:bg-blue-500 p-2 rounded-lg text-white flex items-center transition duration-200 relative cursor-pointer"
             onClick={copyToClipboard}
           >
             {copied ? <Check size={20} color="lime" /> : <Clipboard size={20} />}
@@ -102,7 +101,7 @@ const CodeEditor = ({ html, setHtml, css, setCss, js, setJs, code, setCode, sele
               {["html", "css", "javascript"].map((tab) => (
                 <button
                   key={tab}
-                  className={`px-5 py-2 rounded-lg text-sm font-medium transition duration-300 
+                  className={`px-5 py-2 rounded-lg text-sm font-medium transition duration-300 cursor-pointer 
                     ${activeTab === tab ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-300 hover:bg-gray-600"}`}
                   onClick={() => setActiveTab(tab)}
                 >
@@ -113,7 +112,7 @@ const CodeEditor = ({ html, setHtml, css, setCss, js, setJs, code, setCode, sele
 
             {/* Code Editor for Web Languages */}
             <div className="flex-1 overflow-hidden rounded-lg border border-gray-700 shadow-md"> 
-              {activeTab === "html" && <Editor height="100%" language="html" theme="vs-powerSell" value={html} onChange={setHtml} options={{ fontSize }} />}
+              {activeTab === "html" && <Editor height="100%" language="html" theme="vs-powerSell" value={html} onChange={setHtml} options={{ fontSize }}/>}
               {activeTab === "css" && <Editor height="100%" language="css" theme="vs-powerSell" value={css} onChange={setCss} options={{ fontSize }} />}
               {activeTab === "javascript" && <Editor height="100%" language="javascript" theme="vs-powerSell" value={js} onChange={setJs} options={{ fontSize }} />}
             </div>

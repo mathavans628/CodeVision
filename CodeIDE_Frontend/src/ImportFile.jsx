@@ -17,6 +17,11 @@ const FileReaderComponent = ({ onFileRead, triggerId }) => {
             const content = reader.result;
             console.log(fileName);
             changeDropDownByFile();
+            if(lang == "")
+            {
+              return;
+            }
+            
             onFileRead(content,fileName,lang);
           };
           reader.onerror = (error) => {
@@ -57,12 +62,16 @@ const FileReaderComponent = ({ onFileRead, triggerId }) => {
         else if (fileName.endsWith(".php")) {
             lang = "php";
         }
+        else{
+          return;
+        }
     }
     
       return (
         <>
         <input
           type="file"
+          accept=".js,.java,.php,.c,.cpp,.rb,.py,.go,.r"
           onChange={handleFile}
           className="hidden"
           id={triggerId} 

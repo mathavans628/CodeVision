@@ -34,9 +34,12 @@ public class GenerateCodeServlet extends HttpServlet {
 	    response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
 	    response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");	
 	    
-		String prompt = request.getParameter("prompt").toLowerCase();
+		String prompt = request.getParameter("prompt").toLowerCase().trim();
 		String lang = request.getParameter("lang");
 		String generatedCode = "";
+		
+		System.out.println("Lang: "+lang);
+		System.out.println("Prompt: "+prompt);
 		
 		
 		WebDriverManager.chromedriver().setup();
@@ -44,16 +47,17 @@ public class GenerateCodeServlet extends HttpServlet {
 		
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50));
 		
-		String[] arr= new String[] {" java "," js "," javascript ","java script","python","rlang"," r lang"," r ","go","golang","go lang","php","ruby"," c ","cpp","c++"};
+		String[] arr= new String[] {" java "," js "," javascript ","java script","python","rlang"," r lang"," r ","go","golang","go lang","php","ruby"," c ","cpp","c++"," c"};
 		
-		for(int i=0;i<arr.length;i++)
-		{
-			if(prompt.contains(arr[i]))
-			{
-				lang = arr[i];
-				break;
-			}
-		}
+		 
+        for (int i = 0; i < arr.length; i++) {
+        	System.out.println(arr[i]);
+        	System.out.println(prompt.contains(arr[i]));
+            if (prompt.contains(arr[i])) { // Trim spaces & ignore case
+                System.out.println("Matched language: " + arr[i]);
+                break; // Stop after finding the first match
+            }
+        }
 		
 		
 		driver.get("https://zzzcode.ai/code-generator");
@@ -70,12 +74,13 @@ public class GenerateCodeServlet extends HttpServlet {
 		run.click();
 		
 		try {
-		Thread.sleep(5000);
+		Thread.sleep(7000);
 		}
 		catch(InterruptedException e)
 		{
 			System.out.println(e.getMessage());
 		}
+//		WebElement waiting = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"uiOutputHtml\"]/h2")));
 		
 		WebElement output = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"uiOutputHtml\"]/pre/div/div[2]/code")));
 		
@@ -105,7 +110,7 @@ public class GenerateCodeServlet extends HttpServlet {
 		{
 			lang = "cpp";
 		}
-		else if(lang.equals(" c "))
+		else if(lang.equals(" c ") || lang.equals(" c"))
 		{
 			lang = "c";
 		}
