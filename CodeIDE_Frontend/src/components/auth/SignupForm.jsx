@@ -2,20 +2,22 @@ import { useState } from "react";
 import TextInput from "./TextInput";
 import PasswordInput from "./PasswordInput";
 import { validateField } from "../../utils/validation";
-import SignupFetch from "../../Fetch/LoginFetch"; // Renamed for clarity (create this if needed)
+import SignupFetch from "../../Fetch/LoginFetch";
 import SecurityQuestionDropdown from "./SecurityQuestionDropdown";
 import { Mail, User, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import checkAuth from "./checkAuth";
+import { getDefaultProfileImage } from "./getDefaultProfileImage";
 
-const SignupForm = ({ setIsAuthenticated, switchMode }) => { 
+const SignupForm = ({ setIsAuthenticated, switchMode }) => {
     const [formData, setFormData] = useState({
         name: "",
         email: "",
         password: "",
         confirmPassword: "",
         securityQuestion: "",
-        securityAnswer: ""
+        securityAnswer: "",
+        profileImage: null,
     });
 
     const navigate = useNavigate();
@@ -37,38 +39,51 @@ const SignupForm = ({ setIsAuthenticated, switchMode }) => {
         setLoading(true);
         const newErrors = {};
         let hasErrors = false;
-    
+
         // Client-side validation
         Object.keys(formData).forEach(field => {
-            const error = validateField(field, formData);
-            if (error) {
-                newErrors[field] = error;
-                hasErrors = true;
+            if (field !== "profileImage") {
+                const error = validateField(field, formData);
+                if (error) {
+                    newErrors[field] = error;
+                    hasErrors = true;
+                }
             }
         });
-    
+
         if (hasErrors) {
             setErrors(newErrors);
             setLoading(false);
             return;
         }
-    
+
         try {
-            const response = await SignupFetch(formData, "signup");
+            // Prepare FormData for multipart request
+            const signupData = new FormData();
+            signupData.append("username", formData.name);
+            signupData.append("email", formData.email);
+            signupData.append("password", formData.password);
+            signupData.append("securityQuestion", formData.securityQuestion);
+            signupData.append("securityAnswer", formData.securityAnswer);
+
+            const defaultImageFile = await getDefaultProfileImage(); // Use helper function
+            signupData.append("profileImage", defaultImageFile);
+
+            const response = await SignupFetch(signupData, "signup");
             console.log("Signup Response:", response);
-    
+
             if (response.message === "User already exists with this email.") {
                 setErrors({ email: response.message });
                 setLoading(false);
                 return;
             }
-    
+
             if (response.success) {
                 alert("Account created successfully!");
                 const authStatus = await checkAuth();
                 console.log("Auth Check:", authStatus);
                 console.log("Is Authenticated:", authStatus.isAuthenticated);
-    
+
                 if (authStatus.isAuthenticated) {
                     setIsAuthenticated(true);
                     navigate("/main", { replace: true });
@@ -83,7 +98,7 @@ const SignupForm = ({ setIsAuthenticated, switchMode }) => {
             setErrors({ email: "Error connecting to the server!" });
             console.error("Signup error:", error);
         }
-    
+
         setLoading(false);
     };
 

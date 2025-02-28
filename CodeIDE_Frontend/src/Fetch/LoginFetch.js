@@ -19,21 +19,26 @@ const LoginFetch = async (formData, action) => {
     console.log("API Endpoint:", endpoint);
 
     try {
-        const response = await fetch(endpoint, {
+        const isMultipart = action === "signup"; // Add other multipart actions if needed
+        const requestOptions = {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-            credentials: "include", // Ensure cookies are sent and received
-        });
+            credentials: "include",
+            body: isMultipart ? formData : JSON.stringify(formData),
+        };
 
+        if (!isMultipart) {
+            requestOptions.headers = {
+                "Content-Type": "application/json",
+            };
+        } // No Content-Type for FormData - browser sets multipart/form-data automatically
+
+        const response = await fetch(endpoint, requestOptions);
         console.log("Response Status:", response.status);
 
         const text = await response.text();
-        console.log("Raw Response Text:", text); // Debugging
+        console.log("Raw Response Text:", text);
 
-        const data = text ? JSON.parse(text) : null; // Parse JSON safely
+        const data = text ? JSON.parse(text) : null;
         console.log("Response Data:", data);
 
         return data || { success: false, message: "Empty response from server" };

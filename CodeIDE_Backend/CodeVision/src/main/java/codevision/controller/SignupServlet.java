@@ -2,18 +2,19 @@ package codevision.controller;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
-import java.util.UUID;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
 import org.json.JSONObject;
 
 import codevision.dao.SessionDAO;
@@ -22,11 +23,12 @@ import codevision.model.User;
 import codevision.util.JwtUtil;
 
 @WebServlet("/SignupServlet")
+@MultipartConfig(maxFileSize = 10485760) // 10MB max file size
 public class SignupServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private final UserDAO userDAO = new UserDAO();
     private final SessionDAO sessionDAO = new SessionDAO();
-    
+
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             setCorsHeaders(response);
@@ -39,23 +41,29 @@ public class SignupServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         JSONObject jsonObject = new JSONObject();
 
-        try (BufferedReader reader = request.getReader()) {
-            StringBuilder requestBody = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                requestBody.append(line);
+        try {
+            // Extract form fields from multipart request
+            String username = request.getParameter("username");
+            String email = request.getParameter("email");
+            String password = request.getParameter("password");
+            String securityQuestion = request.getParameter("securityQuestion");
+            String securityAnswer = request.getParameter("securityAnswer");
+            Part filePart = request.getPart("profileImage"); // Image file
+
+            // Validate input
+            if (username == null || email == null || password == null || securityQuestion == null || securityAnswer == null ||
+                username.trim().isEmpty() || email.trim().isEmpty() || password.trim().isEmpty() || securityQuestion.trim().isEmpty() || securityAnswer.trim().isEmpty()) {
+                jsonObject.put("success", false);
+                jsonObject.put("message", "All fields are required");
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                sendResponse(response, jsonObject);
+                return;
             }
 
-            JSONObject requestData = new JSONObject(requestBody.toString());
-            String name = requestData.getString("name");
-            String email = requestData.getString("email");
-            String password = requestData.getString("password");
-            String securityQuestion = requestData.getString("securityQuestion");
-            String securityAnswer = requestData.getString("securityAnswer");
-
+            // Begin database transaction
             userDAO.beginTransaction();
             int userId = userDAO.createUser(email, password);
-            
+
             if (userId == -1) {
                 throw new Exception("User registration failed");
             } else if (userId == -2) {
@@ -67,63 +75,70 @@ public class SignupServlet extends HttpServlet {
             }
 
             userDAO.storeSecurityQuestion(userId, securityQuestion, securityAnswer);
-            String defaultProfileUrl = "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg";
-            userDAO.storeUserDetails(userId, name, defaultProfileUrl);
+
+            // Handle profile image
+            byte[] imageData = null;
+            if (filePart != null && filePart.getSize() > 0) {
+                try (InputStream inputStream = filePart.getInputStream()) {
+                    imageData = inputStream.readAllBytes(); // Read uploaded image
+                }
+            } else {
+                // Use default image (assumes you’ve stored Default_Profile.png in resources or fetched from frontend)
+                try (InputStream defaultImageStream = getServletContext().getResourceAsStream("/WEB-INF/Default_Profile.png")) {
+                    if (defaultImageStream != null) {
+                        imageData = defaultImageStream.readAllBytes();
+                    } else {
+                        throw new Exception("Default profile image not found");
+                    }
+                }
+            }
+
+            userDAO.storeUserDetails(userId, username, imageData); // Updated to store binary image data
 
             userDAO.commitTransaction();
-            
-            User user = userDAO.login(email, password);
-            System.out.println("------------------>>> " + user);
-            if (user != null) {
-                // Generate JWT token and set cookie (like LoginServlet)
-                String jwtToken = JwtUtil.generateToken(user.getUserId(), email);
-                System.out.println("Created Token: " + jwtToken);
 
+            // Login user post-signup
+            User user = userDAO.login(email, password);
+            if (user != null) {
+                String jwtToken = JwtUtil.generateToken(user.getUserId(), email);
                 long expirationTime = JwtUtil.getExpirationTime(jwtToken);
                 Timestamp expiryTimestamp = new Timestamp(expirationTime);
 
                 Cookie authCookie = new Cookie("auth_token", jwtToken);
                 authCookie.setHttpOnly(true);
-                authCookie.setSecure(false); 
+                authCookie.setSecure(false); // Set to true in production with HTTPS
                 authCookie.setPath("/");
                 authCookie.setMaxAge((int) (expirationTime / 1000));
                 response.addCookie(authCookie);
-                
+
                 Cookie flagCookie = new Cookie("is_logged_in", "true");
-                flagCookie.setHttpOnly(false); 
+                flagCookie.setHttpOnly(false);
                 flagCookie.setPath("/");
                 flagCookie.setMaxAge((int) (expirationTime / 1000));
                 response.addCookie(flagCookie);
 
-                // Create session
                 boolean sessionAdded = sessionDAO.createSession(jwtToken, user.getUserId(), expiryTimestamp);
-                System.out.println("Is the Session created: " + sessionDAO.isSessionValid(jwtToken));
-
                 if (sessionAdded) {
-                    System.out.println("Session created successfully.");
+                    jsonObject.put("success", true);
+                    jsonObject.put("message", "User registered successfully");
+                    jsonObject.put("jwtToken", jwtToken);
+                    jsonObject.put("user_id", user.getUserId());
+                    response.setStatus(HttpServletResponse.SC_CREATED);
                 } else {
-                    System.out.println("Failed to create session.");
                     jsonObject.put("success", false);
                     jsonObject.put("message", "Session creation failed.");
                     response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                    sendResponse(response, jsonObject);
-                    return;
                 }
-
-                jsonObject.put("success", true);
-                jsonObject.put("message", "User registered successfully");
-                jsonObject.put("jwtToken", jwtToken); // Optional, for consistency with LoginServlet
-                jsonObject.put("user_id", user.getUserId()); // Optional
-                response.setStatus(HttpServletResponse.SC_CREATED);
             } else {
                 jsonObject.put("success", false);
-                jsonObject.put("message", "Invalid email or password"); // Shouldn’t happen post-signup
+                jsonObject.put("message", "Login failed after signup");
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             }
         } catch (Exception e) {
             userDAO.rollbackTransaction();
             jsonObject.put("success", false);
-            jsonObject.put("message", "Error: " + e.getMessage());
+            jsonObject.put("message", "Error connecting to the server!");
+            System.out.println("Error: " + e.getMessage());
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
