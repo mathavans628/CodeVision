@@ -21,47 +21,58 @@ public class JwtUtil {
         }
         SECRET_KEY = secret;
 
-        long expirationTime = 30 * 60 * 1000; // Default: 30 minutes
+        long expirationTime = 7 * 24 * 60 * 60 * 1000; // 7 Days
         String expires = System.getenv("JWT_EXPIRATION_MINUTES");
-
         if (expires != null && !expires.isEmpty()) {
             try {
-                expirationTime = Long.parseLong(expires) * 60 * 1000;
+                long parsedExpiration = Long.parseLong(expires) * 60 * 1000;
+                if (parsedExpiration <= 0) {
+                    System.out.println("JWT_EXPIRATION_MINUTES must be positive. Using default (30 min).");
+                } else {
+                    expirationTime = parsedExpiration;
+                }
             } catch (NumberFormatException e) {
                 System.out.println("Invalid JWT_EXPIRATION_MINUTES value. Using default (30 min).");
             }
         }
-
         EXPIRATION_TIME = expirationTime;
+        System.out.println("JWT Expiration Time set to: " + (EXPIRATION_TIME / 1000) + " seconds");
     }
 
     public static String generateToken(int userId, String email) {
         try {
-            return JWT.create()
+            long now = System.currentTimeMillis();
+            Date expiresAt = new Date(now + EXPIRATION_TIME);
+            String token = JWT.create()
                     .withIssuer(ISSUER)
                     .withClaim("userId", userId)
                     .withClaim("email", email)
-                    .withIssuedAt(new Date())
-                    .withExpiresAt(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                    .withIssuedAt(new Date(now))
+                    .withExpiresAt(expiresAt)
                     .sign(Algorithm.HMAC256(SECRET_KEY));
+            System.out.println("Generated token with expiration: " + expiresAt);
+            return token;
         } catch (IllegalArgumentException e) {
             System.out.println("Error generating token: Invalid secret key.");
+            throw e;
         } catch (Exception e) {
             System.out.println("Unexpected error generating token: " + e.getMessage());
+            throw new RuntimeException("Failed to generate token", e);
         }
-        return null;
     }
 
-    public static boolean verifyToken(String token) 
-    {
+    public static boolean verifyToken(String token) {
         System.out.println("Verifying token: " + token);
+        DecodedJWT jwt = decodeToken(token);
+        if (jwt == null) return false;
 
-        if (isTokenExpiringSoon(token)) {
-            System.out.println("Token is about to expire, refreshing...");
-            token = refreshToken(token);
+        long now = System.currentTimeMillis();
+        long expiresAt = jwt.getExpiresAt().getTime();
+        boolean isValid = now < expiresAt;
+        if (!isValid) {
+            System.out.println("Token has expired: " + new Date(expiresAt));
         }
-
-        return decodeToken(token) != null;
+        return isValid;
     }
 
     public static Integer getUserIdFromToken(String token) {
@@ -74,7 +85,7 @@ public class JwtUtil {
         return (jwt != null) ? jwt.getClaim("email").asString() : null;
     }
 
-    public static Date getExpirationTimeFromToken(String token) {
+    public static Date getExpirationDateFromToken(String token) {
         DecodedJWT jwt = decodeToken(token);
         return (jwt != null) ? jwt.getExpiresAt() : null;
     }
@@ -94,32 +105,36 @@ public class JwtUtil {
 
     public static String refreshToken(String existingToken) {
         DecodedJWT jwt = decodeToken(existingToken);
-
-        if (jwt != null) {
-            if (System.currentTimeMillis() >= jwt.getExpiresAt().getTime()) {
-                System.out.println("Cannot refresh: Token already expired.");
-                return null;
-            }
-
-            return generateToken(
-                jwt.getClaim("userId").asInt(),
-                jwt.getClaim("email").asString()
-            );
+        if (jwt == null) {
+            System.out.println("Token refresh failed: Invalid token.");
+            return null;
         }
-        System.out.println("Token refresh failed: Invalid token.");
-        return null;
+
+        long now = System.currentTimeMillis();
+        if (now >= jwt.getExpiresAt().getTime()) {
+            System.out.println("Cannot refresh: Token already expired at " + jwt.getExpiresAt());
+            return null;
+        }
+
+        return generateToken(
+            jwt.getClaim("userId").asInt(),
+            jwt.getClaim("email").asString()
+        );
     }
 
     public static boolean isTokenExpiringSoon(String token) {
         long expiresAt = getExpirationTime(token);
-
         if (expiresAt == -1) {
             System.out.println("Cannot check expiration: Invalid token.");
             return false;
         }
 
         long timeLeft = expiresAt - System.currentTimeMillis();
-        return timeLeft > 0 && timeLeft < (40 * 60 * 1000);
+        boolean expiringSoon = timeLeft > 0 && timeLeft < (20 * 60 * 1000);
+        if (expiringSoon) {
+            System.out.println("Token expiring soon, time left: " + (timeLeft / 1000) + " seconds");
+        }
+        return expiringSoon;
     }
 
     public static DecodedJWT decodeToken(String token) {
@@ -130,13 +145,13 @@ public class JwtUtil {
 
         try {
             JWTVerifier verifier = JWT.require(Algorithm.HMAC256(SECRET_KEY))
-                                     .withIssuer(ISSUER)
-                                     .build();
+                    .withIssuer(ISSUER)
+                    .build();
             return verifier.verify(token);
         } catch (JWTVerificationException e) {
             System.out.println("JWT verification failed: " + e.getMessage());
+            return null;
         }
-        return null;
     }
 
     public static long getConfiguredExpirationTime() {
