@@ -57,74 +57,110 @@ public class CodeBeautifyServlet extends HttpServlet {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50));
 
 	    
-		if(lang.equals("php"))
-		{
-			driver.navigate().to("https://codebeautify.org/php-beautifier");
-			driver.navigate().refresh();
-			
-
-				JavascriptExecutor js = (JavascriptExecutor) driver;
-				js.executeScript("ace.edit('inputACEEditor').setValue(arguments[0]);", userCode);
-				
-				WebElement output = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"outputACEEditor\"]/div[2]/div/div[3]")));
-
-				
-				beautifiedCode = output.getText();
+//		if(lang.equals("php"))
+//		{
+//			driver.navigate().to("https://codebeautify.org/php-beautifier");
+//			driver.navigate().refresh();
+//			
+//
+//				JavascriptExecutor js = (JavascriptExecutor) driver;
+//				js.executeScript("ace.edit('inputACEEditor').setValue(arguments[0]);", userCode);
+//				
+//				WebElement output = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"outputACEEditor\"]/div[2]/div/div[3]")));
+//
+//				
+//				beautifiedCode = output.getText();
+//		}
+//		else if(lang.equals("python3"))
+//		{
+//			driver.navigate().to("https://www.tutorialspoint.com/online_python_formatter.htm");
+//			driver.navigate().refresh();
+//			
+//			
+//			try {
+//	        	JavascriptExecutor js = (JavascriptExecutor) driver;
+//	        	js.executeScript("ace.edit('code').setValue(arguments[0]);", userCode);
+//	        }
+//	        catch(Exception e)
+//	        {
+//	        	System.out.println("Failed to get input box"+e.getMessage());
+//	        }
+//	        
+//		 	WebElement runButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"beautify\"]")));
+//	        runButton.click();
+//	        
+//	        try {
+//				Thread.sleep(1000);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//	        
+//	        WebElement outputBox = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"result\"]/div[2]/div/div[3]")));
+//	        beautifiedCode = outputBox.getText();
+//		}
+//
+//		else {
+//			
+//			driver.navigate().to("https://www.tutorialspoint.com/online_java_formatter.htm");
+//			driver.navigate().refresh();
+//			
+//			 try {
+//		        	JavascriptExecutor js = (JavascriptExecutor) driver;
+//		        	js.executeScript("ace.edit('code').setValue(arguments[0]);", userCode);
+//		        }
+//		        catch(Exception e)
+//		        {
+//		        	System.out.println("Failed to get input box"+e.getMessage());
+//		        }
+//		        
+//			 	WebElement runButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"beautify\"]")));
+//		        runButton.click();
+//		        
+//		        try {
+//					Thread.sleep(1000);
+//				} catch (InterruptedException e) {
+//					e.printStackTrace();
+//				}
+//		        
+//		        WebElement outputBox = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"result\"]/div[2]/div/div[3]")));
+//		        beautifiedCode = outputBox.getText();
+//		}
+        
+        driver.navigate().to("https://zzzcode.ai/code-documentation");
+        WebElement langBox = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"uiP1\"]")));
+        langBox.click();
+        langBox.sendKeys(lang);
+        
+        WebElement codeBox = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"uiP3\"]")));
+        codeBox.click();
+        codeBox.sendKeys(userCode);
+        
+        WebElement dropDown = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"uiOption1\"]")));
+        dropDown.click();
+        
+        WebElement dropDownValue = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"uiOption1\"]/option[2]")));
+        dropDownValue.click();
+        
+        try {
+			Thread.sleep(3000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		else if(lang.equals("python3"))
-		{
-			driver.navigate().to("https://www.tutorialspoint.com/online_python_formatter.htm");
-			driver.navigate().refresh();
-			
-			
-			try {
-	        	JavascriptExecutor js = (JavascriptExecutor) driver;
-	        	js.executeScript("ace.edit('code').setValue(arguments[0]);", userCode);
-	        }
-	        catch(Exception e)
-	        {
-	        	System.out.println("Failed to get input box"+e.getMessage());
-	        }
-	        
-		 	WebElement runButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"beautify\"]")));
-	        runButton.click();
-	        
-	        try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-	        
-	        WebElement outputBox = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"result\"]/div[2]/div/div[3]")));
-	        beautifiedCode = outputBox.getText();
-		}
-
-		else {
-			
-			driver.navigate().to("https://www.tutorialspoint.com/online_java_formatter.htm");
-			driver.navigate().refresh();
-			
-			 try {
-		        	JavascriptExecutor js = (JavascriptExecutor) driver;
-		        	js.executeScript("ace.edit('code').setValue(arguments[0]);", userCode);
-		        }
-		        catch(Exception e)
-		        {
-		        	System.out.println("Failed to get input box"+e.getMessage());
-		        }
-		        
-			 	WebElement runButton = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"beautify\"]")));
-		        runButton.click();
-		        
-		        try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-		        
-		        WebElement outputBox = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"result\"]/div[2]/div/div[3]")));
-		        beautifiedCode = outputBox.getText();
-		}
+        
+        WebElement run = wait.until(ExpectedConditions.elementToBeClickable(By.id("uiActionButton")));
+        run.click();
+        
+        try {
+        	Thread.sleep(2000);
+        }
+        catch(InterruptedException e)
+        {
+        	System.out.println(e.getMessage());
+        }
+        
+        WebElement outputBox = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"uiOutputHtml\"]/pre/div/div[2]/code")));
+        beautifiedCode = outputBox.getText();
 	
         response.setContentType("application/json");
         PrintWriter out = response.getWriter();

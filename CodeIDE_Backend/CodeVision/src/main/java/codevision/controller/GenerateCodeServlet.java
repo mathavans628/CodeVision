@@ -47,15 +47,13 @@ public class GenerateCodeServlet extends HttpServlet {
 		
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50));
 		
-		String[] arr= new String[] {" java "," js "," javascript ","java script","python","rlang"," r lang"," r ","go","golang","go lang","php","ruby"," c ","cpp","c++"," c"};
+		String[] arr= new String[] {" java"," js"," javascript"," java "," js "," javascript "," python"," python "," rlang"," rlang "," r lang"," r "," go "," golang"," go lang"," php"," ruby"," c "," cpp"," cpp "," c++"," c"};
 		
 		 
         for (int i = 0; i < arr.length; i++) {
-        	System.out.println(arr[i]);
-        	System.out.println(prompt.contains(arr[i]));
-            if (prompt.contains(arr[i])) { // Trim spaces & ignore case
-                System.out.println("Matched language: " + arr[i]);
-                break; // Stop after finding the first match
+            if (prompt.contains(arr[i])) {
+            	lang = arr[i];
+                break;
             }
         }
 		
@@ -68,13 +66,13 @@ public class GenerateCodeServlet extends HttpServlet {
 		
 		WebElement promptBox = wait.until(ExpectedConditions.elementToBeClickable(By.id("uiP2")));
 		promptBox.click();
-		promptBox.sendKeys(prompt);
+		promptBox.sendKeys(prompt+ " If the language need Main class like that, give with that. Always name the Main class as Main. Don't show my prompt. ");
 		
 		WebElement run = wait.until(ExpectedConditions.elementToBeClickable(By.id("uiActionButton")));
 		run.click();
 		
 		try {
-		Thread.sleep(7000);
+		Thread.sleep(10000);
 		}
 		catch(InterruptedException e)
 		{
@@ -90,23 +88,28 @@ public class GenerateCodeServlet extends HttpServlet {
 		response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         
-        if(lang.equals("js") || lang.equals("java script"))
+        if(lang.equals(" js") || lang.equals(" js ") || lang.equals(" javascript "))
 		{
 			lang = "javascript";
 		}
-		else if(lang.equals("python"))
+        else if(lang.equals(" java") || lang.equals(" java "))
+		{
+        	System.out.println("java");
+			lang = "java";
+		}
+		else if(lang.equals(" python") || lang.equals(" python "))
 		{
 			lang = "python3";
 		}
-		else if(lang.equals("go") || lang.equals("go lang"))
+		else if(lang.equals(" go") || lang.equals(" go ") || lang.equals(" golang "))
 		{
 			lang = "golang";
 		}
-		else if(lang.equals(" r") || lang.equals("r lang"))
+		else if(lang.equals(" r") || lang.equals(" r ") || lang.equals(" rlang "))
 		{
 			lang = "rlang";
 		}
-		else if(lang.equals("c++"))
+		else if(lang.equals(" c++") || lang.equals(" c++ ") || lang.equals(" cpp") || lang.equals(" cpp "))
 		{
 			lang = "cpp";
 		}

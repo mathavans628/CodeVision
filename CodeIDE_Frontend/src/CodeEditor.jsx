@@ -112,13 +112,13 @@ const CodeEditor = ({ html, setHtml, css, setCss, js, setJs, code, setCode, sele
     };
 
     return (
-        <div className="bg-gray-900 p-4 rounded-xl shadow-lg w-215 h-215 flex flex-col">
+        <div className="bg-gray-900 p-4 rounded-xl shadow-lg w-215 h-215 flex flex-col 5xs:max-3xs:w-full 5xs:max-3xs:p-0.5 5xs:max-3xs:h-110 5xs:max-3xs:pb-3 3xs:max-2xs:h-120 3xs:max-2xs:w-110 3xs:max-2xs:p-1.5 3xs:max-2xs:w-130 sm:max-md:w-155 md:max-lg:w-208 3xl:max-4xl:w-174 3xl:max-4xl:h-175">
             {/* Top Controls */}
-            <div className="flex justify-between items-center mb-3">
+            <div className="flex justify-between items-center mb-3 5xs:max-3xs:pl-3">
                 <div>
                     <label className="text-gray-300 text-sm mr-2">Font Size:</label>
                     <select 
-                        className="bg-gray-800 text-white px-3 py-1 rounded focus:outline-none"
+                        className="bg-gray-800 text-white px-3 py-1 rounded focus:outline-none cursor-pointer 5xs:max-3xs:h-7 5xs:max-3xs:w-20.5"
                         value={fontSize}
                         onChange={(e) => setFontSize(parseInt(e.target.value))}
                     >
@@ -127,9 +127,9 @@ const CodeEditor = ({ html, setHtml, css, setCss, js, setJs, code, setCode, sele
                         ))}
                     </select>
                 </div>
-                <div className="relative">
+                <div className="relative 5xs:max-3xs:pr-1 5xs:max-3xs:m-1">
                     <button 
-                        className="bg-blue-600 hover:bg-blue-500 p-2 rounded-lg text-white flex items-center transition duration-200"
+                        className="bg-blue-600 hover:bg-blue-500 p-2 rounded-lg text-white flex items-center transition duration-200 cursor-pointer"
                         onClick={copyToClipboard}
                     >
                         {copied ? <Check size={20} color="lime" /> : <Clipboard size={20} />}
@@ -141,14 +141,14 @@ const CodeEditor = ({ html, setHtml, css, setCss, js, setJs, code, setCode, sele
             </div>
 
             {/* Editor */}
-            <div className="flex-1 flex flex-col overflow-hidden">
+            <div className="flex-1 flex flex-col overflow-hidden 5xs:max-3xs:pl-1.5 5xs:max-3xs:pr-1.5">
                 {selectedLanguage === "web" ? (
                     <div className="flex flex-col h-200">
                         <div className="flex space-x-4 mb-3">
                             {["html", "css", "javascript"].map((tab) => (
                                 <button
                                     key={tab}
-                                    className={`px-5 py-2 rounded-lg text-sm font-medium transition duration-300 
+                                    className={`px-5 py-2 rounded-lg text-sm font-medium transition duration-300 cursor-pointer 5xs:max-3xs:h-8 5xs:max-3xs:p-1.5 5xs:max-3xs:text-xs
                                         ${activeTab === tab ? "bg-blue-500 text-white" : "bg-gray-700 text-gray-300 hover:bg-gray-600"}`}
                                     onClick={() => setActiveTab(tab)}
                                 >

@@ -30,7 +30,6 @@ public class SpeechToTextConvertServlet extends HttpServlet {
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    	System.out.println("kashgfhkjshafthew");
     	response.setContentType("application/json");
         response.setHeader("Access-Control-Allow-Origin", "http://localhost:5174"); 
         response.setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");

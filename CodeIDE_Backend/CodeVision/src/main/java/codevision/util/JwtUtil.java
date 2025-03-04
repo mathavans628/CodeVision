@@ -119,7 +119,7 @@ public class JwtUtil {
         }
 
         long timeLeft = expiresAt - System.currentTimeMillis();
-        return timeLeft > 0 && timeLeft < (20 * 60 * 1000);
+        return timeLeft > 0 && timeLeft < (40 * 60 * 1000);
     }
 
     public static DecodedJWT decodeToken(String token) {
