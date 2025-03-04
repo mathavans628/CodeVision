@@ -212,10 +212,10 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
     }, [html, css, js, code]);
 
     return (
-        <div className="bg-gray-900 text-white rounded-lg p-4 pt-10 mt-4 w-213 h-213">
-            <div className="flex flex-wrap justify-between items-center mb-4">
+        <div className="bg-gray-900 text-white rounded-lg p-4 pt-10 mt-4 w-213 h-213 5xs:max-3xs:w-full 5xs:max-3xs:h-85 5xs:max-2xs:p-2  3xs:max-2xs:h-93 5xs:max-2xs:w-full sm:max-md:w-155 sm:max-md:p-2 sm:max-md:h-170 md:max-lg:w-211 md:max-lg:p-3 md:max-lg:h-180  3xl:max-4xl:w-176  3xl:max-4xl:m-0 3xl:max-4xl:h-176">
+            <div className="flex justify-between items-center mb-4 5xs:max-2xs:w-full">
                 {/* Left Side: Preview & Console Buttons */}
-                <div className="flex space-x-4">
+                <div className="flex space-x-4  5xs:max-2xs:h-full">
                     {selectedLanguage === "web" && (
                         <>
                             <button
@@ -236,19 +236,18 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
                             </button>
                         </>
                     )}
-                </div>
-
-                {/* Right Side: Run & Clear Buttons */}
-                <div className="flex space-x-4">
                     {selectedLanguage !== "web" && selectedLanguage !== "javascript" && (
                         <button
-                            className="font-bold bg-[#1eb932] hover:bg-green-700 px-6 py-2 rounded-lg transition-colors duration-200 cursor-pointer"
+                            style={{marginTop: "-8px"}} className="font-bold bg-[#1eb932] hover:bg-green-700  px-6 mr-170 py-2 rounded-lg transition-colors duration-200 cursor-pointer 5xs:max-2xs:mr-0"
                             onClick={runCode}
                         >
                             Run
                         </button>
                     )}
+                </div>
 
+                {/* Right Side: Run & Clear Buttons */}
+                <div className="flex space-x-4 5xs:max-2xs:w-8 5xs:max-2xs:h-10 5xs:max-2xs:mr-10 5xs:max-2xs:space-x-0">
                     <button
                         className="font-bold bg-gray-600 hover:bg-gray-700 px-6 py-2 flex items-center gap-2 rounded-lg transition-colors duration-200 cursor-pointer"
                         onClick={clearConsole}
@@ -256,6 +255,7 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
                         <Trash2 size={20} />
                     </button>
                 </div>
+
             </div>
 
 
@@ -263,17 +263,17 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
             {selectedLanguage === "web" && activeTab === "preview" ? (
                 <iframe
                     title="preview"
-                    className="w-205 mt-3 h-150 bg-white rounded-lg border border-gray-500"
+                    className="w-205 mt-3 h-150 bg-white rounded-lg border border-gray-500 5xs:max-2xs:h-68 5xs:max-2xs:w-full 5xs:max-2xs:mt-0  sm:max-md:w-full  3xl:max-4xl:w-full"
                     srcDoc={generatePreview()}
                     sandbox="allow-scripts"
                 />
             ) : (
-                <div className="w-205 h-150 mt-3  bg-gray-800 text-xl text-green-400 p-4 mr-10 rounded-lg overflow-auto font-mono">
+                <div className="w-205 h-150 mt-3  bg-gray-800 text-xl text-green-400 p-4 mr-10 rounded-lg overflow-auto font-mono 5xs:max-2xs:w-full 5xs:max-2xs:h-50 5xs:max-2xs:mt-0  3xl:max-4xl:w-full">
                     {(selectedLanguage === "javascript" || (selectedLanguage === "web" && activeTab === "console")) ? (
                         <iframe
                             title="js-output"
                             ref={iframeRef}
-                            className="w-full h-full bg-gray-800 text-green-400 border border-gray-500 rounded-md"
+                            className="w-full h-full bg-gray-800 text-green-400 border border-gray-500 rounded-md 5xs:max-2xs:w-full 5xs:max-2xs:h-full sm:max-md:w-full  3xl:max-4xl:w-full"
                         />
                     ) : (
                         <div>{formatOutput(output || "Console is empty")}</div>
