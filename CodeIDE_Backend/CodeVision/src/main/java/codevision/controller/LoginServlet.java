@@ -63,25 +63,39 @@ public class LoginServlet extends HttpServlet {
             } 
             else
             {
-                String jwtToken = JwtUtil.generateToken(user.getUserId(), email);
-                System.out.println("Created Token: " + jwtToken);
+            	String jwtToken = JwtUtil.generateToken(user.getUserId(), email);
+            	System.out.println("Created Token: " + jwtToken);
 
-                long expirationTime = JwtUtil.getExpirationTime(jwtToken);
-                Timestamp expiryTimestamp = new Timestamp(expirationTime);
-                
-                Cookie authCookie = new Cookie("auth_token", jwtToken);
-                authCookie.setHttpOnly(true);
-                authCookie.setSecure(false);
-                authCookie.setPath("/");
-                authCookie.setMaxAge((int) (expirationTime / 1000));
-                response.addCookie(authCookie);
-                
-                Cookie flagCookie = new Cookie("is_logged_in", "true");
-                flagCookie.setHttpOnly(false); 
-                flagCookie.setPath("/");
-                flagCookie.setMaxAge((int) (expirationTime / 1000));
-                response.addCookie(flagCookie);
-                
+            	// Get the expiration time in milliseconds since epoch
+            	long expirationTime = JwtUtil.getExpirationTime(jwtToken);
+            	Timestamp expiryTimestamp = new Timestamp(expirationTime);
+            	System.out.println("Token expires at: " + expiryTimestamp);
+
+            	// Calculate the duration from now until expiration in seconds
+            	long currentTime = System.currentTimeMillis();
+            	int maxAgeInSeconds = (int) ((expirationTime - currentTime) / 1000);
+            	if (maxAgeInSeconds <= 0) {
+            	    throw new IllegalStateException("Generated token has already expired: " + expiryTimestamp);
+            	}
+
+            	// Set auth_token cookie
+            	Cookie authCookie = new Cookie("auth_token", jwtToken);
+            	authCookie.setHttpOnly(true);
+            	authCookie.setSecure(false); // Set to true in production with HTTPS
+            	authCookie.setPath("/");
+            	authCookie.setMaxAge(maxAgeInSeconds); // Duration in seconds from now
+            	response.addCookie(authCookie);
+
+            	// Set is_logged_in cookie
+            	Cookie flagCookie = new Cookie("is_logged_in", "true");
+            	flagCookie.setHttpOnly(false);
+            	flagCookie.setPath("/");
+            	flagCookie.setMaxAge(maxAgeInSeconds); // Same duration as auth token
+            	response.addCookie(flagCookie);
+
+            	// Optionally log the cookie details
+            	System.out.println("Auth cookie set with MaxAge: " + maxAgeInSeconds + " seconds");
+            	
                 boolean sessionAdded = sessionDAO.createSession(jwtToken, user.getUserId(), expiryTimestamp);
                 System.out.println("IS the Session is created" + sessionDAO.isSessionValid(jwtToken));
                 

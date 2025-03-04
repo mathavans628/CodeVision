@@ -6,15 +6,18 @@ import { PiButterflyFill } from "react-icons/pi";
 import { MdOutlineSave } from "react-icons/md";
 import { RiAiGenerate2 } from "react-icons/ri";
 import { RiExchangeLine } from "react-icons/ri";
-
-import { useRef, useState } from 'react';
-// import { LuImport } from 'react-icons/lu';
+import { FaFolderOpen, FaTrash } from 'react-icons/fa';
+import { TbWorldCode } from 'react-icons/tb'; // Web Development
+import { SiJavascript, SiPython, SiPhp, SiRuby, SiGo, SiR, SiC, SiCplusplus } from 'react-icons/si'; // Language icons
+import { FaJava } from 'react-icons/fa'; // Java icon
+import { IoCheckmarkSharp } from 'react-icons/io5';
+import { IoCloseSharp } from 'react-icons/io5';
+import { Pencil } from "lucide-react";
 
 import { FaEdit } from "react-icons/fa";
 import { useEffect, useRef, useState } from 'react';
 import { LuLogOut, LuImport } from 'react-icons/lu';
 import { Mail, User } from "lucide-react";
-import { GrProjects } from "react-icons/gr";
 import { FaCircleArrowRight } from "react-icons/fa6";
 import logo from "./assets/logo-noBg.png"
 import logo1 from "./assets/CodeAiD_DarkTheme.png";
@@ -23,14 +26,29 @@ import "react-sliding-pane/dist/react-sliding-pane.css";
 import { useNavigate } from "react-router-dom";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileArrowDown,faFileArrowUp } from '@fortawesome/free-solid-svg-icons';
+import { faFileArrowDown, faFileArrowUp } from '@fortawesome/free-solid-svg-icons';
 
 
 import CustomDropdown from "./CustomDropdown.jsx";
 import CodeEditor from "./CodeEditor";
 import OutputFrame from "./OutputFrame";
 import FileReaderComponent from './ImportFile.jsx';
+import profileImage from "./assets/Default_Profile.png";
 import SlidingPanel from './SlidingPanel.jsx';
+
+// Define language options with icons
+const languageOptions = [
+    { label: "Web Development", value: "web", icon: <TbWorldCode className="text-green-500 text-lg" /> },
+    { label: "JavaScript", value: "javascript", icon: <SiJavascript className="text-yellow-400 text-lg" /> },
+    { label: "Python", value: "python3", icon: <SiPython className="text-blue-500 text-lg" /> },
+    { label: "Java", value: "java", icon: <FaJava className="text-red-500 text-lg" /> },
+    { label: "C", value: "c", icon: <SiC className="text-blue-700 text-lg" /> },
+    { label: "C++", value: "cpp", icon: <SiCplusplus className="text-blue-600 text-lg" /> },
+    { label: "PHP", value: "php", icon: <SiPhp className="text-purple-600 text-lg" /> },
+    { label: "Ruby", value: "ruby", icon: <SiRuby className="text-red-600 text-lg" /> },
+    { label: "Go", value: "golang", icon: <SiGo className="text-blue-500 text-lg" /> },
+    { label: "R", value: "rlang", icon: <SiR className="text-blue-400 text-lg" /> },
+];
 
 function CodeIDE_Main() {
     const [theme, setTheme] = useState(true);
@@ -46,11 +64,48 @@ function CodeIDE_Main() {
     const [loadingProfile, setLoadingProfile] = useState(true);
     const [isEditingName, setIsEditingName] = useState(false);
     const [editName, setEditName] = useState("");
+    const [filenameToSaveCode, setFilenameToSaveCode] = useState("Unsaved");
+    const [fileExtension, setFileExtension] = useState(".js");
+    const [codeFile, setCodeFile] = useState("");
+    const [fileType, setFileType] = useState("web");
+    const [isUnsaved, setIsUnsaved] = useState(true); // Track unsaved changes
+    const [savedProjectName, setSavedProjectName] = useState(""); // Track saved project name
+    const [isEditing, setIsEditing] = useState(false);
+
+    const lastDotIndex = filenameToSaveCode !== "" ? filenameToSaveCode.lastIndexOf(".") : "Unsaved";
+    const baseName = lastDotIndex !== -1 ? filenameToSaveCode.substring(0, lastDotIndex) : filenameToSaveCode;
+    const extension = lastDotIndex !== -1 ? filenameToSaveCode.substring(lastDotIndex) : "";
 
     let outputFromVoice = "";
     var getOutput = "";
     const generate = useRef();
 
+    // Function to get the icon based on project language/value
+    const getLanguageIcon = (project) => {
+        // Check if project has a language field; otherwise, infer from file extension
+        const language = project.language || project.value || inferLanguageFromFilename(project.file_name);
+        const option = languageOptions.find(opt => opt.value === language);
+        return option ? option.icon : <FaFolderOpen className="text-gray-500 text-lg" />; // Fallback icon
+    };
+
+    // Helper function to infer language from file extension if language isn't provided
+    const inferLanguageFromFilename = (filename) => {
+        const extension = filename.split('.').pop().toLowerCase();
+        const mapping = {
+            js: 'javascript',
+            html: 'web',
+            css: 'web',
+            py: 'python3',
+            java: 'java',
+            c: 'c',
+            cpp: 'cpp',
+            php: 'php',
+            rb: 'ruby',
+            go: 'golang',
+            r: 'rlang',
+        };
+        return mapping[extension] || 'web'; // Default to 'web' if unknown
+    };
 
     const navigate = useNavigate();
 
@@ -91,17 +146,16 @@ function CodeIDE_Main() {
 
         });
 
-
-
-
     const defaultCodes = getDefaultCode(fileContent, fileName);
-
-
 
     const [html, setHtml] = useState(defaultCodes.web.html);
     const [css, setCss] = useState(defaultCodes.web.css);
     const [js, setJs] = useState(defaultCodes.web.js);
     const [code, setCode] = useState(defaultCodes.javascript);
+    const [savedHtml, setSavedHtml] = useState(defaultCodes.web.html);
+    const [savedCss, setSavedCss] = useState(defaultCodes.web.css);
+    const [savedJs, setSavedJs] = useState(defaultCodes.web.js);
+    const [savedCode, setSavedCode] = useState(defaultCodes.javascript);
     var selectedLanguageForVoice = "";
 
 
@@ -116,13 +170,26 @@ function CodeIDE_Main() {
                 if (!response.ok) {
                     throw new Error("Failed to fetch profile");
                 }
-                const data = await response.json();
-                console.log(data);
-                setUserProfile(data);
+                const profileData = await response.json();
+                console.log(profileData);
+                console.log(profileData.userId);
+                setUserProfile(profileData);
+
+                // Fetch projects
+                const projectsResponse = await fetch(`http://localhost:8080/CodeVision/GetUserProjectsServlet?userId=${profileData.userId}`, {
+                    method: "GET",
+                    credentials: "include",
+                });
+
+                if (!projectsResponse.ok) throw new Error("Failed to fetch projects");
+                const projectsData = await projectsResponse.json();
+                console.log("LOGGER: " + projectsData);
+                setProjects(projectsData);
             }
             catch {
                 console.error("Error fetching profile:", error);
                 setUserProfile(null);
+                setProjects([]);
             }
             finally {
                 setLoadingProfile(false);
@@ -130,6 +197,13 @@ function CodeIDE_Main() {
         };
         fetchUserProfile();
     }, []);
+
+    // Track unsaved changes
+    useEffect(() => {
+        const hasUnsavedChanges =
+            (fileType === "web" && (html !== savedHtml || css !== savedCss || js !== savedJs)) ||
+            (fileType !== "web" && code !== savedCode);
+    }, [html, css, js, code, savedHtml, savedCss, savedJs, savedCode, fileType]);
 
     // Validate image URL
     const isValidImageUrl = (url) => {
@@ -209,14 +283,24 @@ function CodeIDE_Main() {
 
     const handleLanguageChange = (newLanguage) => {
         setSelectedLanguage(newLanguage);
+        setFileType(newLanguage);
+
 
         if (newLanguage === "web") {
             setHtml(defaultCodes.web.html);
             setCss(defaultCodes.web.css);
             setJs(defaultCodes.web.js);
+            setSavedHtml(defaultCodes.web.html);
+            setSavedCss(defaultCodes.web.css);
+            setSavedJs(defaultCodes.web.js);
         } else {
-            setCode(defaultCodes[newLanguage] || "");  // Ensure it updates the editor
+            setCode(defaultCodes[newLanguage] || "");
+            setSavedCode(defaultCodes[newLanguage] || "");
         }
+
+        setSavedProjectName("UnSaved");
+        setFilenameToSaveCode("UnSaved")
+        setIsUnsaved(true);
     };
 
     const exportFile = (code, language) => {
@@ -262,8 +346,6 @@ function CodeIDE_Main() {
             console.error('Error:', error);
         }
     }
-
-
 
     const codeConverter = async (lang) => {
         console.log(lang);
@@ -321,8 +403,7 @@ function CodeIDE_Main() {
     }
 
     const geterateBothCodes = async (prompt, lang) => {
-        if(lang === "web")
-        {
+        if (lang === "web") {
             lang = "javascript";
             setSelectedLanguage("javascript")
         }
@@ -415,6 +496,329 @@ function CodeIDE_Main() {
 
     };
 
+    const saveCodeToDB = async () => {
+        if (!userProfile?.userId) {
+            alert("User not authenticated");
+            return;
+        }
+
+        if (!isUnsaved) {
+            let project = projects.find(project => project.file_name === filenameToSaveCode);
+
+            console.log("Is Unsaved: " + isUnsaved +
+                " Project Name: " + (project ? project.file_name : "Not Found"));
+            updateCodeInDB(project);
+            return;
+        }
+
+        var baseFilename = window.prompt("Enter file name to save the project:");
+        console.log("Is Unsaved: " + isUnsaved);
+
+
+        if (!baseFilename) {
+            alert("File name is required");
+            return;
+        }
+
+        baseFilename = baseFilename.trim();
+        if (baseFilename.length > 30) {
+            alert("Filename must not exceed 30 characters.");
+            return;
+        }
+
+        if (baseFilename.length < 3) {
+            alert("Filename must be at least 3 characters.");
+            return;
+        }
+
+        if (!/^[a-zA-Z0-9 _\-.()[\]&+,=]+$/.test(baseFilename)) {
+            alert("Invalid filename! Use only letters, numbers, spaces, and common symbols like _ - . ( ) [ ] & + , =");
+            return;
+        }        
+
+        try {
+            let payload;
+            if (fileType === "web") {
+                const webFiles = {
+                    name: baseFilename,
+                    html: html || "",
+                    css: css || "",
+                    js: js || ""
+                };
+                payload = JSON.stringify({ type: "web", webFiles });
+            } else {
+                const extensionMap = {
+                    "javascript": ".js", "python3": ".py", "java": ".java", "c": ".c", "cpp": ".cpp",
+                    "php": ".php", "ruby": ".rb", "golang": ".go", "rlang": ".r"
+                };
+                const extension = extensionMap[fileType] || ".txt";
+                const fullFilename = `${baseFilename}${extension}`;
+                payload = JSON.stringify({ type: "single", filename: fullFilename, fileExtension: extension, content: code || "" });
+            }
+
+            const response = await fetch("http://localhost:8080/CodeVision/SaveCodeServlet", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: payload,
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                alert("File saved successfully!");
+                setSavedProjectName(baseFilename);
+                setFilenameToSaveCode(baseFilename);
+                setIsUnsaved(false);
+                if (fileType === "web") {
+                    setSavedHtml(html);
+                    setSavedCss(css);
+                    setSavedJs(js);
+                } else {
+                    setSavedCode(code);
+                }
+                const projectsResponse = await fetch(`http://localhost:8080/CodeVision/GetUserProjectsServlet?userId=${userProfile.userId}`, {
+                    method: "GET",
+                    credentials: "include",
+                });
+                if (!projectsResponse.ok) throw new Error("Failed to fetch updated projects");
+                const projectsData = await projectsResponse.json();
+                setProjects(projectsData);
+                setSlidePanel(true);
+            } else {
+                alert("Failed to save: " + data.message);
+            }
+        } catch (error) {
+            console.error("Error saving code:", error);
+            alert("Error saving file: " + error.message);
+        }
+    };
+
+    const openProject = async (project) => {
+        if (!userProfile?.userId) {
+            alert("User not authenticated");
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/CodeVision/GetCodeFileServlet?userId=${userProfile.userId}&filename=${encodeURIComponent(project.file_name)}`, {
+                method: "GET",
+                credentials: "include",
+            });
+            if (!response.ok) throw new Error("Failed to fetch project");
+            const data = await response.json();
+
+            setSelectedLanguage(project.file_type);
+            setFileType(project.file_type);
+            setFilenameToSaveCode(project.file_name);
+            setSavedProjectName(project.file_name);
+
+            if (project.file_type === "web") {
+                setHtml(data.html_content || "");
+                setCss(data.css_content || "");
+                setJs(data.js_content || "");
+                setSavedHtml(data.html_content || "");
+                setSavedCss(data.css_content || "");
+                setSavedJs(data.js_content || "");
+                setIsUnsaved(false);
+                setSlidePanel(false);
+                setSelectedLanguage("web");
+                return <CustomDropdown />;
+            } else {
+                setCode(data.code_content || "");
+                setSavedCode(data.code_content || "");
+                setIsUnsaved(false);
+                setSlidePanel(false);
+                setSelectedLanguage(inferLanguageFromFilename(data.file_name));
+                return <CustomDropdown />;
+            }
+        } catch (error) {
+            console.error("Error opening project:", error);
+            alert("Error loading project: " + error.message);
+        }
+    };
+
+    const updateCodeInDB = async (project) => {
+        if (!userProfile?.userId) {
+            alert("User not authenticated");
+            return;
+        }
+        try {
+            let payload;
+            if (project.file_type === "web") {
+                payload = JSON.stringify({
+                    userId: userProfile.userId,
+                    name: project.file_name,
+                    html: html || "",
+                    css: css || "",
+                    js: js || ""
+                });
+            } else {
+                payload = JSON.stringify({
+                    userId: userProfile.userId,
+                    name: project.file_name,
+                    content: code || "",
+                    type: "single"
+                });
+            }
+
+            const response = await fetch("http://localhost:8080/CodeVision/UpdateCodeServlet", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: payload,
+            });
+
+            if (!response.ok) throw new Error(`Failed to update code: ${response.statusText}`);
+            const data = await response.json();
+            if (data.success) {
+                alert("File updated successfully!");
+                setSavedProjectName(project.file_name);
+                setIsUnsaved(false);
+                if (project.file_type === "web") {
+                    setSavedHtml(html);
+                    setSavedCss(css);
+                    setSavedJs(js);
+                } else {
+                    setSavedCode(code);
+                }
+
+                const projectsResponse = await fetch(`http://localhost:8080/CodeVision/GetUserProjectsServlet?userId=${userProfile.userId}`, {
+                    method: "GET",
+                    credentials: "include",
+                });
+
+                if (!projectsResponse.ok) throw new Error("Failed to fetch updated projects");
+                const projectsData = await projectsResponse.json();
+                setProjects(projectsData);
+            } else {
+                alert("Failed to update: " + data.message);
+            }
+        } catch (error) {
+            console.error("Error updating code:", error);
+            alert("Error updating file: " + error.message);
+        }
+    };
+
+    const deleteProject = async (project) => {
+        if (!userProfile?.userId) {
+            alert("User not authenticated");
+            return;
+        }
+
+        try {
+            const response = await fetch("http://localhost:8080/CodeVision/DeleteCodeServlet", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId: userProfile.userId, name: project.file_name }),
+            });
+            if (!response.ok) throw new Error("Failed to delete project");
+            const data = await response.json();
+            if (data.success) {
+                alert("Project deleted successfully!");
+                if (savedProjectName === project.file_name) {
+                    setSavedProjectName("");
+                    setIsUnsaved(false);
+                }
+                const projectsResponse = await fetch(`http://localhost:8080/CodeVision/GetUserProjectsServlet?userId=${userProfile.userId}`, {
+                    method: "GET",
+                    credentials: "include",
+                });
+                if (!projectsResponse.ok) throw new Error("Failed to fetch updated projects");
+                const projectsData = await projectsResponse.json();
+                setProjects(projectsData);
+            } else {
+                alert("Failed to delete project");
+            }
+        } catch (error) {
+            console.error("Error deleting project:", error);
+            alert("Error deleting project: " + error.message);
+        }
+    };
+
+    const renameFile = async (oldFileName, newFileName) => {
+        if (!userProfile?.userId) {
+            alert("User not authenticated");
+            return;
+        }
+
+        newFileName = newFileName.trim();
+        if (newFileName.length > 30) {
+            alert("Filename must not exceed 30 characters.");
+            return;
+        }
+
+        if (newFileName.length < 3) {
+            alert("Filename must be at least 3 characters.");
+            return;
+        }
+
+        if (!/^[a-zA-Z0-9 _\-.()[\]&+,=]+$/.test(newFileName)) {
+            alert("Invalid filename! Use only letters, numbers, spaces, and common symbols like _ - . ( ) [ ] & + , =");
+            return;
+        }        
+
+        try {
+            const payload = JSON.stringify({
+                userId: userProfile.userId,
+                oldFileName: oldFileName,
+                newFileName: newFileName,
+            });
+
+            const response = await fetch("http://localhost:8080/CodeVision/RenameFileServlet", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: payload,
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                alert("File renamed successfully!");
+                setSavedProjectName(newFileName);
+                setFilenameToSaveCode(newFileName);
+                const projectsResponse = await fetch(`http://localhost:8080/CodeVision/GetUserProjectsServlet?userId=${userProfile.userId}`, {
+                    method: "GET",
+                    credentials: "include",
+                });
+                const projectsData = await projectsResponse.json();
+                setProjects(projectsData);
+            }
+            else if (!data.success) { // Conflict: Filename already exists
+                setFilenameToSaveCode(oldFileName);
+                alert("Filename already exists.");
+            }
+            else {
+                alert("Failed to rename: " + data.message);
+                throw new Error(data.message || `Failed to save file: ${response.statusText}`);
+            }
+        } catch (error) {
+            console.error("Error renaming file:", error);
+            alert("Error renaming file: " + error.message);
+        }
+    };
+
+    const handleEditClick = () => {
+        console.log(isUnsaved);
+        if (!isUnsaved) setIsEditing(true);
+    };
+
+    const handleBlur = () => {
+        if (filenameToSaveCode !== savedProjectName) {
+            renameFile(savedProjectName, filenameToSaveCode);
+        }
+        setIsEditing(false);
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            if (filenameToSaveCode !== savedProjectName) {
+                renameFile(savedProjectName, filenameToSaveCode);
+            }
+            setIsEditing(false);
+        }
+    };
+
     const output = async () => {
 
         const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBGFGKKQmRAtoyVR2IfaNfLv3G5XxH2Apg", {
@@ -491,6 +895,7 @@ function CodeIDE_Main() {
     }
 
     if (theme) {
+        console.log(projects);
         return (
 
             <div className="w-screen h-screen overflow-hidden grid grid-rows-40 grid-cols-20 p-5 gap-2 bg-gray-100 2xl:max-2xl:h-screen 2xl:max-2xl:overflow-hidden xl:max-2xl:w-screen xl:max-2xl:h-screen xl:max-2xl:overflow-hidden lg:max-xl:w-screen lg:max-xl:h-screen lg:max-xl:overflow-hidden  md:max-lg:w-screen  md:max-lg:h-screen md:max-lg:overflow-x-hidden md:max-lg:overflow-y-scroll sm:max-md:overflow-x-hidden sm:max-md:overflow-y-scroll" >
@@ -507,15 +912,15 @@ function CodeIDE_Main() {
 
                         <label htmlFor="file-input" className='items-center flex justify-center w-12 h-20'>
                             {/* <LuImport className="text-gray-600 h-20 w-10 md:max-lg:h-15 md:max-lg:w-8 mb-2 cursor-pointer" title='Import' /> */}
-                            <FontAwesomeIcon icon={faFileArrowDown} className="text-gray-600 text-3xl md:max-lg:h-15 md:max-lg:w-8 mb-2 cursor-pointer" title='Import'/>
+                            <FontAwesomeIcon icon={faFileArrowDown} className="text-gray-600 text-3xl md:max-lg:h-15 md:max-lg:w-8 mb-2 cursor-pointer" title='Import' />
                             <FileReaderComponent onFileRead={handleFileContent} triggerId="file-input" />
                         </label>
                     </div>
                     <div className='mt-2 flex  items-center  col-span-1 w-40 h-14 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-3 lg:max-xl:p-3 lg:max-xl:ml-4 lg:max-xl:col-span-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
                         {/* <CgExport className='text-gray-600 h-14 w-10 md:max-lg:h-13 md:max-lg:w-8 cursor-pointer' title='Export' onClick={() => exportFile(code, selectedLanguage)} /> */}
-                        <FontAwesomeIcon icon={faFileArrowUp}  className='text-gray-600 text-3xl md:max-lg:h-13 md:max-lg:w-8 cursor-pointer' title='Export' onClick={() => exportFile(code, selectedLanguage)} />
+                        <FontAwesomeIcon icon={faFileArrowUp} className='text-gray-600 text-3xl md:max-lg:h-13 md:max-lg:w-8 cursor-pointer' title='Export' onClick={() => exportFile(code, selectedLanguage)} />
                     </div>
-                    <div style={{marginTop: "3.1px"}} className='flex items-center pt-1.5 col-span-1 w-40 h-15 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 lg:max-xl:p-3 xl:max-2xl:p-3 lg:max-xl:ml-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
+                    <div style={{ marginTop: "3.1px" }} className='flex items-center pt-1.5 col-span-1 w-40 h-15 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 lg:max-xl:p-3 xl:max-2xl:p-3 lg:max-xl:ml-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
                         <PiButterflyFill className='text-gray-600 md:max-lg:h-13 md:max-lg:w-8 h-20 w-10 cursor-pointer' title='Beautify' onClick={beautifier} />
                     </div>
                     <div className='flex items-center mt-3.5 col-span-1 w-30 h-10  2xl:max-2xl:p-2.5 xl:max-2xl:p-2 xl:max-2xl:ml-7 lg:max-xl:p-3 md:max-lg:p-2 sm:max-md:p-1'>
@@ -554,13 +959,51 @@ function CodeIDE_Main() {
 
                         </ul>
                     </div>}
-                    <div className='col-span-10 xl:max-2xl:col-span-5 md:max-lg:col-span-1 lg:max-xl:col-span-6  sm:max-md:col-span-1'></div>
+
+                    <div className="col-span-10 h-10 mt-4 w-50 ml-160 xl:max-2xl:col-span-3 md:max-lg:col-span-1 lg:max-xl:col-span-4 
+                        flex items-center gap-1 border border-gray-300 rounded p-1 px-2">
+                        {isEditing ? (
+                            <div className="flex items-center w-full">
+                                <input
+                                    type="text"
+                                    value={baseName}
+                                    onChange={(e) => setFilenameToSaveCode(e.target.value + extension)}
+                                    onBlur={handleBlur}
+                                    onKeyDown={handleKeyDown}
+                                    autoFocus
+                                    className="border p-1 rounded w-full text-ellipsis focus:ring focus:ring-blue-300 outline-none text-sm"
+                                />
+                                <span className="ml-1 text-gray-600 flex-shrink-0 text-sm">{extension}</span>
+                            </div>
+                        ) : (
+                            <div className="flex items-center gap-1 w-full">
+                                <div className="flex-grow flex items-center overflow-hidden">
+                                    <span
+                                        className={`text-sm font-semibold ${isUnsaved ? 'text-red-500' : 'text-gray-800'} 
+                                        overflow-hidden text-ellipsis whitespace-nowrap flex-grow`}
+                                        title={filenameToSaveCode} // Full filename on hover
+                                    >
+                                        {baseName}
+                                    </span>
+                                    <span className="text-gray-500 flex-shrink-0 text-sm">{extension}</span>
+                                </div>
+                                {/* Edit Icon - Doesn't shrink */}
+                                {!isEditing && !isUnsaved && (
+                                    <Pencil
+                                        className="w-4 h-4 text-gray-500 cursor-pointer flex-shrink-0 hover:text-blue-500"
+                                        onClick={handleEditClick}
+                                    />
+                                )}
+                            </div>
+                        )}
+                    </div>
+
                     <div className='text-gray-700 mt-0.5 flex items-center col-span-1 w-17 h-17 2xl:max-2xl:h-10 2xl:max-2xl:p-3 xl:max-2xl:p-3 xl:max-2xl:h-8 lg:max-xl:p-3 md:max-lg:p-4 md:max-lg:col-span-1 sm:max-md:p-2.5  sm:max-md:col-span-2' title='Dark'>
                         {theme && <MdDarkMode className='w-8 h-8 xl:max-2xl:h-8 xl:max-2xl:w-7 md:max-lg:max-lg:h-7 md:max-lg:max-lg:w-7 cursor-pointer' onClick={() => setTheme(!theme)} />}
 
                     </div>
                     <div className='flex items-center pt-1.5 col-span-1 w-40 h-15 2xl:max-2xl:p-2.5 lg:max-xl:col-span-4 lg:max-xl:ml-4 lg:max-xl:p-3 md:max-lg:col-span-1 md:max-lg:p-0.5  sm:max-md:p-0'>
-                        <MdOutlineSave className='text-gray-700 mt-1 md:max-lg:h-13 md:max-lg:w-8 h-20 w-10 cursor-pointer' title='Save' />
+                        <MdOutlineSave className='text-gray-700 mt-1 md:max-lg:h-13 md:max-lg:w-8 h-20 w-10 cursor-pointer' title='Save' onClick={() => saveCodeToDB(filenameToSaveCode, fileExtension, code)} />
                     </div>
                     <div className='flex items-center col-span-1 w-45 h-15 pt-1.5 2xl:max-2xl:p-2.5 lg:max-xl:ml-4 lg:max-xl:p-3 lg:max-xl:col-span-3 sm:max-lg:hidden'>
                         {prompt &&
@@ -577,7 +1020,6 @@ function CodeIDE_Main() {
                             onClick={() => setSlidePanel(!slidePanel)}
                         />
                     </div>
-
 
                     {slidePanel && (
                         <SlidingPane
@@ -615,7 +1057,7 @@ function CodeIDE_Main() {
                                     </div>
 
                                     {/* User Details */}
-                                    <div className="w-full flex shrink-0 flex-col gap-4 text-center">
+                                    <div className="w-full flex flex-col gap-4 text-center">
                                         {/* Editable Name */}
                                         <div className="flex flex-row px-4 items-start gap-2">
                                             <User />
@@ -661,34 +1103,44 @@ function CodeIDE_Main() {
 
                                 {/* Saved Projects Section */}
                                 <div className="flex flex-col gap-4 p-6 bg-white rounded-xl shadow-md border border-gray-200 flex-1 overflow-y-auto">
-                                    <h2 className="text-xl font-semibold text-gray-800">My Projects</h2>
-                                    {projects.length > 0 ? (
+                                    <h2 className="text-xl font-semibold text-gray-800 animate-fade-in text-center">My Projects</h2>
+                                    {projects && projects.length > 0 ? (
                                         projects.map((project, index) => (
                                             <div
-                                                key={index}
-                                                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg shadow-sm hover:bg-gray-100 transition duration-200"
+                                                key={project.id || index}
+                                                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg shadow-sm hover:bg-gray-100 transition duration-200 ease-in-out transform hover:scale-[1.02] cursor-pointer animate-slide-up"
+                                                onClick={() => openProject(project)}
                                             >
-                                                <span className="text-gray-800 font-medium">{project.name}</span>
-                                                <button
-                                                    className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200 text-sm"
-                                                    onClick={() => openProject(project)}
-                                                >
-                                                    Open
-                                                </button>
+                                                <div className="flex items-center gap-2 flex-1 truncate">
+                                                    {getLanguageIcon(project)}
+                                                    <span className="text-gray-800 font-medium truncate">{project.file_name}</span>
+                                                </div>
+                                                <div className="flex gap-2">
+                                                    <button
+                                                        className="flex items-center gap-1 px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-200 ease-in-out text-sm transform hover:scale-105"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            deleteProject(project);
+                                                        }}
+                                                    >
+                                                        <FaTrash className="text-sm" />
+                                                        <span className="hidden sm:inline">Delete</span>
+                                                    </button>
+                                                </div>
                                             </div>
                                         ))
                                     ) : (
-                                        <p className="text-gray-500 text-sm italic text-center py-4">No projects saved yet</p>
+                                        <p className="text-gray-500 text-sm italic text-center py-4 animate-fade-in">No projects saved yet</p>
                                     )}
                                 </div>
 
                                 {/* Logout Button */}
-                                <div className="mt-auto pt-1">
+                                <div className="mt-auto">
                                     <button
-                                        className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-300 active:bg-red-700 cursor-pointer"
+                                        className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-red-500 text-white font-semibold rounded-lg shadow-md hover:bg-red-600 transition duration-300 active:bg-red-700"
                                         onClick={() => navigate("/logout")}
                                     >
-                                        <LuLogOut className="text-2xl" />
+                                        <LuLogOut className="text-xl" />
                                         <span className="text-lg">Logout</span>
                                     </button>
                                 </div>
@@ -761,15 +1213,15 @@ function CodeIDE_Main() {
 
                         <label htmlFor="file-input" className='items-center flex justify-center w-12 h-20'>
                             {/* <LuImport className="text-white h-20 w-10 md:max-lg:h-15 md:max-lg:w-8 mb-2 cursor-pointer" title='Import' /> */}
-                            <FontAwesomeIcon icon={faFileArrowDown} className="text-white text-3xl md:max-lg:h-15 md:max-lg:w-8 mb-2 cursor-pointer" title='Import'/>
+                            <FontAwesomeIcon icon={faFileArrowDown} className="text-white text-3xl md:max-lg:h-15 md:max-lg:w-8 mb-2 cursor-pointer" title='Import' />
                             <FileReaderComponent onFileRead={handleFileContent} triggerId="file-input" />
                         </label>
                     </div>
                     <div className='mt-2 flex  items-center  col-span-1 w-40 h-14 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-3 lg:max-xl:p-3 lg:max-xl:ml-4 lg:max-xl:col-span-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
                         {/* <CgExport className='text-white h-14 w-10 md:max-lg:h-13 md:max-lg:w-8 cursor-pointer' title='Export' onClick={() => exportFile(code, selectedLanguage)} /> */}
-                        <FontAwesomeIcon icon={faFileArrowUp}  className='text-white text-3xl md:max-lg:h-13 md:max-lg:w-8 cursor-pointer' title='Export' onClick={() => exportFile(code, selectedLanguage)} />
+                        <FontAwesomeIcon icon={faFileArrowUp} className='text-white text-3xl md:max-lg:h-13 md:max-lg:w-8 cursor-pointer' title='Export' onClick={() => exportFile(code, selectedLanguage)} />
                     </div>
-                    <div style={{marginTop:"3.1px"}} className='mt-0.3 flex items-center pt-1.5 col-span-1 w-40 h-15 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 lg:max-xl:p-3 xl:max-2xl:p-3 lg:max-xl:ml-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
+                    <div style={{ marginTop: "3.1px" }} className='mt-0.3 flex items-center pt-1.5 col-span-1 w-40 h-15 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 lg:max-xl:p-3 xl:max-2xl:p-3 lg:max-xl:ml-4 md:max-lg:col-span-1 md:max-lg:p-0.5 sm:max-md:p-0'>
                         <PiButterflyFill className='text-white md:max-lg:h-13 md:max-lg:w-8 h-20 w-10 cursor-pointer' title='Beautify' onClick={beautifier} />
                     </div>
                     <div className='flex items-center mt-3.5 col-span-1 w-30 h-10  2xl:max-2xl:p-2.5 xl:max-2xl:p-2 xl:max-2xl:ml-7 lg:max-xl:p-3 md:max-lg:p-2 sm:max-md:p-1'>
@@ -784,7 +1236,7 @@ function CodeIDE_Main() {
 
                     </div>
                     <div className='flex items-center col-span-1 w-40 h-15 pt-1.5 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 lg:max-xl:col-span-4 lg:max-xl:ml-4 lg:max-xl:p-3 md:max-lg:col-span-1 md:max-lg:p-0.5  sm:max-md:p-0'>
-                        <MdOutlineSave className='sm:max-lg: sm:max-lg:h-13 sm:max-lg:w-8 h-20 w-10 text-gray-200  cursor-pointer' title='Save' />
+                        <MdOutlineSave className='sm:max-lg: sm:max-lg:h-13 sm:max-lg:w-8 h-20 w-10 text-gray-200  cursor-pointer' title='Save' onClick={() => saveCodeToDB(filenameToSaveCode, fileExtension, code)} />
                     </div>
                     <div className='flex items-center col-span-1 w-45 h-15 pt-1.5 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 lg:max-xl:ml-4 lg:max-xl:p-3 lg:max-xl:col-span-3 md:max-lg:hidden sm:max-lg:hidden'>
                         {prompt &&

@@ -30,7 +30,7 @@ public class SeleniumExecutorServlet extends HttpServlet {
             options.addArguments("--disable-gpu", "--no-sandbox", "--blink-settings=imagesEnabled=false");
             driver = new ChromeDriver(options);
             driver.get("https://www.online-ide.com/");
-            driver.manage().window().maximize();;
+            driver.manage().window().maximize();
         }
     }
 
@@ -66,7 +66,7 @@ public class SeleniumExecutorServlet extends HttpServlet {
         String lastOutput = "";
 
         try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
             JavascriptExecutor js = (JavascriptExecutor) driver;
 
             // Select language
