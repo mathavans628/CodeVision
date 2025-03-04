@@ -4,7 +4,6 @@ import { IoIosSunny } from "react-icons/io";
 import { MdOutlineSave } from "react-icons/md";
 import { RiAiGenerate2 } from "react-icons/ri";
 import { RiExchangeLine } from "react-icons/ri";
-import profileImage from "./assets/Default_Profile.png";
 
 import { useEffect, useRef, useState } from 'react';
 import { FaFolderOpen, FaTrash } from 'react-icons/fa';
@@ -16,7 +15,6 @@ import { IoCloseSharp } from 'react-icons/io5';
 import { Pencil } from "lucide-react";
 
 import { FaEdit } from "react-icons/fa";
-import { useEffect, useRef, useState } from 'react';
 import { LuLogOut, LuImport } from 'react-icons/lu';
 import { Mail, User } from "lucide-react";
 import { FaCircleArrowRight } from "react-icons/fa6";
@@ -71,6 +69,7 @@ function CodeIDE_Main() {
     const [isUnsaved, setIsUnsaved] = useState(true); // Track unsaved changes
     const [savedProjectName, setSavedProjectName] = useState(""); // Track saved project name
     const [isEditing, setIsEditing] = useState(false);
+    const [projects,setProjects] = useState([]);
 
     const lastDotIndex = filenameToSaveCode !== "" ? filenameToSaveCode.lastIndexOf(".") : "Unsaved";
     const baseName = lastDotIndex !== -1 ? filenameToSaveCode.substring(0, lastDotIndex) : filenameToSaveCode;
