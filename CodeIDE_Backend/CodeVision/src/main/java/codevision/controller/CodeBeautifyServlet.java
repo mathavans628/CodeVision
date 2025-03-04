@@ -16,6 +16,7 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -42,10 +43,14 @@ public class CodeBeautifyServlet extends HttpServlet {
 	    response.setHeader("Access-Control-Allow-Credentials", "true");
 	    response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
 	    response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");	
-		
-		WebDriverManager.chromedriver().setup();
-		driver = new ChromeDriver();
-		driver.manage().window().maximize();
+	    
+	    if (driver == null) {
+            WebDriverManager.chromedriver().setup();
+            ChromeOptions options = new ChromeOptions();
+            options.addArguments("--disable-gpu", "--no-sandbox", "--blink-settings=imagesEnabled=false");
+            driver = new ChromeDriver(options);
+            driver.manage().window().maximize();
+        }
 		
 		String lang = request.getParameter("selectedLanguage");
 		String userCode = request.getParameter("code");
@@ -54,7 +59,7 @@ public class CodeBeautifyServlet extends HttpServlet {
 		System.out.println(lang);
 
         
-        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(30));
 
 	    
 //		if(lang.equals("php"))

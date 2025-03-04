@@ -15,22 +15,22 @@ const CodeEditor = ({ html, setHtml, css, setCss, js, setJs, code, setCode, sele
             inherit: true,
             rules: [
                 { token: "comment", foreground: "6b7280", fontStyle: "italic" }, // Gray comments
-                { token: "keyword", foreground: "93c5fd" }, // Blue keywords
-                { token: "string", foreground: "86efac" }, // Green strings
-                { token: "number", foreground: "fca5a5" }, // Red numbers
-                { token: "function", foreground: "c4b5fd" }, // Purple functions
-                { token: "variable", foreground: "d1d5db" }, // Light gray variables
-                { token: "constant", foreground: "f9a8d4" }, // Pink constants
-                { token: "type", foreground: "93c5fd" }, // Blue types
-                { token: "tag", foreground: "93c5fd" }, // Blue HTML tags
-                { token: "attribute.name", foreground: "c4b5fd" }, // Purple attributes
-                { token: "attribute.value", foreground: "86efac" }, // Green attribute values
+                { token: "keyword", foreground: "93c5fd" },
+                { token: "string", foreground: "86efac" },
+                { token: "number", foreground: "fca5a5" },
+                { token: "function", foreground: "c4b5fd" },
+                { token: "variable", foreground: "d1d5db" },
+                { token: "constant", foreground: "f9a8d4" },
+                { token: "type", foreground: "93c5fd" },
+                { token: "tag", foreground: "93c5fd" },
+                { token: "attribute.name", foreground: "c4b5fd" },
+                { token: "attribute.value", foreground: "86efac" },
             ],
             colors: {
-                "editor.background": "#1a1d24", // Dark background
-                "editor.foreground": "#9ca3af", // Default text
-                "editor.lineHighlightBackground": "#2d323c", // Highlighted line
-                "editor.selectionBackground": "#3b4252", // Selection color
+                "editor.background": "#1a1d24",
+                "editor.foreground": "#9ca3af",
+                "editor.lineHighlightBackground": "#2d323c",
+                "editor.selectionBackground": "#3b4252",
             },
         });
 
