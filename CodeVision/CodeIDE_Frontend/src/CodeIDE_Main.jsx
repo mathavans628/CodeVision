@@ -4,9 +4,8 @@ import { IoIosSunny } from "react-icons/io";
 import { MdOutlineSave } from "react-icons/md";
 import { RiAiGenerate2 } from "react-icons/ri";
 import { RiExchangeLine } from "react-icons/ri";
-
 import { FaFolderOpen, FaTrash } from 'react-icons/fa';
-import { TbWorldCode } from 'react-icons/tb';
+import { TbWorldCode } from 'react-icons/tb'; 
 import { SiJavascript, SiPython, SiPhp, SiRuby, SiGo, SiR, SiC, SiCplusplus } from 'react-icons/si'; // Language icons
 import { FaJava } from 'react-icons/fa'; // Java icon
 import { IoCheckmarkSharp } from 'react-icons/io5';
@@ -14,7 +13,7 @@ import { IoCloseSharp } from 'react-icons/io5';
 import { Pencil } from "lucide-react";
 
 import { FaEdit } from "react-icons/fa";
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { LuLogOut } from 'react-icons/lu';
 import { Mail, User } from "lucide-react";
 import { FaCircleArrowRight } from "react-icons/fa6";
@@ -145,9 +144,9 @@ function CodeIDE_Main() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [convertLang]);
 
+    
 
-
-
+    
 
     const getDefaultCode = (fileContent, fileName) => (
         {
@@ -210,6 +209,8 @@ function CodeIDE_Main() {
                     throw new Error("Failed to fetch profile");
                 }
                 const profileData = await response.json();
+                console.log(profileData);
+                console.log(profileData.userId);
                 setUserProfile(profileData);
 
                 // Fetch projects
@@ -248,7 +249,7 @@ function CodeIDE_Main() {
         }
     }, []);
 
-
+  
     const isValidImageUrl = (url) => {
         if (!url || typeof url !== "string") return false;
         const dataUriPattern = /^data:image\/[a-zA-Z]+;base64,/i;
@@ -354,7 +355,7 @@ function CodeIDE_Main() {
             };
 
             setFileExtension(extensionMapping[newLanguage] || "");
-
+            
         }
 
         setSavedProjectName("Untitled");
@@ -411,7 +412,7 @@ function CodeIDE_Main() {
         console.log(code);
 
         getOutput = "Covert this code into " + lang + " \n" + code +
-            "\n . Don't give any other text or mention any other language. Just give only code. If the language need Main class like that, give with that.";
+            "\n . Don't give any other text or mention any other language. Just give only code. ";
 
         setSelectedLanguage(lang);
 
@@ -431,11 +432,11 @@ function CodeIDE_Main() {
 
                 setCode(data);
             }
-            return (<>
-                <CodeEditor />
+            <>
                 <CustomDropdown selected={selectedLanguage} onSelect={handleLanguageChange} />
+                <CodeEditor />
 
-            </>)
+            </>
         }
         catch (error) {
             console.log("Failed to fetch");
@@ -484,15 +485,10 @@ function CodeIDE_Main() {
                 generate.current.value = "";
 
             }
-
-            return (
-                <>
-                    <CodeEditor />
-                    <CustomDropdown selected={selectedLanguage} onSelect={handleLanguageChange} />
-                </>
-            )
-
-
+            <>
+                <CodeEditor />
+                <CustomDropdown selected={selectedLanguage} onSelect={handleLanguageChange} />
+            </>
         }
         catch (error) {
             console.log("Failed to Fetch..");
@@ -582,13 +578,10 @@ function CodeIDE_Main() {
 
 
 
-
-
+    
     const saveCodeToDB = async () => {
         if (!userProfile?.userId) {
-            setMessage("User not authenticated");
-            setOpen1(true);
-
+            alert("User not authenticated");
             return;
         }
 
@@ -602,33 +595,32 @@ function CodeIDE_Main() {
         }
 
         let baseFilename = filenameToSaveCode?.trim() || "Untitled";
+        console.log("Is Untitled: " + isUnsaved);
+        console.log("Basefilename: " + baseFilename);
+
 
         if (!baseFilename) {
             setFilenameToSaveCode("Untitled");
-            setMessage("File name is required");
-            setOpen1(true);
+            alert("File name is required");
             return;
         }
 
         baseFilename = baseFilename.trim();
         if (baseFilename.length > 30) {
             setFilenameToSaveCode("Untitled");
-            setMessage("Filename must not exceed 30 characters.");
-            setOpen1(true);
+            alert("Filename must not exceed 30 characters.");
             return;
         }
 
         if (baseFilename.length < 3) {
             setFilenameToSaveCode("Untitled");
-            setMessage("Filename must be at least 3 characters.");
-            setOpen1(true);
+            alert("Filename must be at least 3 characters.");
             return;
         }
 
         if (!/^[a-zA-Z0-9 _\-.()[\]&+,=]+$/.test(baseFilename)) {
             setFilenameToSaveCode("Untitled");
-            setMessage("Invalid filename! Use only letters, numbers, spaces, and common symbols like _ - . ( ) [ ] & + , =");
-            setOpen1(true);
+            alert("Invalid filename! Use only letters, numbers, spaces, and common symbols like _ - . ( ) [ ] & + , =");
             return;
         }
 
@@ -660,9 +652,8 @@ function CodeIDE_Main() {
             });
 
             const data = await response.json();
-            if (data.success === true || data.success === "true") {
-                setMessage("File saved successfully!");
-                setOpen(true);
+            if (data.success) {
+                alert("File saved successfully!");
                 setSavedProjectName(baseFilename);
                 setFilenameToSaveCode(baseFilename);
                 setIsUnsaved(false);
@@ -683,20 +674,17 @@ function CodeIDE_Main() {
                 setSlidePanel(true);
             } else {
                 setFilenameToSaveCode("Untitled");
-                setMessage("Failed to save: " + data.message);
-                setOpen1(true);
+                alert("Failed to save: " + data.message);
             }
         } catch (error) {
             console.error("Error saving code:", error);
-            setMessage("Error saving file: " + error.message);
-            setOpen1(true);
+            alert("Error saving file: " + error.message);
         }
     };
 
     const openProject = async (project) => {
         if (!userProfile?.userId) {
-            setMessage("User not authenticated");
-            setOpen1(true);
+            alert("User not authenticated");
             return;
         }
 
@@ -734,15 +722,13 @@ function CodeIDE_Main() {
             }
         } catch (error) {
             console.error("Error opening project:", error);
-            setMessage("Error loading project: " + error.message);
-            setOpen1(true);
+            alert("Error loading project: " + error.message);
         }
     };
 
     const updateCodeInDB = async (project) => {
         if (!userProfile?.userId) {
-            setMessage("User not authenticated");
-            setOpen1(true);
+            alert("User not authenticated");
             return;
         }
         try {
@@ -774,9 +760,7 @@ function CodeIDE_Main() {
             if (!response.ok) throw new Error(`Failed to update code: ${response.statusText}`);
             const data = await response.json();
             if (data.success) {
-                setMessage("File updated successfully!");
-                setOpen(true);
-
+                alert("File updated successfully!");
                 setSavedProjectName(project.file_name);
                 setIsUnsaved(false);
                 if (project.file_type === "web") {
@@ -796,19 +780,17 @@ function CodeIDE_Main() {
                 const projectsData = await projectsResponse.json();
                 setProjects(projectsData);
             } else {
-                setMessage("Failed to update: " + data.message);
-                setOpen1(true);
+                alert("Failed to update: " + data.message);
             }
         } catch (error) {
-            setMessage("Error updating file: " + error.message);
-            setOpen1(true);
+            console.error("Error updating code:", error);
+            alert("Error updating file: " + error.message);
         }
     };
 
     const deleteProject = async (project) => {
         if (!userProfile?.userId) {
-            setMessage("User not authenticated");
-            setOpen1(true);
+            alert("User not authenticated");
             return;
         }
 
@@ -822,8 +804,7 @@ function CodeIDE_Main() {
             if (!response.ok) throw new Error("Failed to delete project");
             const data = await response.json();
             if (data.success) {
-                setMessage("Project deleted successfully!");
-                setOpen(true);
+                alert("Project deleted successfully!");
                 if (savedProjectName === project.file_name) {
                     setSavedProjectName("");
                     setIsUnsaved(false);
@@ -836,20 +817,17 @@ function CodeIDE_Main() {
                 const projectsData = await projectsResponse.json();
                 setProjects(projectsData);
             } else {
-                setMessage("Failed to delete project");
-                setOpen1(true);
+                alert("Failed to delete project");
             }
         } catch (error) {
             console.error("Error deleting project:", error);
-            setMessage("Error deleting project: " + error.message);
-            setOpen1(true);
+            alert("Error deleting project: " + error.message);
         }
     };
 
     const renameFile = async (oldFileName, newFileName) => {
         if (!userProfile?.userId) {
-            setMessage("User not authenticated");
-            setOpen1(true);
+            alert("User not authenticated");
             return;
         }
 
@@ -861,22 +839,19 @@ function CodeIDE_Main() {
         newFileName = newFileName.trim();
         if (newFileName.length > 30) {
             setFilenameToSaveCode("Untitled");
-            setMessage("Filename must not exceed 30 characters.");
-            setOpen1(true);
+            alert("Filename must not exceed 30 characters.");
             return;
         }
 
         if (newFileName.length < 3) {
             setFilenameToSaveCode("Untitled");
-            setMessage("Filename must be at least 3 characters.");
-            setOpen1(true);
+            alert("Filename must be at least 3 characters.");
             return;
         }
 
         if (!/^[a-zA-Z0-9 _\-.()[\]&+,=]+$/.test(newFileName)) {
             setFilenameToSaveCode("Untitled");
-            setMessage("Invalid filename! Use only letters, numbers, spaces, and common symbols like _ - . ( ) [ ] & + , =");
-            setOpen1(true);
+            alert("Invalid filename! Use only letters, numbers, spaces, and common symbols like _ - . ( ) [ ] & + , =");
             return;
         }
 
@@ -896,8 +871,7 @@ function CodeIDE_Main() {
 
             const data = await response.json();
             if (data.success) {
-                setMessage("File renamed successfully!");
-                setOpen(true);
+                alert("File renamed successfully!");
                 setSavedProjectName(newFileName);
                 setFilenameToSaveCode(newFileName);
                 const projectsResponse = await fetch(`http://localhost:8080/CodeVision/GetUserProjectsServlet?userId=${userProfile.userId}`, {
@@ -907,25 +881,23 @@ function CodeIDE_Main() {
                 const projectsData = await projectsResponse.json();
                 setProjects(projectsData);
             }
-            else if (!data.success) {
+            else if (!data.success) { // Conflict: Filename already exists
                 setFilenameToSaveCode(oldFileName);
-                setMessage("Filename already exists.");
-                setOpen1(true);
+                alert("Filename already exists.");
             }
             else {
 
                 setFilenameToSaveCode("Untitled");
-                setMessage("Failed to rename: " + data.message);
-                setOpen1(true);
+                alert("Failed to rename: " + data.message);
                 throw new Error(data.message || `Failed to save file: ${response.statusText}`);
             }
         } catch (error) {
             console.error("Error renaming file:", error);
-            setMessage("Error renaming file: " + error.message);
-            setOpen1(true);
+            alert("Error renaming file: " + error.message);
         }
     };
 
+   
     const handleEditClick = () => {
         setIsEditing(true);
     };
@@ -937,38 +909,14 @@ function CodeIDE_Main() {
         setIsEditing(false);
     };
 
-    const handleKeyDown = useCallback((e) => {
+    const handleKeyDown = (e) => {
         if (e.key === "Enter") {
-            e.preventDefault();
-            e.stopPropagation();
             if (filenameToSaveCode !== savedProjectName) {
                 renameFile(savedProjectName, filenameToSaveCode);
             }
             setIsEditing(false);
         }
-        if (e.ctrlKey && e.key == "s") {
-            e.preventDefault();
-            saveCodeToDB();
-        }
-    }, [filenameToSaveCode, savedProjectName, saveCodeToDB]);
-
-
-
-    const handlePromptKeyDown = useCallback((e) => {
-        if (e.key == "Enter") {
-            e.preventDefault();
-            e.stopPropagation();
-            generateCodeFromText();
-        }
-    }, [generateCodeFromText])
-
-    useEffect(() => {
-        document.addEventListener("keydown", handleKeyDown);
-        return () => {
-            document.removeEventListener("keydown", handleKeyDown);
-        };
-    }, [handleKeyDown, handlePromptKeyDown]);
-
+    };
 
 
     const output = async () => {
@@ -1061,21 +1009,6 @@ function CodeIDE_Main() {
             console.log("Failed to fetch")
         }
     }
-    useEffect(() => {
-        function handleClickOutside(event) {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                setConvertLang(false); // Close dropdown if click is outside
-            }
-        }
-
-        if (convertLang) {
-            document.addEventListener("mousedown", handleClickOutside);
-        } else {
-            document.removeEventListener("mousedown", handleClickOutside);
-        }
-
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, [convertLang]);
 
     const iconMap = {
         java: <FaJava className="text-red-500" />,
@@ -1106,7 +1039,7 @@ function CodeIDE_Main() {
                     </div>
                     <div className='col-span-1  justify-center w-50 h-15 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-3 lg:max-xl:p-3 lg:max-xl:ml-4 lg:max-xl:col-span-4 md:max-lg:col-span-1 md:max-lg:p-0.5'>
                         <label htmlFor="file-input" className='items-center flex justify-center w-12 h-20 5xs:max-md:hidden'>
-                            <FaFolderOpen className="text-gray-600 text-4xl  md:max-lg:h-14.5 md:max-lg:w-7.5 md:max-lg:mt-[-5px] md:max-lg:ml-4 mb-2  3xl:max-4xl:p-0  3xl:max-4xl:h-10  3xl:max-4xl:w-10 cursor-pointer  3xl:max-4xl:mt-[-39px]  3xl:max-4xl:ml-[-50px]" title='Open File' />
+                            <FaFolderOpen className="text-gray-600 text-4xl  md:max-lg:h-14.5 md:max-lg:w-7.5 md:max-lg:mt-[-5px] md:max-lg:ml-4 mb-2  3xl:max-4xl:p-0  3xl:max-4xl:h-10  3xl:max-4xl:w-10 cursor-pointer  3xl:max-4xl:mt-[-39px]  3xl:max-4xl:ml-[-50px]" title='Open File'/>
                             <FileReaderComponent onFileRead={handleFileContent} triggerId="file-input" />
                         </label>
                     </div>
@@ -1157,7 +1090,7 @@ function CodeIDE_Main() {
                                     onChange={(e) => setFilenameToSaveCode(e.target.value + extension)}
                                     onBlur={handleBlur}
                                     onKeyDown={handleKeyDown}
-                                    autoFocus={isEditing}
+                                    autoFocus = {isEditing}
                                     className="border p-1 rounded w-full text-ellipsis focus:ring focus:ring-blue-300 outline-none text-sm"
                                 />
                                 <span className="ml-1 text-gray-600 flex-shrink-0 text-sm">{extension || fileExtension}</span>
@@ -1340,7 +1273,7 @@ function CodeIDE_Main() {
                 {prompt &&
                     <div className='row-span-3 col-span-29 grid-cols-23 grid rounded-2xl bg-white shadow-md shadow-neutral-300 md:max-lg:h-15 md:max-lg:mt-2'>
                         <div className='col-span-15 p-2 h-18 2xl:max-2xl:h-15 lg:max-xl:col-span-14 md:max-lg:col-span-15 3xl:max-4xl:col-span-16 3xl:max-4xl:p-1'>
-                            <input className='p-2 rounded-xl border-gray-300 border w-310 h-13 2xl:max-2xl:h-10 2xl:max-2xl:w-5xl xl:max-2xl:h-10 xl:max-2xl:w-3xl lg:max-xl:h-10 lg:max-xl:w-xl md:max-lg:h-10 md:max-lg:w-xl 5xs:max-2xs:w-75 5xs:max-2xs:h-10.5 3xs:max-2xs:w-100  sm:max-md:w-120  sm:max-md:h-10 3xl:max-4xl:w-full 3xl:max-4xl:h-12' onKeyDown={(e) => handlePromptKeyDown(e)} placeholder='Enter your prompt here...' ref={generate} id='field' autoComplete='off'></input>
+                            <input className='p-2 rounded-xl border-gray-300 border w-310 h-13 2xl:max-2xl:h-10 2xl:max-2xl:w-5xl xl:max-2xl:h-10 xl:max-2xl:w-3xl lg:max-xl:h-10 lg:max-xl:w-xl md:max-lg:h-10 md:max-lg:w-xl 5xs:max-2xs:w-75 5xs:max-2xs:h-10.5 3xs:max-2xs:w-100  sm:max-md:w-120  sm:max-md:h-10 3xl:max-4xl:w-full 3xl:max-4xl:h-12' placeholder='Enter your prompt here...' ref={generate} id='field' autoComplete='off'></input>
                         </div>
                         <div className='flex items-center mt-1 col-span-1 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-2 lg:max-xl:col-span-3 lg:max-xl:p-3 md:max-lg:p-0 md:max-lg:col-span-1 md:max-lg:w-8 md:max-lg:h-8 md:max-lg:mt-3 md:max-lg:ml-[-7px] 5xs:max-2xs:w-15 5xs:max-2xs:h-15 5xs:max-md:col-span-4 5xs:max-md:mt-0  sm:max-md:w-16 sm:max-md:h-16  sm:max-md:mt-[-4px]  sm:max-md:ml-3 3xl:max-4xl:ml-[-50px] 3xl:max-4xl:p-0 3xl:max-4xl:mt-[-2px]'>
                             <FaCircleArrowRight className='h-20 w-10 text-blue-600 cursor-pointer' onClick={generateCodeFromText} title='Send' />
@@ -1403,7 +1336,7 @@ function CodeIDE_Main() {
                     <div className='col-span-1  justify-center w-50 h-15 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-3 lg:max-xl:p-3 lg:max-xl:ml-4 lg:max-xl:col-span-4 md:max-lg:col-span-1 md:max-lg:p-0.5'>
 
                         <label htmlFor="file-input" className='items-center flex justify-center w-12 h-20 5xs:max-md:hidden'>
-                            <FaFolderOpen className="text-white text-4xl md:max-lg:h-14.5 md:max-lg:w-7.5 md:max-lg:mt-[-5px] md:max-lg:ml-4 mb-2  3xl:max-4xl:p-0  3xl:max-4xl:h-10  3xl:max-4xl:w-10 cursor-pointer  3xl:max-4xl:mt-[-39px]  3xl:max-4xl:ml-[-50px]" title='Open File' />
+                            <FaFolderOpen className="text-white text-4xl md:max-lg:h-14.5 md:max-lg:w-7.5 md:max-lg:mt-[-5px] md:max-lg:ml-4 mb-2  3xl:max-4xl:p-0  3xl:max-4xl:h-10  3xl:max-4xl:w-10 cursor-pointer  3xl:max-4xl:mt-[-39px]  3xl:max-4xl:ml-[-50px]" title='Open File'/>
                             <FileReaderComponent onFileRead={handleFileContent} triggerId="file-input" />
                         </label>
                     </div>
@@ -1453,7 +1386,7 @@ function CodeIDE_Main() {
                                     onChange={(e) => setFilenameToSaveCode(e.target.value + extension)}
                                     onBlur={handleBlur}
                                     onKeyDown={handleKeyDown}
-                                    autoFocus={isEditing}
+                                    autoFocus = {isEditing}
                                     className="border p-1 rounded w-full text-ellipsis focus:ring focus:ring-blue-300 outline-none text-sm text-white"
                                 />
                                 <span className="ml-1 text-white flex-shrink-0 text-sm">{extension || fileExtension}</span>
@@ -1646,7 +1579,7 @@ function CodeIDE_Main() {
                 {prompt &&
                     <div className='row-span-3 col-span-29 grid-cols-23 grid rounded-2xl bg-white shadow-md  md:max-lg:h-18 md:max-lg:p-1.5  border border-gray-600' id='textArea'>
                         <div className='col-span-15 p-2 h-18 2xl:max-2xl:h-15 lg:max-xl:col-span-14 md:max-lg:col-span-15 3xl:max-4xl:col-span-16 3xl:max-4xl:p-1'>
-                            <input className='p-2 rounded-xl border-gray-300 border w-310 h-13 2xl:max-2xl:h-10 text-white 2xl:max-2xl:w-5xl xl:max-2xl:h-10 xl:max-2xl:w-3xl lg:max-xl:h-10 lg:max-xl:w-xl md:max-lg:h-10 md:max-lg:w-xl 5xs:max-2xs:w-75 5xs:max-2xs:h-10.5 3xs:max-2xs:w-100  sm:max-md:w-120  sm:max-md:h-10 3xl:max-4xl:w-full 3xl:max-4xl:h-12' onKeyDown={(e) => handlePromptKeyDown(e)} placeholder='Enter your prompt here...' ref={generate} id='field' autoComplete='off'></input>
+                            <input className='p-2 rounded-xl border-gray-300 border w-310 h-13 2xl:max-2xl:h-10 text-white 2xl:max-2xl:w-5xl xl:max-2xl:h-10 xl:max-2xl:w-3xl lg:max-xl:h-10 lg:max-xl:w-xl md:max-lg:h-10 md:max-lg:w-xl 5xs:max-2xs:w-75 5xs:max-2xs:h-10.5 3xs:max-2xs:w-100  sm:max-md:w-120  sm:max-md:h-10 3xl:max-4xl:w-full 3xl:max-4xl:h-12' placeholder='Enter your prompt here...' ref={generate} id='field' autoComplete='off'></input>
                         </div>
                         <div className='flex items-center mt-1 col-span-1 w-40 h-15 p-4 2xl:max-2xl:p-2.5 2xl:max-2xl:ml-3 xl:max-2xl:p-2 lg:max-xl:col-span-3 lg:max-xl:p-3 md:max-lg:p-0 md:max-lg:col-span-1 md:max-lg:w-8 md:max-lg:h-8 md:max-lg:mt-3 md:max-lg:ml-[-7px] 5xs:max-2xs:w-15 5xs:max-2xs:h-15 5xs:max-md:col-span-4 5xs:max-md:mt-0  sm:max-md:w-16 sm:max-md:h-16  sm:max-md:mt-[-4px]  sm:max-md:ml-3 3xl:max-4xl:ml-[-50px] 3xl:max-4xl:p-0 3xl:max-4xl:mt-[-2px]'>
                             <FaCircleArrowRight className='h-20 w-10 text-blue-600 cursor-pointer' onClick={generateCodeFromText} title='Send' />
