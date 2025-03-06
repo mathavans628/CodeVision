@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Mail, Lock } from "lucide-react";
 import TextInput from "./TextInput";
 import PasswordInput from "./PasswordInput";
@@ -7,6 +7,7 @@ import { validateField } from "../../utils/validation";
 import LoginFetch from "../../Fetch/LoginFetch";
 import { useNavigate } from "react-router-dom";
 import checkAuth from "./checkAuth";
+import SingleButtonPopup from "../../NoButtonPopup";
 
 const LoginForm = ({ setIsAuthenticated, switchMode }) => {
     const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -14,8 +15,27 @@ const LoginForm = ({ setIsAuthenticated, switchMode }) => {
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
 
+    const[open,setOpen] = useState(false);
+
     const navigate = useNavigate();
 
+    const waitForPopupClose = () => {
+        return new Promise((resolve) => {
+          const checkPopup = setInterval(() => {
+            if (!open) {
+              clearInterval(checkPopup);
+              resolve();
+            }
+          }, 600); // Check every 100ms
+        });
+      };
+      
+
+
+    useEffect(() => {
+        console.log("Updated open state:", open);
+      }, [open]);
+      
     const handleInputChange = (field, value) => {
         setFormData((prev) => ({ ...prev, [field]: value }));
 
@@ -42,15 +62,15 @@ const LoginForm = ({ setIsAuthenticated, switchMode }) => {
     
             if (response.success) 
             {
-                alert("Logged in successfully!");
+                // alert("Logged in successfully!");
+                setOpen(true);
+                await waitForPopupClose();
                 const authStatus = await checkAuth();
-                console.log("Auth Check:", authStatus);
-                console.log("Is Authenticated:", authStatus.isAuthenticated);
     
                 if (authStatus.isAuthenticated) 
                 {
                     setIsAuthenticated(true);
-                    navigate("/main", { replace: true });
+                    navigate("/main", { replace: true }); 
                 }
                 else
                 {
@@ -118,10 +138,10 @@ const LoginForm = ({ setIsAuthenticated, switchMode }) => {
             >
                 {loading ? "Logging in..." : "Login"}
             </button>
-
             <p className="text-center text-sm">
-                New user? <button className="text-blue-500 cursor-pointer" onClick={switchMode}>Sign Up</button>
+                New user?    <button className="text-blue-500 cursor-pointer" onClick={switchMode}>Sign up</button>
             </p>
+            {open && <SingleButtonPopup open={open} onClose={() => setOpen(false)} message={"Logged in successfully!"}/>}
         </div>
     );
 };

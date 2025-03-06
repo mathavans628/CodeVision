@@ -27,9 +27,12 @@ public class SeleniumExecutorServlet extends HttpServlet {
         if (driver == null) {
             WebDriverManager.chromedriver().setup();
             ChromeOptions options = new ChromeOptions();
-            options.addArguments("--disable-gpu", "--no-sandbox", "--blink-settings=imagesEnabled=false");
+//            options.addArguments("--disable-gpu", "--no-sandbox", "--blink-settings=imagesEnabled=false");
+            options.addArguments("--disable-gpu", "--no-sandbox", "--blink-settings=imagesEnabled=false","--headless=new");
+            options.setPageLoadStrategy(PageLoadStrategy.EAGER);
             driver = new ChromeDriver(options);
             driver.get("https://www.online-ide.com/");
+            
             driver.manage().window().maximize();
         }
     }
@@ -65,8 +68,9 @@ public class SeleniumExecutorServlet extends HttpServlet {
         
         String lastOutput = "";
 
+        
         try {
-            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+            WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
             JavascriptExecutor js = (JavascriptExecutor) driver;
 
             // Select language

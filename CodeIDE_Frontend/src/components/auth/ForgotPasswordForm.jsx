@@ -17,6 +17,8 @@ const ForgotPasswordForm = ({ onBack, onSuccess }) => {
     });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+    const [message,setMessage] = useState("");
+    const[open,setOpen] = useState(false);
 
     const handleInputChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -98,7 +100,9 @@ const ForgotPasswordForm = ({ onBack, onSuccess }) => {
             }, 'change-password');
             
             if (response.success) {
-                alert("Password reset successfully!");
+                // alert("Password reset successfully!");
+                setMessage("Password reset successfully!");
+                setOpen(true);
                 onSuccess?.();
             } else {
                 setErrors({ newPassword: "Error resetting password" });
@@ -110,7 +114,9 @@ const ForgotPasswordForm = ({ onBack, onSuccess }) => {
     };
 
     return (
+        
         <div className="space-y-4">
+            {open && <SingleButtonPopup open={open} onClose={() => setOpen(false)} message={message} />}
             <div className="flex items-center mb-6">
                 <button onClick={onBack} className="text-blue-500 hover:text-blue-600  cursor-pointer">
                     ← Back to Login

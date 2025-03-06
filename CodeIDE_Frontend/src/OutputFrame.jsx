@@ -211,8 +211,26 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
         }
     }, [html, css, js, code]);
 
+    const runButtonRef = useRef(null);
+
+    useEffect(() => {
+        const handleRunButtonClick = () => {
+            if (runButtonRef.current) {
+                runButtonRef.current.click(); // Simulate button click
+            }
+        };
+
+        // Listen for the custom event
+        window.addEventListener("triggerRunButton", handleRunButtonClick);
+
+        // Cleanup event listener on component unmount
+        return () => {
+            window.removeEventListener("triggerRunButton", handleRunButtonClick);
+        };
+    }, []);
+
     return (
-        <div className="bg-gray-900 text-white rounded-lg p-4 pt-10 mt-4 w-213 h-213 5xs:max-3xs:w-full 5xs:max-3xs:h-85 5xs:max-2xs:p-2  3xs:max-2xs:h-93 5xs:max-2xs:w-full sm:max-md:w-155 sm:max-md:p-2 sm:max-md:h-170 md:max-lg:w-211 md:max-lg:p-3 md:max-lg:h-180  3xl:max-4xl:w-176  3xl:max-4xl:m-0 3xl:max-4xl:h-176">
+        <div className="bg-gray-900 text-white rounded-lg p-4 pt-10 mt-4 w-213 h-213 5xs:max-3xs:w-80 5xs:max-3xs:h-85 5xs:max-2xs:p-2  3xs:max-2xs:h-93 5xs:max-2xs:w-full sm:max-md:w-155 sm:max-md:p-2 sm:max-md:h-170 md:max-lg:w-211 md:max-lg:p-3 md:max-lg:h-180  3xl:max-4xl:w-176  3xl:max-4xl:m-0 3xl:max-4xl:h-176">
             <div className="flex justify-between items-center mb-4 5xs:max-2xs:w-full">
                 {/* Left Side: Preview & Console Buttons */}
                 <div className="flex space-x-4  5xs:max-2xs:h-full">
@@ -237,11 +255,17 @@ const OutputFrame = ({ selectedLanguage, html, css, js, code }) => {
                         </>
                     )}
                     {selectedLanguage !== "web" && selectedLanguage !== "javascript" && (
+                        // <button
+                        //     style={{marginTop: "-8px"}} className="font-bold bg-[#1eb932] hover:bg-green-700  px-6 mr-170 py-2 rounded-lg transition-colors duration-200 cursor-pointer 5xs:max-2xs:mr-0"
+                        //     onClick={runCode}
+                        // >
+                        //     Run
+                        // </button>
                         <button
-                            style={{marginTop: "-8px"}} className="font-bold bg-[#1eb932] hover:bg-green-700  px-6 mr-170 py-2 rounded-lg transition-colors duration-200 cursor-pointer 5xs:max-2xs:mr-0"
-                            onClick={runCode}
-                        >
-                            Run
+                        ref={runButtonRef}
+                        style={{marginTop: "-8px"}} className="hidden font-bold bg-[#1eb932] hover:bg-green-700  px-6 mr-170 py-2 rounded-lg transition-colors duration-200 cursor-pointer 5xs:max-2xs:mr-0"
+                        onClick={runCode}
+                    >Run
                         </button>
                     )}
                 </div>

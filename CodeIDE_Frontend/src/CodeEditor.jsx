@@ -111,8 +111,13 @@ const CodeEditor = ({ html, setHtml, css, setCss, js, setJs, code, setCode, sele
         return langMap[lang] || "plaintext"; // Fallback to plaintext
     };
 
+    const triggerRun = () =>{
+        const event = new Event("triggerRunButton"); // Create custom event
+        window.dispatchEvent(event); 
+    }
+
     return (
-        <div className="bg-gray-900 p-4 rounded-xl shadow-lg w-215 h-215 flex flex-col 5xs:max-3xs:w-full 5xs:max-3xs:p-0.5 5xs:max-3xs:h-110 5xs:max-3xs:pb-3 3xs:max-2xs:h-120 3xs:max-2xs:w-110 3xs:max-2xs:p-1.5 3xs:max-2xs:w-130 sm:max-md:w-155 md:max-lg:w-208 3xl:max-4xl:w-174 3xl:max-4xl:h-175">
+        <div className="bg-gray-900 p-4 rounded-xl shadow-lg w-215 h-215 flex flex-col 5xs:max-3xs:w-80 5xs:max-3xs:p-0.5 5xs:max-3xs:h-110 5xs:max-3xs:pb-3 3xs:max-2xs:h-120 3xs:max-2xs:w-110 3xs:max-2xs:p-1.5 3xs:max-2xs:w-130 sm:max-md:w-155 md:max-lg:w-208 3xl:max-4xl:w-174 3xl:max-4xl:h-175">
             {/* Top Controls */}
             <div className="flex justify-between items-center mb-3 5xs:max-3xs:pl-3">
                 <div>
@@ -127,7 +132,9 @@ const CodeEditor = ({ html, setHtml, css, setCss, js, setJs, code, setCode, sele
                         ))}
                     </select>
                 </div>
-                <div className="relative 5xs:max-3xs:pr-1 5xs:max-3xs:m-1">
+                <div className="relative 5xs:max-3xs:pr-1 5xs:max-3xs:m-1 flex justify-between items-center">
+                    {(selectedLanguage !== "web" && selectedLanguage !== "javascript") && <button className="bg-green-600 mr-4 hover:bg-green-500 p-2 w-20 flex items-center text-center pl-7 rounded-lg text-white transition duration-200 cursor-pointer" onClick={triggerRun}>Run</button>}
+                    
                     <button 
                         className="bg-blue-600 hover:bg-blue-500 p-2 rounded-lg text-white flex items-center transition duration-200 cursor-pointer"
                         onClick={copyToClipboard}

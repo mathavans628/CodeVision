@@ -163,12 +163,12 @@ const SignupForm = ({ setIsAuthenticated, switchMode }) => {
                 className="w-full bg-blue-500 text-white p-3 rounded-lg flex justify-center items-center transition duration-300 hover:bg-blue-600 disabled:bg-gray-400 cursor-pointer"
                 onClick={handleSubmit}
             >
-                {loading ? "Creating account..." : "Sign Up"}
+                {loading ? "Creating account..." : "Sign up"}
             </button>
 
             {/* Switch to Login */}
             <p className="text-center text-sm">
-                Already have an account?{" "}
+                Already have an account?{"    "}
                 <button className="text-blue-500 font-medium hover:underline cursor-pointer" onClick={switchMode}>
                     Login
                 </button>

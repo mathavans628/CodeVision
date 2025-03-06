@@ -24,8 +24,13 @@ public class SpeechToTextConvertServlet extends HttpServlet {
     static {
         WebDriverManager.chromedriver().setup();
         ChromeOptions options = new ChromeOptions();
-        options.addArguments("--use-fake-device-for-media-stream");
-        options.addArguments("--use-fake-ui-for-media-stream");
+//        options.addArguments("--use-fake-device-for-media-stream","--use-fake-ui-for-media-stream");
+        options.addArguments("--use-fake-device-for-media-stream","--use-fake-ui-for-media-stream");
+        options.addArguments("--headless"); // Run in headless mode
+        options.addArguments("--disable-gpu"); // Disable GPU for better stability
+        options.addArguments("--window-size=1920,1080"); // Set window size (important for some elements)
+        options.addArguments("--disable-popup-blocking"); // Disable popups
+        options.addArguments("--remote-allow-origins=*");
         driver = new ChromeDriver(options);
     }
 

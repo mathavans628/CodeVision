@@ -47,9 +47,14 @@ public class CodeBeautifyServlet extends HttpServlet {
 	    if (driver == null) {
             WebDriverManager.chromedriver().setup();
             ChromeOptions options = new ChromeOptions();
+//            options.addArguments("--disable-gpu", "--no-sandbox", "--blink-settings=imagesEnabled=false");
             options.addArguments("--disable-gpu", "--no-sandbox", "--blink-settings=imagesEnabled=false");
+            options.addArguments("--headless"); // Disable GPU for better stability
+            options.addArguments("--window-size=1920,1080"); // Set window size (important for some elements)
+            options.addArguments("--disable-popup-blocking"); // Disable popups
+            options.addArguments("--remote-allow-origins=*");
             driver = new ChromeDriver(options);
-            driver.manage().window().maximize();
+            driver.manage().window().minimize();
         }
 		
 		String lang = request.getParameter("selectedLanguage");
@@ -143,21 +148,15 @@ public class CodeBeautifyServlet extends HttpServlet {
         WebElement dropDown = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"uiOption1\"]")));
         dropDown.click();
         
-        WebElement dropDownValue = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"uiOption1\"]/option[2]")));
+        WebElement dropDownValue = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"uiOption1\"]/option[3]")));
         dropDownValue.click();
-        
-        try {
-			Thread.sleep(3000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
         
         WebElement run = wait.until(ExpectedConditions.elementToBeClickable(By.id("uiActionButton")));
         run.click();
         
         try {
-        	Thread.sleep(2000);
+        	Thread.sleep(6000);
         }
         catch(InterruptedException e)
         {

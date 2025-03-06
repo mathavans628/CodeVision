@@ -17,6 +17,7 @@ import codevision.dao.SessionDAO;
 import codevision.dao.UserDAO;
 import codevision.model.User;
 import codevision.util.JwtUtil;
+import io.opentelemetry.exporter.logging.SystemOutLogRecordExporter;
 
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
@@ -26,8 +27,8 @@ public class LoginServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+    	System.out.println("jkfhdshf");
     	
-    	System.out.println("kjhsakfas");
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             setCorsHeaders(response);
             response.setStatus(HttpServletResponse.SC_OK);

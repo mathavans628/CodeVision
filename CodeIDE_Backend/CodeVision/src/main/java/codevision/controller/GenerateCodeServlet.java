@@ -14,6 +14,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -29,6 +30,20 @@ public class GenerateCodeServlet extends HttpServlet {
 	
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
+		
+		WebDriverManager.chromedriver().setup();
+		
+		ChromeOptions options = new ChromeOptions();
+//		option.addArguments("--headless=new");
+		options.addArguments("--headless");  // Run in headless mode
+        options.addArguments("--disable-gpu");  // Disable GPU rendering
+        options.addArguments("--window-size=1920,1080");  // Ensure proper element visibility
+        options.addArguments("--no-sandbox");  // Bypass OS security restrictions
+        options.addArguments("--disable-dev-shm-usage");
+		
+		driver = new ChromeDriver(options);
+		
 		response.setHeader("Access-Control-Allow-Origin", "http://localhost:5174");
 	    response.setHeader("Access-Control-Allow-Credentials", "true");
 	    response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
@@ -42,33 +57,42 @@ public class GenerateCodeServlet extends HttpServlet {
 		System.out.println("Prompt: "+prompt);
 		
 		
-		WebDriverManager.chromedriver().setup();
-		driver = new ChromeDriver();
+		
 		
 		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50));
 		
-		String[] arr= new String[] {" java"," js"," javascript"," java "," js "," javascript "," python"," python "," rlang"," rlang "," r lang"," r "," go "," golang"," go lang"," php"," ruby"," c "," cpp"," cpp "," c++"," c"};
+		String[] promptArr = prompt.split(" ");
+		
+		String[] arr= new String[] {"java","js","javascript","python","rlang","ruby","r","go","golang","php","c","cpp","c++","html"};
 		
 		 
-        for (int i = 0; i < arr.length; i++) {
-            if (prompt.contains(arr[i])) {
-            	lang = arr[i];
-                break;
-            }
+        loop1:for (int i = 0; i < promptArr.length; i++) {
+//            if (prompt.contains(arr[i])) {
+//            	lang = arr[i];
+//                break;
+//            }
+        	for(int j=0;j<arr.length;j++)
+        	{
+        		if(promptArr[i].equals(arr[j]))
+        		{
+        			lang = arr[j];
+        			break loop1;
+        		}
+        	}
         }
 		
 		
 		driver.get("https://zzzcode.ai/code-generator");
 		
-		WebElement languageBox = wait.until(ExpectedConditions.elementToBeClickable(By.id("uiP1")));
-		languageBox.click();
+		WebElement languageBox = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"uiP1\"]")));
+//		languageBox.click();
 		languageBox.sendKeys(lang);
 		
-		WebElement promptBox = wait.until(ExpectedConditions.elementToBeClickable(By.id("uiP2")));
+		WebElement promptBox = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"uiP2\"]")));
 		promptBox.click();
-		promptBox.sendKeys(prompt+ " If the language need Main class like that, give with that. Always name the Main class as Main. Don't show my prompt. ");
+		promptBox.sendKeys(prompt+ " If the language need Main class like that, give with Main. Always name the Main class as Main. Don't show my prompt. ");
 		
-		WebElement run = wait.until(ExpectedConditions.elementToBeClickable(By.id("uiActionButton")));
+		WebElement run = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"uiActionButton\"]")));
 		run.click();
 		
 		try {
@@ -80,42 +104,48 @@ public class GenerateCodeServlet extends HttpServlet {
 		}
 //		WebElement waiting = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"uiOutputHtml\"]/h2")));
 		
-		WebElement output = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"uiOutputHtml\"]/pre/div/div[2]/code")));
-		
 		WebElement outputBox = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"uiOutputHtml\"]/pre/div/div[2]/code")));
 		generatedCode = outputBox.getText();
 		
 		response.setContentType("application/json");
         PrintWriter out = response.getWriter();
         
-        if(lang.equals(" js") || lang.equals(" js ") || lang.equals(" javascript "))
+        if(lang.equals("js")|| lang.equals("javascript"))
 		{
 			lang = "javascript";
 		}
-        else if(lang.equals(" java") || lang.equals(" java "))
+        else if(lang.equals("java"))
 		{
         	System.out.println("java");
 			lang = "java";
 		}
-		else if(lang.equals(" python") || lang.equals(" python "))
+		else if(lang.equals("python"))
 		{
 			lang = "python3";
 		}
-		else if(lang.equals(" go") || lang.equals(" go ") || lang.equals(" golang "))
+		else if(lang.equals("go"))
 		{
 			lang = "golang";
 		}
-		else if(lang.equals(" r") || lang.equals(" r ") || lang.equals(" rlang "))
+		else if(lang.equals("r"))
 		{
 			lang = "rlang";
 		}
-		else if(lang.equals(" c++") || lang.equals(" c++ ") || lang.equals(" cpp") || lang.equals(" cpp "))
+		else if(lang.equals("c++") || lang.equals("cpp"))
 		{
 			lang = "cpp";
 		}
-		else if(lang.equals(" c ") || lang.equals(" c"))
+		else if(lang.equals("c"))
 		{
 			lang = "c";
+		}
+		else if(lang.equals("ruby"))
+		{
+			lang = "ruby";
+		}
+		else if(lang.equals("html"))
+		{
+			lang = "web";
 		}
         
         

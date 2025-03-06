@@ -6,14 +6,7 @@
  color: #2b6cb0;
  box-shadow: 0 0 0 3px rgba(99, 179, 237, 0.2);
  }
- @media (min-width : 340px) and (max-width: 480px) {
-  #wholeContainer{
-    overflow-x: hidden;
-    overflow-y: scroll;
-    flex-wrap: wrap;
-    background-color: #2f855a;
-  }
- }
+
  @theme{
   --breakpoint-5xs:21.5rem;
   --breakpoint-4xs:25rem;

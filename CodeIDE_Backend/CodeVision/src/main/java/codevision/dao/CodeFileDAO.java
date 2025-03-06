@@ -27,37 +27,57 @@ public class CodeFileDAO {
 	}
 
 	// Check if filename exists with a specific Connection
-	private boolean isFilenameExists(Connection connection, int userId, String filename) throws SQLException {
-		try (PreparedStatement stmt = connection
-				.prepareStatement("SELECT COUNT(*) FROM files WHERE user_id = ? AND encrypted_filename = ?")) {
-			System.out.println("Checking filename existence for userId: " + userId + ", filename: " + filename);
-			SecretKey aesKey = userDAO.getAESKeyByUserId(userId);
-			IvParameterSpec iv = userDAO.getIVByUserId(userId);
-			String encryptedFilename = AESUtil.encrypt(filename, aesKey, iv);
-			stmt.setInt(1, userId);
-			stmt.setString(2, encryptedFilename);
-			try (ResultSet rs = stmt.executeQuery()) {
-				rs.next();
-				boolean exists = rs.getInt(1) > 0;
-				System.out.println("Filename exists: " + exists);
-				return exists;
-			}
-		} catch (Exception e) {
-			System.out.println("Encryption error checking filename existence: " + e.getMessage());
-			throw new SQLException("Encryption error in isFilenameExists", e);
-		}
-	}
+	// Check if filename exists by fetching all filenames and comparing after decryption
+		private boolean isFilenameExists(Connection connection, int userId, String filename) throws SQLException {
+			try (PreparedStatement stmt = connection
+					.prepareStatement("SELECT encrypted_filename FROM files WHERE user_id = ?")) {
 
-	// Public version for external use
-	public boolean isFilenameExists(int userId, String filename) {
-		try (Connection connection = DatabaseConnection.getConnection()) {
-			System.out.println("Connection for isFilenameExists established: " + connection);
-			return isFilenameExists(connection, userId, filename);
-		} catch (SQLException e) {
-			System.out.println("Database error checking filename existence: " + e.getMessage());
-			return false;
+				stmt.setInt(1, userId);
+				ResultSet rs = stmt.executeQuery();
+
+				SecretKey aesKey = userDAO.getAESKeyByUserId(userId);
+				IvParameterSpec iv = userDAO.getIVByUserId(userId);
+
+				// Remove the extension before checking for duplicates
+				String filenameWithoutExtension = filename.contains(".") ? filename.substring(0, filename.lastIndexOf('.'))
+						: filename;
+
+				System.out.println("Checking for duplicates. User provided: " + filenameWithoutExtension);
+
+				while (rs.next()) {
+					String encryptedName = rs.getString("encrypted_filename");
+					String decryptedName = AESUtil.decrypt(encryptedName, aesKey, iv);
+
+					// Remove the extension before checking for duplicates
+					String storedFilename = decryptedName.contains(".") ? decryptedName.substring(0, decryptedName.lastIndexOf('.'))
+							: decryptedName;
+
+					System.out.println(filename);
+					System.out.println("Comparing with stored filename: " + storedFilename);
+					if (filenameWithoutExtension.equalsIgnoreCase(storedFilename)) {
+						System.out.println("Duplicate found: " + decryptedName);
+						return true;
+					}
+				}
+
+				System.out.println("No duplicate found.");
+				return false; // No match found
+			} catch (Exception e) {
+				System.out.println("Error checking filename existence: " + e.getMessage());
+				throw new SQLException("Error in isFilenameExists", e);
+			}
 		}
-	}
+
+		// Public method for checking filename existence
+		public boolean isFilenameExists(int userId, String filename) {
+			try (Connection connection = DatabaseConnection.getConnection()) {
+				System.out.println("Connection for isFilenameExists established: " + connection);
+				return isFilenameExists(connection, userId, filename);
+			} catch (SQLException e) {
+				System.out.println("Database error checking filename existence: " + e.getMessage());
+				return false;
+			}
+		}
 
 	public boolean saveWebProject(int userId, String name, byte[] htmlContent, byte[] cssContent, byte[] jsContent) {
 		Connection connection = null;

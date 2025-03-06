@@ -20,6 +20,7 @@ public class SaveCodeServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    	
         response.setHeader("Access-Control-Allow-Origin", "http://localhost:5174");
         response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
@@ -65,10 +66,15 @@ public class SaveCodeServlet extends HttpServlet {
                         jsonResponse.put("message", "Invalid input data: filename and content are required and must not be empty.");
                         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     } else {
+                    	// Remove the extension before checking for duplicates
+                        String filenameWithoutExtension = filename.contains(".") 
+                            ? filename.substring(0, filename.lastIndexOf('.')) 
+                            : filename;
+                        
                         byte[] codeBytes = codeContent.getBytes();
                         int fileSize = codeBytes.length;
                         
-                        if (codeFileDAO.isFilenameExists(userId, filename)) {
+                        if (codeFileDAO.isFilenameExists(userId, filenameWithoutExtension)) {
                             System.out.println("Duplicate filename detected: " + filename + " for userId: " + userId);
                             jsonResponse.put("success", false);
                             jsonResponse.put("message", "Filename already exists.");

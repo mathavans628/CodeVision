@@ -57,7 +57,7 @@ function CodeIDE_Login({ setIsAuthenticated, mode = "login" }) {
                                     : "text-gray-500 hover:bg-gray-50"
                             }`}
                         >
-                            Sign Up
+                            Sign up
                         </button>
                     </div>
 

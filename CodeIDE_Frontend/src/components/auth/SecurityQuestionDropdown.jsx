@@ -2,11 +2,11 @@ import { useState, useRef, useEffect } from "react";
 import { ShieldQuestion, ChevronDown, AlertCircle } from "lucide-react";
 
 const securityQuestions = [
-    "What was the name of your pet?",
-    "What was your first school's name?",
+    "What is the name of your pet?",
+    "What is your first school's name?",
     "What city were you born in?",
     "What is your childhood nickname?",
-    "Who was your childhood hero?",
+    "Who is your childhood hero?",
     "What is your best friend's name?",
 ];
 

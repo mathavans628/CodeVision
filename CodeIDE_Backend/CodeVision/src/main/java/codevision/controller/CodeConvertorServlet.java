@@ -1,8 +1,10 @@
 package codevision.controller;
 
 import java.io.IOException;
+
 import java.io.PrintWriter;
 import java.time.Duration;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,6 +16,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -37,9 +40,29 @@ public class CodeConvertorServlet extends HttpServlet {
 		System.out.println(convertedLang);
 		
 		WebDriverManager.chromedriver().setup();
-		driver = new ChromeDriver();
+		ChromeOptions options = new ChromeOptions();
 		
-		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(50));
+		options.addArguments("--headless"); // Run in headless mode
+        options.addArguments("--disable-gpu"); // Disable GPU for better stability
+        options.addArguments("--window-size=1920,1080"); // Set window size (important for some elements)
+        options.addArguments("--disable-popup-blocking"); // Disable popups
+        options.addArguments("--remote-allow-origins=*");
+		
+		driver = new ChromeDriver(options);
+
+        // Handle extra tabs
+        String mainWindow = driver.getWindowHandle();
+        Set<String> allWindows = driver.getWindowHandles();
+
+        for (String window : allWindows) {
+            if (!window.equals(mainWindow)) {
+                driver.switchTo().window(window);
+                driver.close();
+            }
+        }
+
+		
+		WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
 		
 		driver.navigate().to("https://zzzcode.ai/code-converter");
 		driver.navigate().refresh();
@@ -63,7 +86,7 @@ public class CodeConvertorServlet extends HttpServlet {
 		run.click();
 		
 		try {
-		Thread.sleep(4000);
+		Thread.sleep(8000);
 		}
 		catch(InterruptedException e)
 		{
