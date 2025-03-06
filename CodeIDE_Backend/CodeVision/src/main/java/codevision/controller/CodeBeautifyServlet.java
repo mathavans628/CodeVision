@@ -37,8 +37,6 @@ public class CodeBeautifyServlet extends HttpServlet {
 
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		System.out.println("In");
-		
 		response.setHeader("Access-Control-Allow-Origin", "http://localhost:5174");
 	    response.setHeader("Access-Control-Allow-Credentials", "true");
 	    response.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
@@ -150,7 +148,6 @@ public class CodeBeautifyServlet extends HttpServlet {
         
         WebElement dropDownValue = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//*[@id=\"uiOption1\"]/option[3]")));
         dropDownValue.click();
-
         
         WebElement run = wait.until(ExpectedConditions.elementToBeClickable(By.id("uiActionButton")));
         run.click();

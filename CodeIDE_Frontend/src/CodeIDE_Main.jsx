@@ -4,6 +4,8 @@ import { IoIosSunny } from "react-icons/io";
 import { MdOutlineSave } from "react-icons/md";
 import { RiAiGenerate2 } from "react-icons/ri";
 import { RiExchangeLine } from "react-icons/ri";
+
+import { useEffect, useRef, useState } from 'react';
 import { FaFolderOpen, FaTrash } from 'react-icons/fa';
 import { TbWorldCode } from 'react-icons/tb';
 import { SiJavascript, SiPython, SiPhp, SiRuby, SiGo, SiR, SiC, SiCplusplus } from 'react-icons/si'; // Language icons
@@ -63,7 +65,6 @@ function CodeIDE_Main() {
     const [slidePanel, setSlidePanel] = useState(false);
     const [fileContent, setFileContent] = useState("");
     const [fileName, setFileName] = useState("");
-    const [projects, setProjects] = useState([]);
     const [userProfile, setUserProfile] = useState(null);
     const [loadingProfile, setLoadingProfile] = useState(true);
     const [isEditingName, setIsEditingName] = useState(false);
@@ -254,65 +255,6 @@ function CodeIDE_Main() {
         return dataUriPattern.test(url); // Ensures valid MIME type (e.g., image/png)
     };
 
-    const handleProfileImageChange = async (event) => {
-        const file = event.target.files[0];
-        if (file || editName) { // Proceed if there's a file or a new name
-            const formData = new FormData();
-            if (file) {
-                formData.append("profileImage", file);
-            }
-            const newName = editName || userProfile?.name; // Use editName if set, else current name
-            formData.append("username", newName); // Send updated username
-            formData.append("userId", userProfile?.userId || "1");
-
-            try {
-                const response = await fetch("http://localhost:8080/CodeVision/UpdateProfileImageServlet", {
-                    method: "POST",
-                    credentials: "include",
-                    body: formData,
-                });
-                if (response.ok) {
-                    const updatedProfile = await response.json();
-                    setUserProfile(updatedProfile); // Update state with server response
-                    setIsEditingName(false); // Exit edit mode if active
-                    setEditName(""); // Reset editName
-                } else {
-                    console.error("Failed to update profile:", response.statusText);
-                }
-            } catch (error) {
-                console.error("Error updating profile:", error);
-            }
-        }
-    };
-
-    const saveName = async () => {
-        if (editName && editName !== userProfile?.name) { // Only update if name changed
-            const formData = new FormData();
-            formData.append("username", editName);
-            formData.append("userId", userProfile?.userId || "1");
-
-            try {
-                const response = await fetch("http://localhost:8080/CodeVision/UpdateProfileImageServlet", {
-                    method: "POST",
-                    credentials: "include",
-                    body: formData,
-                });
-                if (response.ok) {
-                    const updatedProfile = await response.json();
-                    setUserProfile(updatedProfile);
-                    setIsEditingName(false);
-                    setEditName("");
-                } else {
-                    console.error("Failed to update name:", response.statusText);
-                }
-            } catch (error) {
-                console.error("Error updating name:", error.message);
-            }
-        } else {
-            setIsEditingName(false); // Exit edit mode if no change
-        }
-    };
-
     // This function will receive the file content
     const handleFileContent = (content, fileName, language) => {
         setFileContent(content);
@@ -410,7 +352,7 @@ function CodeIDE_Main() {
         console.log(code);
 
         getOutput = "Covert this code into " + lang + " \n" + code +
-            "\n . Don't give any other text or mention any other language. Just give only code. ";
+            "\n . Don't give any other text or mention any other language. Just give only code. If the language need Main class like that, give with that.";
 
         setSelectedLanguage(lang);
 
@@ -1058,6 +1000,21 @@ function CodeIDE_Main() {
             console.log("Failed to fetch")
         }
     }
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setConvertLang(false); // Close dropdown if click is outside
+            }
+        }
+
+        if (convertLang) {
+            document.addEventListener("mousedown", handleClickOutside);
+        } else {
+            document.removeEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [convertLang]);
 
     const iconMap = {
         java: <FaJava className="text-red-500" />,
