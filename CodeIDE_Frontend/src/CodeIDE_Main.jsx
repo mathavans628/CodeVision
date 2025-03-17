@@ -36,6 +36,7 @@ import profileImage from "./assets/Default_Profile.png";
 import Popup from './Popup.jsx';
 import SingleButtonPopup from './NoButtonPopup.jsx';
 import RedPopup from './RedPopup.jsx';
+import Loading from './Loading.jsx';
 
 
 
@@ -81,8 +82,6 @@ function CodeIDE_Main() {
     const baseName = lastDotIndex !== -1 ? filenameToSaveCode.substring(0, lastDotIndex) : filenameToSaveCode;
     const extension = lastDotIndex !== -1 ? filenameToSaveCode.substring(lastDotIndex) : "";
 
-
-    var menuBar = false;
     const [open, setOpen] = useState(false);
     const [open1, setOpen1] = useState(false);
 
@@ -90,6 +89,7 @@ function CodeIDE_Main() {
     const [message, setMessage] = useState("");
 
     const editorRef = useRef(null);
+    const [isLoading, setIsLoading] = useState(false);
 
 
 
@@ -144,6 +144,13 @@ function CodeIDE_Main() {
 
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [convertLang]);
+
+    useEffect(() => {
+        console.log("useEffect");
+        if (isLoading) {
+            console.log("True");
+        }
+    }, [isLoading]);
 
 
 
@@ -430,7 +437,9 @@ function CodeIDE_Main() {
                 setSelectedLanguage(lang);
 
                 setCode(data);
+                setIsLoading(false);
             }
+
             return (<>
                 <CodeEditor />
                 <CustomDropdown selected={selectedLanguage} onSelect={handleLanguageChange} />
@@ -439,10 +448,12 @@ function CodeIDE_Main() {
         }
         catch (error) {
             console.log("Failed to fetch");
+            setIsLoading(false);
         }
     }
 
     const generateCodeFromText = async () => {
+        setIsLoading(true);
         // getOutput = generate.current.value+ " without mentioning any other text or languange. Give only one method don't give more.";
         getOutput = generate.current.value;
         if (getOutput == "") {
@@ -482,7 +493,7 @@ function CodeIDE_Main() {
                 setSelectedLanguage(values[1]);
                 setCode(values[0]);
                 generate.current.value = "";
-
+                setIsLoading(false);
             }
 
             return (
@@ -496,6 +507,7 @@ function CodeIDE_Main() {
         }
         catch (error) {
             console.log("Failed to Fetch..");
+            setIsLoading(false);
         }
     }
 
@@ -550,7 +562,7 @@ function CodeIDE_Main() {
         outputFromVoice = getCode(getOutput)
 
         setCode(outputFromVoice);
-        console.log(code);
+        setIsLoading(false);
         return (
 
             <>
@@ -937,7 +949,34 @@ function CodeIDE_Main() {
         setIsEditing(false);
     };
 
+    // const handleKeyDown = useCallback((e) => {
+    //     const isCodeEditorFocused = document.activeElement?.id === "code-editor";
+    //     if (isCodeEditorFocused) {
+    //         return; // Allow default behavior inside the editor
+    //     }
+
+    //     if (e.key === "Enter") {
+    //         e.preventDefault();
+    //         e.stopPropagation();
+    //         if (filenameToSaveCode !== savedProjectName) {
+    //             renameFile(savedProjectName, filenameToSaveCode);
+    //         }
+    //         setIsEditing(false);
+    //     }
+    //     if (e.ctrlKey && e.key == "s") {
+    //         e.preventDefault();
+    //         saveCodeToDB();
+    //     }
+    // }, [filenameToSaveCode, savedProjectName, saveCodeToDB]);
+
     const handleKeyDown = useCallback((e) => {
+        const codeEditorElement = document.getElementById("code-editor");
+    
+        // Allow Enter if the user is typing inside CodeEditor
+        if (codeEditorElement && codeEditorElement.contains(document.activeElement)) {
+            return; // Let the editor handle Enter normally
+        }
+    
         if (e.key === "Enter") {
             e.preventDefault();
             e.stopPropagation();
@@ -946,21 +985,28 @@ function CodeIDE_Main() {
             }
             setIsEditing(false);
         }
-        if (e.ctrlKey && e.key == "s") {
+    
+        if (e.ctrlKey && e.key === "s") {
             e.preventDefault();
             saveCodeToDB();
         }
     }, [filenameToSaveCode, savedProjectName, saveCodeToDB]);
+    
 
 
 
     const handlePromptKeyDown = useCallback((e) => {
+        const isCodeEditorFocused = document.activeElement?.id === "code-editor";
+        if (isCodeEditorFocused) {
+            return;
+        }
         if (e.key == "Enter") {
             e.preventDefault();
             e.stopPropagation();
             generateCodeFromText();
         }
     }, [generateCodeFromText])
+
 
     useEffect(() => {
         document.addEventListener("keydown", handleKeyDown);
@@ -972,7 +1018,6 @@ function CodeIDE_Main() {
 
 
     const output = async () => {
-        console.log(getOutput);
 
         const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBGFGKKQmRAtoyVR2IfaNfLv3G5XxH2Apg", {
             method: 'POST',
@@ -988,7 +1033,7 @@ function CodeIDE_Main() {
 
         const result = await response.text();
 
-        extractCode(result)
+        extractCode(result);
 
     }
 
@@ -1007,6 +1052,7 @@ function CodeIDE_Main() {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
+            setIsLoading(true);
             const responseObj = await response.json();
             const result = responseObj.candidates[0].content.parts[0];
             var arr = [" java", " js", " javascript", " java ", " js ", " javascript ", " python", " python ", " rlang", " rlang ", " r lang", " r ", " go ", " golang", " go lang", " php", " ruby", " c ", " cpp", " cpp ", " c++", " c"];
@@ -1018,6 +1064,7 @@ function CodeIDE_Main() {
                     break;
                 }
             }
+
             getOutput = result + " without mentioning any other text or language or single quotes ";
             if (!langSelected) {
                 getOutput += "in " + selectedLanguage + ". ";
@@ -1036,6 +1083,9 @@ function CodeIDE_Main() {
     };
 
     const beautifier = async () => {
+        
+        console.log("dfghjkl");
+        setIsLoading(true);
         try {
             const response = await fetch("http://localhost:8080/CodeVision/CodeBeautifyServlet", {
                 method: 'POST',
@@ -1049,6 +1099,7 @@ function CodeIDE_Main() {
                 const data = await response.text();
 
                 setCode(data);
+                setIsLoading(false);
             } else {
                 console.log("Error Status: ", response.status);
             }
@@ -1058,7 +1109,8 @@ function CodeIDE_Main() {
 
         }
         catch (error) {
-            console.log("Failed to fetch")
+            console.log("Failed to fetch");
+            setIsLoading(false);
         }
     }
     useEffect(() => {
@@ -1096,6 +1148,9 @@ function CodeIDE_Main() {
 
             <div className="w-screen h-screen overflow-hidden grid grid-rows-40 grid-cols-20 p-5 gap-2 bg-gray-100 2xl:max-2xl:h-screen 2xl:max-2xl:overflow-hidden xl:max-2xl:w-screen xl:max-2xl:h-screen xl:max-2xl:overflow-hidden lg:max-xl:w-screen lg:max-xl:h-screen md:max-lg:w-screen md:max-lg:p-2 5xs:max-2xl:overflow-x-hidden  5xs:max-2xl:overflow-y-scroll 5xs:max-3xs:p-2 5xs:max-3xs:mb-2 3xs:max-2xs:w-screen 3xs:max-2xs:p-1.5 2xs:max-xs:w-screen sm:max-md:w-screen sm:max-md:p-1.5 3xl:max-4xl:p-1.5" >
 
+                {isLoading && (
+                    <Loading />
+                )}
                 <div className="row-span-3 col-span-29 grid-cols-22 grid rounded-xl bg-white shadow-neutral-300 shadow-md inset-shadow-sm inset-shadow-neutral-200 lg:max-xl:grid-cols-35 md:max-lg:grid-cols-12 md:max-lg:h-16 5xs:max-xs:mt-0 3xs:max-2xs:p-0 md:max-lg:p-0">
                     <div className="col-span-1 relative grid-cols-1 mt-1 w-19 h-16 rounded-full 2xl:max-2xl:15 2xl:max-2xl:h-15 xl:max-2xl:h-13 xl:max-2xl:p-1 lg:max-xl:h-13 lg:max-xl:p-1 lg:max-xl:col-span-2 md:max-lg:p-1 md:max-lg:col-span-1  5xs:max-2\3xs:w-15 5xs:max-3xs:h-15 5xs:max-3xs:mt-0 3xs:max-2xs:mt-[-4px] sm:max-md:mt-[-5px] md:max-lg:m-[-2px]">
                         <img src={logo} className='rounded-full 2xl:max-2xl:w-15 2xl:max-2xl:h-15 xl:max-2xl:w-13 xl:max-2xl:h-13 lg:max-xl:w-12 lg:max-xl:h-12 md:max-lg:w-17 md:max-lg:h-17 sm:max-md:w-16 sm:max-md:h-16 cursor-pointer md:max-lg:mt-[-2px] 3xl:max-4xl:w-13 3xl:max-4xl:h-13 3xl:max-4xl:mt-[-5px]' onClick={() => window.location.reload()}></img>
@@ -1132,6 +1187,7 @@ function CodeIDE_Main() {
                                             key={lang}
                                             className="px-4 py-3 flex items-center gap-2 text-gray-800 font-semibold hover:bg-gray-500 hover:text-white rounded-md transition-all duration-200 cursor-pointer"
                                             onClick={() => {
+                                                setIsLoading(true);
                                                 setConvertLang(false);
                                                 codeConverter(lang);
                                             }}
@@ -1145,6 +1201,7 @@ function CodeIDE_Main() {
                             </ul>
                         </div>
                     )}
+
 
                     <div className='3xl:max-4xl:col-span-6 3xl:max-4xl:block hidden'></div>
                     <div className="col-span-10 h-10 mt-4 w-50 ml-140 xl:max-2xl:col-span-3 md:max-lg:col-span-1 lg:max-xl:col-span-4 
@@ -1374,6 +1431,7 @@ function CodeIDE_Main() {
                             js={js} setJs={setJs}
                             code={code} setCode={setCode}
                             selectedLanguage={selectedLanguage}
+
                         />
 
 
@@ -1392,6 +1450,9 @@ function CodeIDE_Main() {
     else {
         return (
             <div className="w-screen h-screen overflow-hidden grid grid-rows-40 grid-cols-20 p-5 gap-2 bg-gray-100 2xl:max-2xl:h-screen 2xl:max-2xl:overflow-hidden xl:max-2xl:w-screen xl:max-2xl:h-screen xl:max-2xl:overflow-hidden lg:max-xl:w-screen lg:max-xl:h-screen md:max-lg:w-screen md:max-lg:p-2 5xs:max-2xl:overflow-x-hidden  5xs:max-2xl:overflow-y-scroll 5xs:max-3xs:p-2 5xs:max-3xs:mb-2 3xs:max-2xs:w-screen 3xs:max-2xs:p-1.5 2xs:max-xs:w-screen sm:max-md:w-screen sm:max-md:p-1.5 3xl:max-4xl:p-1.5" id="wholeDiv">
+                {isLoading && (
+                    <Loading />
+                )}
                 <div className="row-span-3 col-span-29 grid-cols-22 grid rounded-xl bg-white  shadow-md inset-shadow-sm border  lg:max-xl:grid-cols-35 md:max-lg:grid-cols-12 md:max-lg:h-16 5xs:max-xs:mt-0 3xs:max-2xs:p-0 md:max-lg:p-0 border-gray-600" id='textArea'>
                     <div className="col-span-1 relative grid-cols-1 mt-1 w-19 h-16 rounded-full 2xl:max-2xl:15 2xl:max-2xl:h-15 xl:max-2xl:h-13 xl:max-2xl:p-1 lg:max-xl:h-13 lg:max-xl:p-1 lg:max-xl:col-span-2 md:max-lg:p-1 md:max-lg:col-span-1  5xs:max-2\3xs:w-15 5xs:max-3xs:h-15 5xs:max-3xs:mt-0 3xs:max-2xs:mt-[-4px] sm:max-md:mt-[-5px] md:max-lg:m-[-2px]">
                         <img src={logo1} className='rounded-full 2xl:max-2xl:w-15 2xl:max-2xl:h-15 xl:max-2xl:w-13 xl:max-2xl:h-13 lg:max-xl:w-12 lg:max-xl:h-12 md:max-lg:w-17 md:max-lg:h-17 sm:max-md:w-16 sm:max-md:h-16 cursor-pointer md:max-lg:mt-[-2px] 3xl:max-4xl:w-13 3xl:max-4xl:h-13 3xl:max-4xl:mt-[-5px]' onClick={() => window.location.reload()}></img>
@@ -1429,6 +1490,7 @@ function CodeIDE_Main() {
                                             key={lang}
                                             className="px-4 py-3 flex items-center gap-2 text-gray-400 font-semibold hover:bg-gray-500 hover:text-white rounded-md transition-all duration-200 cursor-pointer"
                                             onClick={() => {
+                                                setIsLoading(true);
                                                 setConvertLang(false);
                                                 codeConverter(lang);
                                             }}
@@ -1673,7 +1735,7 @@ function CodeIDE_Main() {
                 <div className="row-span-34 col-span-29 p-2 grid grid-cols-2 gap-5 md:max-lg:mt-2 md:max-lg:grid-cols-1 md:max-lg:p-1 5xs:max-md:grid-cols-1 5xs:max-3xs:gap-0">
                     <div className='inset-shadow-sm border border-gray-600 h-220 shadow-md shadow-neutral-400 rounded-xl p-4 grid grid-rows-24 2xl:p-2.5 2xl:grid-cols-15 md:max-lg:grid-rows-28 md:max-lg:gap-1 md:max-lg:p-1  5xs:max-2xs:p-0 5xs:max-3xs:h-110 3xs:max-2xs:h-120 5xs:max-3xs:w-110 3xs:max-2xs:w-130 sm:max-md:p-1 sm:max-md:w-158 3xl:max-4xl:p-2 3xl:max-4xl:h-178'>
 
-                        <CodeEditor
+                        <CodeEditor id="code-editor"
                             className='border border-gray-300 rounded-xl p-5 row-span-22 col-span-20 2xl:max-2xl:col-span-15 xl:max-2xl:w-xl lg:max-xl:w-110 md:max-lg:w-xl md:max-lg:row-span-25 md:max-lg:mt-1.5 5xs:max-3xs:w-60' style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                             html={html} setHtml={setHtml}
                             css={css} setCss={setCss}

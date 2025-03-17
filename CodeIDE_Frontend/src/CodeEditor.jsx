@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useCallback } from "react";
 import Editor from "@monaco-editor/react";
 import { Clipboard, Check } from "lucide-react";
 import * as monaco from "monaco-editor";
+
 
 const CodeEditor = ({ html, setHtml, css, setCss, js, setJs, code, setCode, selectedLanguage, fileContent, fileName }) => {
     const [activeTab, setActiveTab] = useState("html");
@@ -115,9 +116,23 @@ const CodeEditor = ({ html, setHtml, css, setCss, js, setJs, code, setCode, sele
         const event = new Event("triggerRunButton"); // Create custom event
         window.dispatchEvent(event); 
     }
+    const handleEditerKey = useCallback((e) =>{
+        console.log("Inside");
+        if(e.key == "Enter"){
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    })
+    
+    useEffect(() => {
+        document.addEventListener("keydown", handleEditerKey);
+        return () => {
+            document.removeEventListener("keydown", handleEditerKey);
+        };
+    }, [handleEditerKey]);
 
     return (
-        <div className="bg-gray-900 p-4 rounded-xl shadow-lg w-215 h-215 flex flex-col 5xs:max-3xs:w-80 5xs:max-3xs:p-0.5 5xs:max-3xs:h-110 5xs:max-3xs:pb-3 3xs:max-2xs:h-120 3xs:max-2xs:w-110 3xs:max-2xs:p-1.5 3xs:max-2xs:w-130 sm:max-md:w-155 md:max-lg:w-208 3xl:max-4xl:w-174 3xl:max-4xl:h-175">
+        <div className="bg-gray-900 p-4 rounded-xl shadow-lg w-215 h-215 flex flex-col 5xs:max-3xs:w-80 5xs:max-3xs:p-0.5 5xs:max-3xs:h-110 5xs:max-3xs:pb-3 3xs:max-2xs:h-120 3xs:max-2xs:w-110 3xs:max-2xs:p-1.5 3xs:max-2xs:w-130 sm:max-md:w-155 md:max-lg:w-208 3xl:max-4xl:w-174 3xl:max-4xl:h-175" onClick={(e) => handleEditerKey(e)}>
             {/* Top Controls */}
             <div className="flex justify-between items-center mb-3 5xs:max-3xs:pl-3">
                 <div>
