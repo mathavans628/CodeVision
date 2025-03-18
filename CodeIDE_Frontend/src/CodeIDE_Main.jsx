@@ -949,34 +949,8 @@ function CodeIDE_Main() {
         setIsEditing(false);
     };
 
-    // const handleKeyDown = useCallback((e) => {
-    //     const isCodeEditorFocused = document.activeElement?.id === "code-editor";
-    //     if (isCodeEditorFocused) {
-    //         return; // Allow default behavior inside the editor
-    //     }
-
-    //     if (e.key === "Enter") {
-    //         e.preventDefault();
-    //         e.stopPropagation();
-    //         if (filenameToSaveCode !== savedProjectName) {
-    //             renameFile(savedProjectName, filenameToSaveCode);
-    //         }
-    //         setIsEditing(false);
-    //     }
-    //     if (e.ctrlKey && e.key == "s") {
-    //         e.preventDefault();
-    //         saveCodeToDB();
-    //     }
-    // }, [filenameToSaveCode, savedProjectName, saveCodeToDB]);
-
     const handleKeyDown = useCallback((e) => {
-        const codeEditorElement = document.getElementById("code-editor");
-    
-        // Allow Enter if the user is typing inside CodeEditor
-        if (codeEditorElement && codeEditorElement.contains(document.activeElement)) {
-            return; // Let the editor handle Enter normally
-        }
-    
+
         if (e.key === "Enter") {
             e.preventDefault();
             e.stopPropagation();
@@ -985,13 +959,11 @@ function CodeIDE_Main() {
             }
             setIsEditing(false);
         }
-    
-        if (e.ctrlKey && e.key === "s") {
+        if (e.ctrlKey && e.key == "s") {
             e.preventDefault();
             saveCodeToDB();
         }
     }, [filenameToSaveCode, savedProjectName, saveCodeToDB]);
-    
 
 
 

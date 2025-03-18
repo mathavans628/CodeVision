@@ -1,6 +1,4 @@
 import React from "react";
-import CustomDropdown from "./CustomDropdown";
-import CodeIDE_Main from "./CodeIDE_Main";
 
 const FileReaderComponent = ({ onFileRead, triggerId }) => {
   var fileName = "";
