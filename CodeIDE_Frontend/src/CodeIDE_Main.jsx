@@ -93,7 +93,6 @@ function CodeIDE_Main() {
 
 
 
-
     let outputFromVoice = "";
     var getOutput = "";
     const generate = useRef();
@@ -951,14 +950,15 @@ function CodeIDE_Main() {
 
     const handleKeyDown = useCallback((e) => {
 
-        if (e.key === "Enter") {
-            e.preventDefault();
-            e.stopPropagation();
-            if (filenameToSaveCode !== savedProjectName) {
-                renameFile(savedProjectName, filenameToSaveCode);
-            }
-            setIsEditing(false);
-        }
+        
+        // if (e.key === "Enter") {
+        //     e.preventDefault();
+        //     e.stopPropagation();
+            // if (filenameToSaveCode !== savedProjectName) {
+            //     renameFile(savedProjectName, filenameToSaveCode);
+            // }
+            // setIsEditing(false);
+        // }
         if (e.ctrlKey && e.key == "s") {
             e.preventDefault();
             saveCodeToDB();
@@ -968,10 +968,10 @@ function CodeIDE_Main() {
 
 
     const handlePromptKeyDown = useCallback((e) => {
-        const isCodeEditorFocused = document.activeElement?.id === "code-editor";
-        if (isCodeEditorFocused) {
-            return;
-        }
+        // const isCodeEditorFocused = document.activeElement?.id === "code-editor";
+        // if (isCodeEditorFocused) {
+        //     return;
+        // }
         if (e.key == "Enter") {
             e.preventDefault();
             e.stopPropagation();

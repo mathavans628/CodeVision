@@ -49,7 +49,7 @@ public class CodeBeautifyServlet extends HttpServlet {
             options.addArguments("--disable-gpu", "--no-sandbox", "--blink-settings=imagesEnabled=false");
             options.addArguments("--headless"); // Disable GPU for better stability
             options.addArguments("--window-size=1920,1080"); // Set window size (important for some elements)
-            options.addArguments("--disable-popup-blocking"); // Disable popups
+            options.addArguments("--disable-popup-blocking");
             options.addArguments("--remote-allow-origins=*");
             driver = new ChromeDriver(options);
             driver.manage().window().minimize();

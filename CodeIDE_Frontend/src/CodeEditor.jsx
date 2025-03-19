@@ -118,10 +118,10 @@ const CodeEditor = ({ html, setHtml, css, setCss, js, setJs, code, setCode, sele
     }
     const handleEditerKey = useCallback((e) =>{
         console.log("Inside");
-        if(e.key == "Enter"){
-            e.preventDefault();
-            e.stopPropagation();
-        }
+        // if(e.key == "Enter"){
+        //     e.preventDefault();
+        //     e.stopPropagation();
+        // }
     })
     
     useEffect(() => {

@@ -27,7 +27,6 @@ public class LoginServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-    	System.out.println("jkfhdshf");
     	
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             setCorsHeaders(response);
